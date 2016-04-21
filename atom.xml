@@ -1,0 +1,663 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+  <title>Shinelw&#39;s Blog</title>
+  <subtitle>在该拼搏的时光里不要选择安逸。</subtitle>
+  <link href="/atom.xml" rel="self"/>
+  
+  <link href="http://shinelw.github.io/"/>
+  <updated>2016-04-21T13:30:05.000Z</updated>
+  <id>http://shinelw.github.io/</id>
+  
+  <author>
+    <name>Shinelw</name>
+    
+  </author>
+  
+  <generator uri="http://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>Wish App逆向分析app_device_id字段生成算法</title>
+    <link href="http://shinelw.github.io/2016/04/21/wish-app-analysis-app-device-id/"/>
+    <id>http://shinelw.github.io/2016/04/21/wish-app-analysis-app-device-id/</id>
+    <published>2016-04-21T08:52:56.000Z</published>
+    <updated>2016-04-21T13:30:05.000Z</updated>
+    
+    <content type="html">&lt;h2 id=&quot;概述&quot;&gt;&lt;a href=&quot;#概述&quot; class=&quot;headerlink&quot; title=&quot;概述&quot;&gt;&lt;/a&gt;&lt;strong&gt;概述&lt;/strong&gt;&lt;/h2&gt;&lt;p&gt;本文对Wish App进行了反编译，对应用中app_device_id字段的生成算法进行了逆向分析。&lt;br&gt;使用到的工具有：&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;Apktool：获取资源文件和smali 反汇编代码&lt;/li&gt;
+&lt;li&gt;dex2jar：反编译apk，将其中的classes.dex转化成jar文件&lt;/li&gt;
+&lt;li&gt;jd-gui：打开jar文件，查看java源码&lt;br&gt;反编译环境：mac osx&lt;a id=&quot;more&quot;&gt;&lt;/a&gt;
+&lt;/li&gt;
+&lt;/ol&gt;
+&lt;h2 id=&quot;apk反编译获得java代码和smali反汇编代码&quot;&gt;&lt;a href=&quot;#apk反编译获得java代码和smali反汇编代码&quot; class=&quot;headerlink&quot; title=&quot;apk反编译获得java代码和smali反汇编代码&quot;&gt;&lt;/a&gt;&lt;strong&gt;apk反编译获得java代码和smali反汇编代码&lt;/strong&gt;&lt;/h2&gt;&lt;p&gt;&lt;strong&gt;1. 从google play下载Wish.apk&lt;/strong&gt;&lt;br&gt;&lt;img src=&quot;https://raw.githubusercontent.com/Shinelw/Android/master/BlogPicture/Wish_analysis/Screen%20Shot%202016-04-18%20at%206.24.54%20PM.png&quot; alt=&quot;&quot;&gt;&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;2. 使用dex2jar把apk解包，将其中的classes.dex转换为jar文件&lt;/strong&gt;&lt;br&gt;打开终端，执行命令： &lt;strong&gt;d2j-dex2jar Wish.apk&lt;/strong&gt; ，如下图，得到Wish-dex2jar.jar&lt;br&gt;&lt;img src=&quot;https://raw.githubusercontent.com/Shinelw/Android/master/BlogPicture/Wish_analysis/Screen%20Shot%202016-04-18%20at%206.33.32%20PM.png&quot; alt=&quot;&quot;&gt;&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;3. 使用jd-gui查看Wish-dex2jar.jar文件，即java源代码&lt;/strong&gt;&lt;br&gt;在jd-gui中打开Wish-dex2jar.jar文件，得到Java的源代码，如下图：&lt;br&gt;&lt;img src=&quot;https://raw.githubusercontent.com/Shinelw/Android/master/BlogPicture/Wish_analysis/Screen%20Shot%202016-04-18%20at%206.36.44%20PM.png&quot; alt=&quot;&quot;&gt;&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;4. 使用Apktool反编译apk，得到smali反汇编代码&lt;/strong&gt;&lt;br&gt;终端执行命令： &lt;strong&gt;apktool d -f Wish.apk -o Wish&lt;/strong&gt; , 如下图：&lt;br&gt;&lt;img src=&quot;https://raw.githubusercontent.com/Shinelw/Android/master/BlogPicture/Wish_analysis/Screen%20Shot%202016-04-18%20at%206.42.38%20PM.png&quot; alt=&quot;&quot;&gt;&lt;/p&gt;
+&lt;p&gt;此时，得到Wish文件夹，里面包含apk中的xml、切图等资源文件和可供分析的smali反编译代码。&lt;br&gt;&lt;img src=&quot;https://raw.githubusercontent.com/Shinelw/Android/master/BlogPicture/Wish_analysis/Screen%20Shot%202016-04-18%20at%206.43.30%20PM.png&quot; alt=&quot;&quot;&gt;&lt;/p&gt;
+&lt;h2 id=&quot;分析app-device-id字段生成算法&quot;&gt;&lt;a href=&quot;#分析app-device-id字段生成算法&quot; class=&quot;headerlink&quot; title=&quot;分析app_device_id字段生成算法&quot;&gt;&lt;/a&gt;&lt;strong&gt;分析app_device_id字段生成算法&lt;/strong&gt;&lt;/h2&gt;&lt;p&gt;&lt;strong&gt;1. 快速定位app_device_id字段代码位置&lt;/strong&gt;&lt;br&gt;jd-gui使用search功能快速定位app_device_id在代码中的位置，如下图：&lt;br&gt;&lt;img src=&quot;https://raw.githubusercontent.com/Shinelw/Android/master/BlogPicture/Wish_analysis/Screen%20Shot%202016-04-18%20at%206.46.16%20PM.png&quot; alt=&quot;&quot;&gt;&lt;/p&gt;
+&lt;p&gt;可知，关键代码为：&lt;/p&gt;
+&lt;blockquote&gt;
+&lt;p&gt;paramHttpRequestParams.put(“app_device_id”, getDeviceId());&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;p&gt;应用在每次进行网络请求的时候会上传app_device_id字段，字段对应的值为getDeviceId()方法中返回的值。所以接下来对该方法进行分析。&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;2. getDeviceId()方法分析&lt;/strong&gt;&lt;br&gt;我们来先看getDeviceId()的代码实现：&lt;br&gt;&lt;img src=&quot;https://raw.githubusercontent.com/Shinelw/Android/master/BlogPicture/Wish_analysis/Screen%20Shot%202016-04-18%20at%207.00.37%20PM.png&quot; alt=&quot;&quot;&gt;&lt;/p&gt;
+&lt;p&gt;从代码中可以很明显的将整个获取DeviceId的过程分为三部分：&lt;br&gt;（1）从SharedPreferences存储中取出DeviceUuid。&lt;br&gt;代码段为：&lt;br&gt;&lt;img src=&quot;https://raw.githubusercontent.com/Shinelw/Android/master/BlogPicture/Wish_analysis/Screen%20Shot%202016-04-18%20at%208.35.24%20PM.png&quot; alt=&quot;&quot;&gt;&lt;/p&gt;
+&lt;p&gt;（2）如果SharedPreferences中没有保存DeviceUuid值的话，就从本地的文件夹中取，文件地址具体地址为/Document/Wish/device&lt;em&gt;data&lt;/em&gt;。若得到值以后，通过SharedPreferences保存起来。&lt;br&gt;代码段为：&lt;br&gt;&lt;img src=&quot;https://raw.githubusercontent.com/Shinelw/Android/master/BlogPicture/Wish_analysis/Screen%20Shot%202016-04-18%20at%208.36.23%20PM.png&quot; alt=&quot;&quot;&gt;&lt;/p&gt;
+&lt;p&gt;（3）如果本地文件中也没有的话，就创建一个（此时的情况跟安装应用后第一次进入的情形一样）。创建的过程使用了随机产生的方式，即java.util.UUID类中提供的randomUUID()方法。格式为：23c2add6-aa30-4442-97c8-81930766f089。 然后将得到的值以SharedPreferences的方式保存起来。&lt;br&gt;代码段为：&lt;br&gt;&lt;img src=&quot;https://raw.githubusercontent.com/Shinelw/Android/master/BlogPicture/Wish_analysis/Screen%20Shot%202016-04-18%20at%208.37.22%20PM.png&quot; alt=&quot;&quot;&gt;&lt;/p&gt;
+&lt;p&gt;当获取到随机值后，新开线程将值保存在本地固定文件夹/Docment/Wish/device&lt;em&gt;data&lt;/em&gt;下。&lt;br&gt;代码段为：&lt;br&gt;&lt;img src=&quot;https://raw.githubusercontent.com/Shinelw/Android/master/BlogPicture/Wish_analysis/Screen%20Shot%202016-04-18%20at%208.38.05%20PM.png&quot; alt=&quot;&quot;&gt;&lt;/p&gt;
+&lt;p&gt;由于在run方法中出现/&lt;em&gt;Error&lt;/em&gt;/，run()方法中的代码无法进行反编译。所以用smali进行验证。&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;3. smali代码分析新开线程保存DeviceUuid值在本地device_data的过程&lt;/strong&gt;&lt;br&gt;smali文件夹中包含一下文件：&lt;br&gt;&lt;img src=&quot;https://raw.githubusercontent.com/Shinelw/Android/master/BlogPicture/Wish_analysis/Screen%20Shot%202016-04-18%20at%207.30.11%20PM.png&quot; alt=&quot;&quot;&gt;&lt;/p&gt;
+&lt;p&gt;找到com.contextlogic.wish.api.core中的WishApi.smali，打开该文件定位到getDeviceId方法下，如图：(代码太多，故中间省略。)&lt;br&gt;&lt;img src=&quot;https://raw.githubusercontent.com/Shinelw/Android/master/BlogPicture/Wish_analysis/Picture1.png&quot; alt=&quot;&quot;&gt;&lt;/p&gt;
+&lt;p&gt;逐步定位到新开线程的代码处：&lt;br&gt;&lt;img src=&quot;https://raw.githubusercontent.com/Shinelw/Android/master/BlogPicture/Wish_analysis/Screen%20Shot%202016-04-18%20at%207.49.17%20PM.png&quot; alt=&quot;&quot;&gt;&lt;/p&gt;
+&lt;p&gt;从代码中可以看到，定义了一个局部变量writeableDeviceId来保存DeviceUuid值，然后开启一个线程，跳转到WishApi$2.smali中去。&lt;br&gt;打开WishApi$2.smali代码，&lt;br&gt;&lt;img src=&quot;https://raw.githubusercontent.com/Shinelw/Android/master/BlogPicture/Wish_analysis/Screen%20Shot%202016-04-18%20at%207.56.22%20PM.png&quot; alt=&quot;&quot;&gt;&lt;/p&gt;
+&lt;p&gt;代码中就只有一个run()方法。&lt;/p&gt;
+&lt;p&gt;在run()方法中，一共就干了两件事，&lt;br&gt;（1）定位到/Document/Wish/device&lt;em&gt;data&lt;/em&gt;。如果存在，就直接定位到该文件下；如果不存在，就新建Wish文件夹，新建device_data。&lt;br&gt;&lt;img src=&quot;https://raw.githubusercontent.com/Shinelw/Android/master/BlogPicture/Wish_analysis/Screen%20Shot%202016-04-18%20at%208.06.22%20PM.png&quot; alt=&quot;&quot;&gt;&lt;/p&gt;
+&lt;p&gt;（2）打开FileOutputStream将值写入到device&lt;em&gt;data&lt;/em&gt;文件中去。&lt;br&gt;&lt;img src=&quot;https://raw.githubusercontent.com/Shinelw/Android/master/BlogPicture/Wish_analysis/Picture2.png&quot; alt=&quot;&quot;&gt;&lt;/p&gt;
+&lt;h2 id=&quot;总体流程&quot;&gt;&lt;a href=&quot;#总体流程&quot; class=&quot;headerlink&quot; title=&quot;总体流程&quot;&gt;&lt;/a&gt;&lt;strong&gt;总体流程&lt;/strong&gt;&lt;/h2&gt;&lt;p&gt;大致流程图如下：&lt;br&gt;&lt;img src=&quot;https://raw.githubusercontent.com/Shinelw/Android/master/BlogPicture/Wish_analysis/Screen%20Shot%202016-04-18%20at%208.33.22%20PM.png&quot; alt=&quot;&quot;&gt;&lt;/p&gt;
+&lt;p&gt;在手机中路径/Docment/Wish/devicedata保存下来的值：&lt;br&gt;&lt;img src=&quot;https://raw.githubusercontent.com/Shinelw/Android/master/BlogPicture/Wish_analysis/Screen%20Shot%202016-04-21%20at%202.10.55%20PM.png&quot; alt=&quot;&quot;&gt;&lt;/p&gt;
+&lt;p&gt;与抓包得到的数值吻合：&lt;br&gt;&lt;img src=&quot;https://raw.githubusercontent.com/Shinelw/Android/master/BlogPicture/Wish_analysis/Screen%20Shot%202016-04-21%20at%202.09.41%20PM.png&quot; alt=&quot;&quot;&gt;&lt;/p&gt;
+&lt;h2 id=&quot;总结：&quot;&gt;&lt;a href=&quot;#总结：&quot; class=&quot;headerlink&quot; title=&quot;总结：&quot;&gt;&lt;/a&gt;&lt;strong&gt;总结：&lt;/strong&gt;&lt;/h2&gt;&lt;p&gt;由于app_device_id字段对应的值是随机产生的，但是由上述代码分析可知，每一次访问网络的时候都要发送app_device_id字段，这就要求对应值要是唯一的，以确保进行操作的设备是安全的。而这里对实现唯一的方法就是永远只随机产生一次，通过SharedPreferences和File方式分别把值分别保存下来。只有当应用卸载重新安装并且删除本地文件device_data的时候才会重新随机产生一个app_device_id值，然后一般用户是不可以在删除应用的时候同时找到它所保存的文件路径并删除，这就达到了设备ID的唯一性。&lt;/p&gt;
+</content>
+    
+    <summary type="html">
+    
+      &lt;h2 id=&quot;概述&quot;&gt;&lt;a href=&quot;#概述&quot; class=&quot;headerlink&quot; title=&quot;概述&quot;&gt;&lt;/a&gt;&lt;strong&gt;概述&lt;/strong&gt;&lt;/h2&gt;&lt;p&gt;本文对Wish App进行了反编译，对应用中app_device_id字段的生成算法进行了逆向分析。&lt;br&gt;使用到的工具有：&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;Apktool：获取资源文件和smali 反汇编代码&lt;/li&gt;
+&lt;li&gt;dex2jar：反编译apk，将其中的classes.dex转化成jar文件&lt;/li&gt;
+&lt;li&gt;jd-gui：打开jar文件，查看java源码&lt;br&gt;反编译环境：mac osx
+    
+    </summary>
+    
+    
+      <category term="Android逆向分析" scheme="http://shinelw.github.io/tags/Android%E9%80%86%E5%90%91%E5%88%86%E6%9E%90/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>Charles:移动端设备网络抓包</title>
+    <link href="http://shinelw.github.io/2016/04/21/about-charles/"/>
+    <id>http://shinelw.github.io/2016/04/21/about-charles/</id>
+    <published>2016-04-21T07:45:03.000Z</published>
+    <updated>2016-04-21T13:30:05.000Z</updated>
+    
+    <content type="html">&lt;p&gt;今天安利一款软件，Charles。最近在研究应用安全的东西，经常需要对应用访问网络进行抓包，然后发现Charles这款软件，最突出的特点就是简单好用易上手~啊哈哈哈&lt;br&gt;&lt;a id=&quot;more&quot;&gt;&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;首先是应用界面，如下：&lt;br&gt;&lt;img src=&quot;https://raw.githubusercontent.com/Shinelw/Android/master/BlogPicture/charles/Screen%20Shot%202016-04-21%20at%203.14.04%20PM.png&quot; alt=&quot;&quot;&gt;&lt;/p&gt;
+&lt;p&gt;下载地址：&lt;a href=&quot;http://www.charlesproxy.com&quot; target=&quot;_blank&quot; rel=&quot;external&quot;&gt;http://www.charlesproxy.com&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;下载下来以后会提示只有30天免费试用期，这时候只有两种选择，要么购买，要么破解。（对于我这种穷学生来说，只好破解了= =）&lt;br&gt;目前最新版本是3.11.4，所以google搜索一下charles 3.11.4 注册文件，要是你还懒得搜索的话，可以&lt;a href=&quot;https://github.com/Shinelw/Android/raw/master/BlogPicture/charles/charles.jar&quot; target=&quot;_blank&quot; rel=&quot;external&quot;&gt;点这里&lt;/a&gt;，我已经把注册文件保存在github上，如需自取~&lt;br&gt;至于安装的话，鉴于我的环境是mac osx，所以就讲一下mac中的破解方法。&lt;/p&gt;
+&lt;h3 id=&quot;破解方法：&quot;&gt;&lt;a href=&quot;#破解方法：&quot; class=&quot;headerlink&quot; title=&quot;破解方法：&quot;&gt;&lt;/a&gt;&lt;strong&gt;破解方法：&lt;/strong&gt;&lt;/h3&gt;&lt;ol&gt;
+&lt;li&gt;打开Applications找到Charles软件，显示包内容，打开Java文件夹。&lt;/li&gt;
+&lt;li&gt;把下载好的charles.jar文件替换到Java文件夹中，重启应用就ok了。&lt;/li&gt;
+&lt;/ol&gt;
+&lt;p&gt;接下来是配置方法，在3.10版本以后，配置方法就变得特别简单，只要跟随Help中SLL Proxying中的操作就ok了。&lt;br&gt;&lt;img src=&quot;https://raw.githubusercontent.com/Shinelw/Android/master/BlogPicture/charles/Screen%20Shot%202016-04-21%20at%203.47.52%20PM.png&quot; alt=&quot;&quot;&gt;&lt;/p&gt;
+&lt;h3 id=&quot;配置&quot;&gt;&lt;a href=&quot;#配置&quot; class=&quot;headerlink&quot; title=&quot;配置&quot;&gt;&lt;/a&gt;&lt;strong&gt;配置&lt;/strong&gt;&lt;/h3&gt;&lt;ol&gt;
+&lt;li&gt;安装本地证书。&lt;br&gt; 点击Help中SLL Proxying中的Install Charles Root Certificate，然后输入密码，选择全部信任。&lt;/li&gt;
+&lt;li&gt;&lt;p&gt;移动设备网络配置。&lt;br&gt; 点击Help中SLL Proxying中 Install Charles Root Certificate on a Mobile Device or Remote Browser…,然后就会跳出如下弹窗。&lt;br&gt; &lt;img src=&quot;https://raw.githubusercontent.com/Shinelw/Android/master/BlogPicture/charles/Screen%20Shot%202016-04-21%20at%203.47.17%20PM.png&quot; alt=&quot;&quot;&gt;&lt;/p&gt;
+&lt;p&gt; 根据弹窗信息更改配置，如下图：&lt;br&gt; &lt;img src=&quot;https://raw.githubusercontent.com/Shinelw/Android/master/BlogPicture/charles/Screen%20Shot%202016-04-21%20at%203.51.36%20PM.png&quot; alt=&quot;&quot;&gt;&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;&lt;p&gt;完成配置以后，手机浏览器打开 &lt;a href=&quot;http://www.charlesproxy.com/getssl&quot; target=&quot;_blank&quot; rel=&quot;external&quot;&gt;http://www.charlesproxy.com/getssl&lt;/a&gt; ，就会下载ssl证书，并且进行安装。如下图，当安装完成以后右键想要抓包的网址选择Enable SSL Proxying就可以对HTTPS数据进行抓包了！&lt;br&gt;&lt;img src=&quot;https://raw.githubusercontent.com/Shinelw/Android/master/BlogPicture/charles/Screen%20Shot%202016-04-21%20at%203.53.23%20PM.png&quot; alt=&quot;&quot;&gt;&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ol&gt;
+&lt;p&gt;抓包效果图：&lt;/p&gt;
+&lt;p&gt;&lt;img src=&quot;https://raw.githubusercontent.com/Shinelw/Android/master/BlogPicture/charles/Screen%20Shot%202016-04-21%20at%203.50.53%20PM.png&quot; alt=&quot;&quot;&gt;&lt;/p&gt;
+&lt;p&gt;以上，就是所有的配置过程。&lt;/p&gt;
+&lt;h3 id=&quot;总结&quot;&gt;&lt;a href=&quot;#总结&quot; class=&quot;headerlink&quot; title=&quot;总结&quot;&gt;&lt;/a&gt;&lt;strong&gt;总结&lt;/strong&gt;&lt;/h3&gt;&lt;p&gt;抓包对于程序员来说应该是一个必备的技能点，而且很有趣。比如在抓包的过程中会发现很多应用对于密码都是明文的= =&lt;br&gt;继续加油吧~&lt;/p&gt;
+</content>
+    
+    <summary type="html">
+    
+      &lt;p&gt;今天安利一款软件，Charles。最近在研究应用安全的东西，经常需要对应用访问网络进行抓包，然后发现Charles这款软件，最突出的特点就是简单好用易上手~啊哈哈哈&lt;br&gt;
+    
+    </summary>
+    
+    
+      <category term="工具" scheme="http://shinelw.github.io/tags/%E5%B7%A5%E5%85%B7/"/>
+    
+      <category term="抓包" scheme="http://shinelw.github.io/tags/%E6%8A%93%E5%8C%85/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>学习计划</title>
+    <link href="http://shinelw.github.io/2016/04/11/my-study-schedule-from-now-to-summer/"/>
+    <id>http://shinelw.github.io/2016/04/11/my-study-schedule-from-now-to-summer/</id>
+    <published>2016-04-11T11:39:32.000Z</published>
+    <updated>2016-04-21T13:30:05.000Z</updated>
+    
+    <content type="html">&lt;p&gt;三月份开始找实习，先后面了阿里和腾讯，感觉自己还是一只小菜鸡，待提高的地方还有很多。人啊，总是要见见外面的世界以后才知道自己的微不足道。所以，千万不可做一只安逸等死满足于现状的井底之蛙。&lt;/p&gt;
+&lt;p&gt;比你优秀的人有那么多，你又有什么理由止步不前夸夸自谈呢。&lt;br&gt;&lt;a id=&quot;more&quot;&gt;&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;决定给自己定一个阶段性的学习计划，不要太长远（不现实）。就从现在开始到7月份学期结束。&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;首先总结一下自己目前的不足之处：&lt;/strong&gt;&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;基础知识不够扎实，很多东西都是一知半解，没有透彻的了解。&lt;/li&gt;
+&lt;li&gt;没有自己的优势，没有特别擅长的点。&lt;/li&gt;
+&lt;li&gt;不够扎实，对于心态来说。&lt;/li&gt;
+&lt;/ol&gt;
+&lt;p&gt;&lt;strong&gt;学习计划：&lt;/strong&gt;&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;巩固基础知识&lt;ul&gt;
+&lt;li&gt;计算机网络：《TCP/IP详解：卷1》&lt;/li&gt;
+&lt;li&gt;计算机操作系统：《深入理解计算机操作系统》&lt;/li&gt;
+&lt;li&gt;数据结构与算法：坚持每天刷一道题。&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;Java知识：重新看《Java编程思想》，看完《Effective Java》&lt;/li&gt;
+&lt;li&gt;Android知识&lt;/li&gt;
+&lt;li&gt;坚持每周至少一篇博客&lt;/li&gt;
+&lt;li&gt;坚持看书，读书书单：&lt;ul&gt;
+&lt;li&gt;《Android开发进阶 从小工到专家》&lt;/li&gt;
+&lt;li&gt;《Android源码设计模式》&lt;/li&gt;
+&lt;li&gt;《Android群英传》：重新看一遍&lt;/li&gt;
+&lt;li&gt;《Android开发艺术探索》：重新看一遍&lt;/li&gt;
+&lt;li&gt;《App研发录》&lt;/li&gt;
+&lt;li&gt;《Android软件安全与逆向分析》&lt;/li&gt;
+&lt;li&gt;《TCP/IP详解：卷1》&lt;/li&gt;
+&lt;li&gt;《算法导论》&lt;/li&gt;
+&lt;li&gt;《深入理解计算机操作系统》&lt;/li&gt;
+&lt;li&gt;《Java编程思想》&lt;/li&gt;
+&lt;li&gt;《Effective java》&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;坚持开源，每天写代码&lt;/li&gt;
+&lt;li&gt;坚持运动，坚持跑步&lt;/li&gt;
+&lt;/ol&gt;
+&lt;p&gt;规划了一下，发现有好多要学习的，时间不多~努力吧！&lt;/p&gt;
+&lt;p&gt;最后，希望可以顺利拿到阿里的实习offer！面完hr之后已经苦苦等待了两周，也怪自己表现的不够好。&lt;/p&gt;
+&lt;p&gt;祝我好运~ :)&lt;/p&gt;
+</content>
+    
+    <summary type="html">
+    
+      &lt;p&gt;三月份开始找实习，先后面了阿里和腾讯，感觉自己还是一只小菜鸡，待提高的地方还有很多。人啊，总是要见见外面的世界以后才知道自己的微不足道。所以，千万不可做一只安逸等死满足于现状的井底之蛙。&lt;/p&gt;
+&lt;p&gt;比你优秀的人有那么多，你又有什么理由止步不前夸夸自谈呢。&lt;br&gt;
+    
+    </summary>
+    
+    
+      <category term="随笔" scheme="http://shinelw.github.io/tags/%E9%9A%8F%E7%AC%94/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>Android Studio 2.0 新特性体验</title>
+    <link href="http://shinelw.github.io/2016/04/08/Android-Studio-2-0-coming/"/>
+    <id>http://shinelw.github.io/2016/04/08/Android-Studio-2-0-coming/</id>
+    <published>2016-04-08T12:46:06.000Z</published>
+    <updated>2016-04-21T13:30:05.000Z</updated>
+    
+    <content type="html">&lt;p&gt;今天微博被各种 Android Studio 2.0 刷屏了，赶紧更新体验了一把。&lt;/p&gt;
+&lt;blockquote&gt;
+&lt;p&gt;这里推荐一个博客&lt;a href=&quot;http://android-developers.blogspot.com&quot; target=&quot;_blank&quot; rel=&quot;external&quot;&gt;Android Developers Blog&lt;/a&gt;，这是Google官方博客，Android的最新技术都会火热更新在上面。&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;p&gt;接下来的新特性介绍内容大致翻译自 Android Developers Blog 文章 &lt;a href=&quot;http://android-developers.blogspot.com/2016/04/android-studio-2-0.html&quot; target=&quot;_blank&quot; rel=&quot;external&quot;&gt;Android Studio 2.0&lt;/a&gt;。&lt;/p&gt;
+&lt;p&gt;Android Studio 2.0 包括以下可供开发者用于工作流程的新特性：&lt;br&gt;&lt;a id=&quot;more&quot;&gt;&lt;/a&gt;&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;strong&gt;Instant Run(即时运行)&lt;/strong&gt; - 面向每个热爱快速构建应用的开发者。对应用做一些修改，就可以显示在运行的app上。对于多次编译/运行调试的应用来说，Instant Run（即时运行）会节省很多时间。&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;Android Emulator(安卓虚拟器)&lt;/strong&gt; - 新的模拟器大约会比之前版本的虚拟器快3倍，通过ADB增强你可以更加快速的把数据和应用放入虚拟器中，比真机要快上10倍。跟真机一样，官方的虚拟器也包括了 Google Play Services（谷歌服务框架），所以可以在虚拟器上测试更多的API功能。最后，新的模拟器拥有更多的特性，比如管理电话，电池，网络，GPS，等等。&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;Cloud Test Lab Integration(云服务集成)&lt;/strong&gt; - 一旦编写好，在任何地方都可以运行。利用继承在 Android Studio 内部的 Cloud Test Lab 云服务，可以更加快速、方便地在更广泛的 Android 真机上测试。&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;App Indexing Code Generation &amp;amp; Test&lt;/strong&gt; - 通过 Android Studio 中的 App Indexing 可以在你的应用中添加URL来提升你的应用在 Google Search 中的可见度。&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;GPU Debugger Preview(GPU调试预览)&lt;/strong&gt; - 对于那些开发基于 OpenGL ES 的游戏或应用来说，现在可以看见每一帧和GL的状态。&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;IntelliJ 15 Update&lt;/strong&gt; - Android Studio 基于IntelliJ 构建，已升级到最新版本。&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3 id=&quot;深入了解新特性&quot;&gt;&lt;a href=&quot;#深入了解新特性&quot; class=&quot;headerlink&quot; title=&quot;深入了解新特性&quot;&gt;&lt;/a&gt;&lt;strong&gt;深入了解新特性&lt;/strong&gt;&lt;/h3&gt;&lt;p&gt;&lt;strong&gt;Instant Run&lt;/strong&gt;&lt;/p&gt;
+&lt;p&gt;当你点击Instant Run 按钮时，Instant Run 会分析你这次所做的更改然后决定怎么以更快的方式部署运行新的代码。&lt;/p&gt;
+&lt;p&gt;&lt;img src=&quot;https://raw.githubusercontent.com/Shinelw/Android/master/BlogPicture/Android-Studio-2.0-coming/image02.png&quot; alt=&quot;&quot;&gt;&lt;/p&gt;
+&lt;p&gt;需要注意的是，Instant Run 需要运行在API 14或高于14的Android 设备或虚拟器上。&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;Android Emulator&lt;/strong&gt;&lt;/p&gt;
+&lt;p&gt;新的Android 虚拟器在CPU、RAM和IO上都比之前快了3倍以上。当你准备编译时，ADB增强让push速度快10倍！在绝大多数情况下，在官方虚拟器上开发会快于真机，并且想Instant Run 这样的新特性在新的虚拟器在能更好的工作。&lt;/p&gt;
+&lt;p&gt;除此之外，新的Android 虚拟器拥有一个全新的界面和传感器控制面板，并且你可以直接将APK拉入虚拟器中完成快速安装，对窗口进行扩大缩放，使用多种触控方法等等。&lt;/p&gt;
+&lt;p&gt;&lt;img src=&quot;https://raw.githubusercontent.com/Shinelw/Android/master/BlogPicture/Android-Studio-2.0-coming/image00.png&quot; alt=&quot;&quot;&gt;&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;Cloud Test Lab&lt;/strong&gt;&lt;/p&gt;
+&lt;p&gt;Cloud Test Lab 允许你在更广泛的设备和虚拟器上测试你的应用。一旦你完成了初始测试，Cloud Test Lab 可以提供给你更大范围的设备来进行测试。即使你没有明确的写了测试，Cloud Test Lab 可以执行基本的测试集以保证你的应用不会Crash。&lt;/p&gt;
+&lt;p&gt;&lt;img src=&quot;https://raw.githubusercontent.com/Shinelw/Android/master/BlogPicture/Android-Studio-2.0-coming/image06.png&quot; alt=&quot;&quot;&gt;&lt;/p&gt;
+&lt;p&gt;Android Studio中新的接口允许你配置想要运行在Cloud Test Lab 上的测试文件夹，并且允许你看见测试的结果。&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;App Indexing&lt;/strong&gt;&lt;/p&gt;
+&lt;p&gt;现在，通过App Indexing API，你的应用可以在Google搜索中更容易的被用户找到。通过配置AndroidMainfest.xml文件，Android Studio 2.0 可以帮助你创建正确的URL以便运行在Google App Indexing 服务中。当你添加了URL以后，你可以看到以下的效果：&lt;/p&gt;
+&lt;p&gt;&lt;img src=&quot;https://raw.githubusercontent.com/Shinelw/Android/master/BlogPicture/Android-Studio-2.0-coming/image05.png&quot; alt=&quot;&quot;&gt;&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;GPU Debugger Preview&lt;/strong&gt;&lt;/p&gt;
+&lt;p&gt;如果你开发OpenGL ES 游戏或者图形应用，现在你拥有一个全新的GPU调试器。即使现在只是一个预览版，但是你可以一帧一帧的识别和调试应用。&lt;/p&gt;
+&lt;p&gt;&lt;img src=&quot;https://raw.githubusercontent.com/Shinelw/Android/master/BlogPicture/Android-Studio-2.0-coming/image08.png&quot; alt=&quot;&quot;&gt;&lt;/p&gt;
+&lt;h3 id=&quot;Tips&quot;&gt;&lt;a href=&quot;#Tips&quot; class=&quot;headerlink&quot; title=&quot;Tips&quot;&gt;&lt;/a&gt;&lt;strong&gt;Tips&lt;/strong&gt;&lt;/h3&gt;&lt;ol&gt;
+&lt;li&gt;为了使用Instant Run 和Android虚拟器，对于之前的项目，都需要将gradle 插件版本更新到2.0.0。&lt;/li&gt;
+&lt;li&gt;之后创建的新项目都默认使用Instant Run。&lt;/li&gt;
+&lt;/ol&gt;
+&lt;h3 id=&quot;体验感受&quot;&gt;&lt;a href=&quot;#体验感受&quot; class=&quot;headerlink&quot; title=&quot;体验感受&quot;&gt;&lt;/a&gt;&lt;strong&gt;体验感受&lt;/strong&gt;&lt;/h3&gt;&lt;ol&gt;
+&lt;li&gt;Instant Run是版本最大亮点，没有之一。体验下来确实快了很多，而且在你修改界面以后运行后能直接显示该页面效果，而不是重新启动应用。&lt;/li&gt;
+&lt;li&gt;新的虚拟机感觉噱头大于实际使用效果，还是喜欢用真机测试，爽。&lt;/li&gt;
+&lt;li&gt;其他特性具体效果在接下来中的开发再慢慢体验啦。&lt;/li&gt;
+&lt;/ol&gt;
+&lt;p&gt;赶紧更新耍起来吧~~~&lt;/p&gt;
+&lt;p&gt;注：若翻译效果不佳，望请谅解。&lt;/p&gt;
+</content>
+    
+    <summary type="html">
+    
+      &lt;p&gt;今天微博被各种 Android Studio 2.0 刷屏了，赶紧更新体验了一把。&lt;/p&gt;
+&lt;blockquote&gt;
+&lt;p&gt;这里推荐一个博客&lt;a href=&quot;http://android-developers.blogspot.com&quot;&gt;Android Developers Blog&lt;/a&gt;，这是Google官方博客，Android的最新技术都会火热更新在上面。&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;p&gt;接下来的新特性介绍内容大致翻译自 Android Developers Blog 文章 &lt;a href=&quot;http://android-developers.blogspot.com/2016/04/android-studio-2-0.html&quot;&gt;Android Studio 2.0&lt;/a&gt;。&lt;/p&gt;
+&lt;p&gt;Android Studio 2.0 包括以下可供开发者用于工作流程的新特性：&lt;br&gt;
+    
+    </summary>
+    
+    
+      <category term="AndroidStudio" scheme="http://shinelw.github.io/tags/AndroidStudio/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>Ubuntu 15.10 配置Android Studio出现的问题</title>
+    <link href="http://shinelw.github.io/2016/04/08/ubuntu15-10-install-android-studio-trouble/"/>
+    <id>http://shinelw.github.io/2016/04/08/ubuntu15-10-install-android-studio-trouble/</id>
+    <published>2016-04-08T07:25:06.000Z</published>
+    <updated>2016-04-21T13:30:05.000Z</updated>
+    
+    <content type="html">&lt;p&gt;最近重新安装了Ubuntu系统，升级到15.10，在一番折腾重新配置Android Studio的时候，发现不能正确关联本地的Android SDK。&lt;br&gt;&lt;a id=&quot;more&quot;&gt;&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;显示错误如下：&lt;/p&gt;
+&lt;blockquote&gt;
+&lt;p&gt;unable to run mksdcard sdk tool&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;p&gt;google了一番发现是升级到15.10系统以后系统内缺少32位的lib。&lt;/p&gt;
+&lt;p&gt;所以，安装上相应的库就可以了。&lt;/p&gt;
+&lt;p&gt;执行以下命令：&lt;/p&gt;
+&lt;figure class=&quot;highlight bash&quot;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&quot;gutter&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;1&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;code&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;sudo apt-get install lib32z1 lib32ncurses5  lib32stdc++6&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/figure&gt;
+&lt;p&gt;完美解决~&lt;/p&gt;
+</content>
+    
+    <summary type="html">
+    
+      &lt;p&gt;最近重新安装了Ubuntu系统，升级到15.10，在一番折腾重新配置Android Studio的时候，发现不能正确关联本地的Android SDK。&lt;br&gt;
+    
+    </summary>
+    
+    
+      <category term="AndroidStudio" scheme="http://shinelw.github.io/tags/AndroidStudio/"/>
+    
+      <category term="Ubuntu" scheme="http://shinelw.github.io/tags/Ubuntu/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>《Android开发进阶 从小工到专家》读书笔记 2</title>
+    <link href="http://shinelw.github.io/2016/04/04/%E3%80%8AAndroid%E5%BC%80%E5%8F%91%E8%BF%9B%E9%98%B6-%E4%BB%8E%E5%B0%8F%E5%B7%A5%E5%88%B0%E4%B8%93%E5%AE%B6%E3%80%8B%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0-2/"/>
+    <id>http://shinelw.github.io/2016/04/04/《Android开发进阶-从小工到专家》读书笔记-2/</id>
+    <published>2016-04-04T14:50:22.000Z</published>
+    <updated>2016-04-21T13:30:05.000Z</updated>
+    
+    <content type="html">&lt;h1 id=&quot;第二章-创造出丰富多彩的UI-View与动画&quot;&gt;&lt;a href=&quot;#第二章-创造出丰富多彩的UI-View与动画&quot; class=&quot;headerlink&quot; title=&quot;第二章 创造出丰富多彩的UI View与动画&quot;&gt;&lt;/a&gt;第二章 创造出丰富多彩的UI View与动画&lt;/h1&gt;&lt;h2 id=&quot;1-重要的View控件：ListView-与-RecyclerView&quot;&gt;&lt;a href=&quot;#1-重要的View控件：ListView-与-RecyclerView&quot; class=&quot;headerlink&quot; title=&quot;1. 重要的View控件：ListView 与 RecyclerView&quot;&gt;&lt;/a&gt;1. 重要的View控件：ListView 与 RecyclerView&lt;/h2&gt;&lt;h3 id=&quot;ListView&quot;&gt;&lt;a href=&quot;#ListView&quot; class=&quot;headerlink&quot; title=&quot;ListView&quot;&gt;&lt;/a&gt;&lt;strong&gt;ListView&lt;/strong&gt;&lt;/h3&gt;&lt;p&gt;列表数据的显示需要4个元素，分别为：&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;用来显示列表的ListView&lt;/li&gt;
+&lt;li&gt;用来把数据映射到ListView上的Adapter&lt;/li&gt;
+&lt;li&gt;需要展示的数据集&lt;/li&gt;
+&lt;li&gt;数据显示的View模板&lt;/li&gt;
+&lt;/ol&gt;
+&lt;p&gt;其中重点是Adapter的实现，需要实现的函数为：&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;getCount():获取数据的个数&lt;/li&gt;
+&lt;li&gt;getItem(int): 获取position数据的位置&lt;/li&gt;
+&lt;li&gt;getItemId(int): 获取position位置的数据id，一般直接返回position即可&lt;/li&gt;
+&lt;li&gt;getView(int,View,ViewGroup): 获取position位置上的ItemView视图&lt;a id=&quot;more&quot;&gt;&lt;/a&gt;
+&lt;/li&gt;
+&lt;/ol&gt;
+&lt;p&gt;&lt;strong&gt;ListView的ItemView复用机制：&lt;/strong&gt;&lt;br&gt;&lt;figure class=&quot;highlight java&quot;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&quot;gutter&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;1&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;2&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;3&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;4&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;5&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;6&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;7&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;8&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;9&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;10&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;11&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;12&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;code&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;&lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;public&lt;/span&gt; View &lt;span class=&quot;title&quot;&gt;getView&lt;/span&gt;&lt;span class=&quot;params&quot;&gt;(&lt;span class=&quot;keyword&quot;&gt;int&lt;/span&gt; position, View convertView, ViewGroup parent)&lt;/span&gt;&lt;/span&gt;&amp;#123;&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;	View view = &lt;span class=&quot;keyword&quot;&gt;null&lt;/span&gt;;&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;	&lt;span class=&quot;comment&quot;&gt;//视图缓存&lt;/span&gt;&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;	&lt;span class=&quot;keyword&quot;&gt;if&lt;/span&gt;(convertView != &lt;span class=&quot;keyword&quot;&gt;null&lt;/span&gt;)&amp;#123;&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;		view = convertView;&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;	&amp;#125;&lt;span class=&quot;keyword&quot;&gt;else&lt;/span&gt;&amp;#123;&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;		&lt;span class=&quot;comment&quot;&gt;//重新加载视图&lt;/span&gt;&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;	&amp;#125;&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;	&lt;span class=&quot;comment&quot;&gt;//进行数据绑定&lt;/span&gt;&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;	&lt;span class=&quot;comment&quot;&gt;//返回Item View&lt;/span&gt;&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;	&lt;span class=&quot;keyword&quot;&gt;return&lt;/span&gt; view;&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;&amp;#125;&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/figure&gt;&lt;/p&gt;
+&lt;p&gt;其中convertView代表缓存的Item View，如果有缓存的话convertView不为空，此时直接复用该视图；否则需要重新创建一个新的视图，最后绑定数据并且将该Item View返回。&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;ListVie数据更新：&lt;/strong&gt;&lt;br&gt;ListView运用了Adapter模式，在Adapter类中运用了观察者模式实现数据源发生改变后的更新。&lt;br&gt;大致流程如下：&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;setAdapter时创建AdapterDataSetObserver对象，注册到mAdapter中；&lt;/li&gt;
+&lt;li&gt;在数据源发生改变时调用adapter的notifyDataSetChanged()；&lt;/li&gt;
+&lt;li&gt;在notifyDataSetChanged()方法中调用DataSetObservable对象的notifyChanged方法，在该方法中通知所有观察者数据发生了变化，使观察者进行相关的操作；&lt;/li&gt;
+&lt;li&gt;notifyChanged中调用观察者的onChanged()方法，在onChanged()方法中调用ViewGroup的requestLayout()进行重新策略布局、绘制整个ListView的Item View.&lt;/li&gt;
+&lt;/ol&gt;
+&lt;h3 id=&quot;RecyclerView&quot;&gt;&lt;a href=&quot;#RecyclerView&quot; class=&quot;headerlink&quot; title=&quot;RecyclerView&quot;&gt;&lt;/a&gt;&lt;strong&gt;RecyclerView&lt;/strong&gt;&lt;/h3&gt;&lt;p&gt;RecyclerView封装了ViewHolder类型，该类型中有一个itemView，代表的就是每一项数据的根视图，需要在构造函数中传递给ViewHolder对象。&lt;br&gt;实现RecyclerView的Adapter需要实现一下两个函数：&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;onCreateViewHolder():创建ViewHolder&lt;/li&gt;
+&lt;li&gt;onBindViewHolder():绑定数据&lt;/li&gt;
+&lt;/ol&gt;
+&lt;p&gt;RecyclerView优势（扩展性强）：&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;使用ViewHolder，对ListView的Adapter进行了再次封装，不需要考虑缓存问题。&lt;/li&gt;
+&lt;li&gt;将布局方式抽象为LayoutManager，默认提供了LinearLayoutManager、GridLayoutManager、StaggeredGridLayoutManager 3中布局，对应为线性布局、网格布局、交错网格布局。&lt;/li&gt;
+&lt;li&gt;对于ItemView的控制更精细，可以通过ItemDecoration为Item View添加装饰，手动设置分割线等等；用ItemAnimator为Item View添加动画效果。&lt;/li&gt;
+&lt;/ol&gt;
+&lt;h2 id=&quot;2-自定义控件&quot;&gt;&lt;a href=&quot;#2-自定义控件&quot; class=&quot;headerlink&quot; title=&quot;2. 自定义控件&quot;&gt;&lt;/a&gt;2. 自定义控件&lt;/h2&gt;&lt;p&gt;自定义控件重要的知识点：&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;View的测量与布局&lt;/li&gt;
+&lt;li&gt;View的绘制&lt;/li&gt;
+&lt;li&gt;处理触摸事件&lt;/li&gt;
+&lt;li&gt;动画效果&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3 id=&quot;自定义View&quot;&gt;&lt;a href=&quot;#自定义View&quot; class=&quot;headerlink&quot; title=&quot;自定义View&quot;&gt;&lt;/a&gt;&lt;strong&gt;自定义View&lt;/strong&gt;&lt;/h3&gt;&lt;p&gt;继承View实现自定义View，过程如下：&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;继承自View创建自定义控件；&lt;/li&gt;
+&lt;li&gt;如有需要自定义View属性，也就是在values/attrs.xml中定义属性集；&lt;/li&gt;
+&lt;li&gt;在xml中引入命名控件，设置属性；&lt;/li&gt;
+&lt;li&gt;在代码中读取xml中的属性，初始化视图；&lt;/li&gt;
+&lt;li&gt;测量视图大小；&lt;/li&gt;
+&lt;li&gt;绘制视图内容。&lt;/li&gt;
+&lt;/ol&gt;
+&lt;h3 id=&quot;View的尺寸测量&quot;&gt;&lt;a href=&quot;#View的尺寸测量&quot; class=&quot;headerlink&quot; title=&quot;View的尺寸测量&quot;&gt;&lt;/a&gt;&lt;strong&gt;View的尺寸测量&lt;/strong&gt;&lt;/h3&gt;&lt;p&gt;measure()方法接收两个参数：&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;widthMeasureSpec&lt;/li&gt;
+&lt;li&gt;heightMeasureSpec&lt;br&gt;这两个值分别用于确定视图的宽度、高度的规格和大小。&lt;br&gt;MeasureSpec的值由：&lt;/li&gt;
+&lt;li&gt;specSize: 记录大小&lt;/li&gt;
+&lt;li&gt;specMode: 记录规格&lt;br&gt;共同组成。&lt;br&gt;&lt;strong&gt;specMode的三种类型：&lt;/strong&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;ol&gt;
+&lt;li&gt;&lt;strong&gt;EXACTLY&lt;/strong&gt;: 子视图大小由specSize的值决定，对应match_parent、具体的数值。&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;AT_MOST&lt;/strong&gt;: 子视图最多只能specSize的大小， 对应warp_content。&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;UNSPECIFIED&lt;/strong&gt;: 开发人员将视图按照自己的意愿设置成任意的大小，没有任何限制。（基本没有用到）&lt;/li&gt;
+&lt;/ol&gt;
+&lt;h3 id=&quot;Canvas与Paint-画布与画笔&quot;&gt;&lt;a href=&quot;#Canvas与Paint-画布与画笔&quot; class=&quot;headerlink&quot; title=&quot;Canvas与Paint(画布与画笔)&quot;&gt;&lt;/a&gt;&lt;strong&gt;Canvas与Paint(画布与画笔)&lt;/strong&gt;&lt;/h3&gt;&lt;p&gt;整个View就是一张画布，也就是Canvas。通过画笔Paint在这张画布上绘制各种各样的图形、元素，修改画笔的属性可以将同一个元素绘制出不同的效果。&lt;br&gt;&lt;strong&gt;Canvas中save()与restore()&lt;/strong&gt;&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;strong&gt;save()&lt;/strong&gt;: 存储当前矩阵和剪裁状态到一个私有的栈中。随后调用translate，scale，rotate，skew，concat，clipRect，clipPath等函数还是会正常执行，但是调用了restore()之后，这些调用产生的效果就会失效，在save之前的Canvas状态都会被恢复。&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;restore()&lt;/strong&gt;: 恢复save之前的状态。&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3 id=&quot;自定义ViewGroup&quot;&gt;&lt;a href=&quot;#自定义ViewGroup&quot; class=&quot;headerlink&quot; title=&quot;自定义ViewGroup&quot;&gt;&lt;/a&gt;&lt;strong&gt;自定义ViewGroup&lt;/strong&gt;&lt;/h3&gt;&lt;p&gt;应用场景：当我们需要自定义子视图的排列方式时。&lt;/p&gt;
+&lt;h2 id=&quot;3-Scroller的使用&quot;&gt;&lt;a href=&quot;#3-Scroller的使用&quot; class=&quot;headerlink&quot; title=&quot;3. Scroller的使用&quot;&gt;&lt;/a&gt;3. Scroller的使用&lt;/h2&gt;&lt;h2 id=&quot;4-动画&quot;&gt;&lt;a href=&quot;#4-动画&quot; class=&quot;headerlink&quot; title=&quot;4. 动画&quot;&gt;&lt;/a&gt;4. 动画&lt;/h2&gt;</content>
+    
+    <summary type="html">
+    
+      &lt;h1 id=&quot;第二章-创造出丰富多彩的UI-View与动画&quot;&gt;&lt;a href=&quot;#第二章-创造出丰富多彩的UI-View与动画&quot; class=&quot;headerlink&quot; title=&quot;第二章 创造出丰富多彩的UI View与动画&quot;&gt;&lt;/a&gt;第二章 创造出丰富多彩的UI View与动画&lt;/h1&gt;&lt;h2 id=&quot;1-重要的View控件：ListView-与-RecyclerView&quot;&gt;&lt;a href=&quot;#1-重要的View控件：ListView-与-RecyclerView&quot; class=&quot;headerlink&quot; title=&quot;1. 重要的View控件：ListView 与 RecyclerView&quot;&gt;&lt;/a&gt;1. 重要的View控件：ListView 与 RecyclerView&lt;/h2&gt;&lt;h3 id=&quot;ListView&quot;&gt;&lt;a href=&quot;#ListView&quot; class=&quot;headerlink&quot; title=&quot;ListView&quot;&gt;&lt;/a&gt;&lt;strong&gt;ListView&lt;/strong&gt;&lt;/h3&gt;&lt;p&gt;列表数据的显示需要4个元素，分别为：&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;用来显示列表的ListView&lt;/li&gt;
+&lt;li&gt;用来把数据映射到ListView上的Adapter&lt;/li&gt;
+&lt;li&gt;需要展示的数据集&lt;/li&gt;
+&lt;li&gt;数据显示的View模板&lt;/li&gt;
+&lt;/ol&gt;
+&lt;p&gt;其中重点是Adapter的实现，需要实现的函数为：&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;getCount():获取数据的个数&lt;/li&gt;
+&lt;li&gt;getItem(int): 获取position数据的位置&lt;/li&gt;
+&lt;li&gt;getItemId(int): 获取position位置的数据id，一般直接返回position即可&lt;/li&gt;
+&lt;li&gt;getView(int,View,ViewGroup): 获取position位置上的ItemView视图
+    
+    </summary>
+    
+    
+      <category term="读书笔记" scheme="http://shinelw.github.io/tags/%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>ColorArcProgressBar——实现QQ健康步数显示、仪表盘效果</title>
+    <link href="http://shinelw.github.io/2016/02/28/ColorArcProgressBar%E2%80%94%E2%80%94%E5%AE%9E%E7%8E%B0QQ%E5%81%A5%E5%BA%B7%E6%AD%A5%E6%95%B0%E6%98%BE%E7%A4%BA%E3%80%81%E4%BB%AA%E8%A1%A8%E7%9B%98%E6%95%88%E6%9E%9C/"/>
+    <id>http://shinelw.github.io/2016/02/28/ColorArcProgressBar——实现QQ健康步数显示、仪表盘效果/</id>
+    <published>2016-02-28T07:05:34.000Z</published>
+    <updated>2016-04-21T13:30:05.000Z</updated>
+    
+    <content type="html">&lt;p&gt;这是一个可定制的圆形进度条，通过xml参数配置可实现QQ健康中步数的弧形进度显示、仪盘表显示速度、最常见的下载进度条等功能。&lt;/p&gt;
+&lt;p&gt;Github下载地址：&lt;a href=&quot;https://github.com/Shinelw/ColorArcProgressBar&quot; target=&quot;_blank&quot; rel=&quot;external&quot;&gt;https://github.com/Shinelw/ColorArcProgressBar&lt;/a&gt;&lt;/p&gt;
+&lt;a id=&quot;more&quot;&gt;&lt;/a&gt;
+&lt;h2 id=&quot;效果图&quot;&gt;&lt;a href=&quot;#效果图&quot; class=&quot;headerlink&quot; title=&quot;效果图&quot;&gt;&lt;/a&gt;效果图&lt;/h2&gt;&lt;p&gt; &lt;img src=&quot;https://raw.githubusercontent.com/Shinelw/ColorArcProgressBar/master/Demo.gif&quot; alt=&quot;&quot;&gt;&lt;/p&gt;
+&lt;h1 id=&quot;使用&quot;&gt;&lt;a href=&quot;#使用&quot; class=&quot;headerlink&quot; title=&quot;使用&quot;&gt;&lt;/a&gt;使用&lt;/h1&gt;&lt;h2 id=&quot;1、在gradle中添加依赖&quot;&gt;&lt;a href=&quot;#1、在gradle中添加依赖&quot; class=&quot;headerlink&quot; title=&quot;1、在gradle中添加依赖&quot;&gt;&lt;/a&gt;1、在gradle中添加依赖&lt;/h2&gt;&lt;figure class=&quot;highlight gradle&quot;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&quot;gutter&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;1&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;2&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;3&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;4&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;code&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;dependencies&lt;/span&gt; &amp;#123;&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;    ...&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;    &lt;span class=&quot;keyword&quot;&gt;compile&lt;/span&gt; &lt;span class=&quot;string&quot;&gt;&#39;com.github.shinelw.colorarcprogressbar:library:1.0.3&#39;&lt;/span&gt;&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;&amp;#125;&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/figure&gt;
+&lt;h2 id=&quot;2、XML&quot;&gt;&lt;a href=&quot;#2、XML&quot; class=&quot;headerlink&quot; title=&quot;2、XML&quot;&gt;&lt;/a&gt;2、XML&lt;/h2&gt;&lt;figure class=&quot;highlight xml&quot;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&quot;gutter&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;1&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;2&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;3&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;4&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;5&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;6&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;7&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;8&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;9&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;10&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;11&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;12&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;13&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;14&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;15&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;16&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;code&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;&lt;span class=&quot;tag&quot;&gt;&amp;lt;&lt;span class=&quot;name&quot;&gt;com.shinelw.library.ColorArcProgressBar&lt;/span&gt;&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;        &lt;span class=&quot;attr&quot;&gt;android:layout_width&lt;/span&gt;=&lt;span class=&quot;string&quot;&gt;&quot;300dp&quot;&lt;/span&gt;&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;        &lt;span class=&quot;attr&quot;&gt;android:layout_height&lt;/span&gt;=&lt;span class=&quot;string&quot;&gt;&quot;300dp&quot;&lt;/span&gt;&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;        &lt;span class=&quot;attr&quot;&gt;android:layout_gravity&lt;/span&gt;=&lt;span class=&quot;string&quot;&gt;&quot;center_horizontal&quot;&lt;/span&gt;&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;        &lt;span class=&quot;attr&quot;&gt;android:id&lt;/span&gt;=&lt;span class=&quot;string&quot;&gt;&quot;@+id/bar1&quot;&lt;/span&gt;&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;        &lt;span class=&quot;attr&quot;&gt;app:is_need_content&lt;/span&gt;=&lt;span class=&quot;string&quot;&gt;&quot;true&quot;&lt;/span&gt;&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;        &lt;span class=&quot;attr&quot;&gt;app:front_color1&lt;/span&gt;=&lt;span class=&quot;string&quot;&gt;&quot;@color/colorAccent&quot;&lt;/span&gt;&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;        &lt;span class=&quot;attr&quot;&gt;app:max_value&lt;/span&gt;=&lt;span class=&quot;string&quot;&gt;&quot;100&quot;&lt;/span&gt;&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;        &lt;span class=&quot;attr&quot;&gt;app:back_width&lt;/span&gt;=&lt;span class=&quot;string&quot;&gt;&quot;10dp&quot;&lt;/span&gt;&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;        &lt;span class=&quot;attr&quot;&gt;app:front_width&lt;/span&gt;=&lt;span class=&quot;string&quot;&gt;&quot;10dp&quot;&lt;/span&gt;&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;        &lt;span class=&quot;attr&quot;&gt;app:total_engle&lt;/span&gt;=&lt;span class=&quot;string&quot;&gt;&quot;360&quot;&lt;/span&gt;&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;        &lt;span class=&quot;attr&quot;&gt;app:is_need_unit&lt;/span&gt;=&lt;span class=&quot;string&quot;&gt;&quot;true&quot;&lt;/span&gt;&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;        &lt;span class=&quot;attr&quot;&gt;app:string_unit&lt;/span&gt;=&lt;span class=&quot;string&quot;&gt;&quot;百分比%&quot;&lt;/span&gt;&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;        &lt;span class=&quot;attr&quot;&gt;app:back_color&lt;/span&gt;=&lt;span class=&quot;string&quot;&gt;&quot;@android:color/darker_gray&quot;&lt;/span&gt;&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;        &lt;span class=&quot;attr&quot;&gt;android:layout_marginBottom&lt;/span&gt;=&lt;span class=&quot;string&quot;&gt;&quot;150dp&quot;&lt;/span&gt;&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;        /&amp;gt;&lt;/span&gt;&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/figure&gt;
+&lt;h2 id=&quot;3、代码&quot;&gt;&lt;a href=&quot;#3、代码&quot; class=&quot;headerlink&quot; title=&quot;3、代码&quot;&gt;&lt;/a&gt;3、代码&lt;/h2&gt;&lt;figure class=&quot;highlight java&quot;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&quot;gutter&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;1&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;code&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;progressbar.setCurrentValues(&lt;span class=&quot;number&quot;&gt;100&lt;/span&gt;);&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/figure&gt;
+&lt;h2 id=&quot;4、自定义&quot;&gt;&lt;a href=&quot;#4、自定义&quot; class=&quot;headerlink&quot; title=&quot;4、自定义&quot;&gt;&lt;/a&gt;4、自定义&lt;/h2&gt;&lt;h3 id=&quot;1）定义圆弧度数&quot;&gt;&lt;a href=&quot;#1）定义圆弧度数&quot; class=&quot;headerlink&quot; title=&quot;1）定义圆弧度数&quot;&gt;&lt;/a&gt;1）定义圆弧度数&lt;/h3&gt;&lt;figure class=&quot;highlight xml&quot;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&quot;gutter&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;1&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;code&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;app:total_engle=&quot;270&quot;&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/figure&gt;
+&lt;h3 id=&quot;2）定义渐变色&quot;&gt;&lt;a href=&quot;#2）定义渐变色&quot; class=&quot;headerlink&quot; title=&quot;2）定义渐变色&quot;&gt;&lt;/a&gt;2）定义渐变色&lt;/h3&gt;&lt;figure class=&quot;highlight xml&quot;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&quot;gutter&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;1&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;2&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;3&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;code&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;app:front_color1=&quot;#00ff00&quot;&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;app:front_color2=&quot;#ffff00&quot;&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;app:front_color3=&quot;#ff0000&quot;&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/figure&gt;
+&lt;h3 id=&quot;3-定义两条圆弧的粗细&quot;&gt;&lt;a href=&quot;#3-定义两条圆弧的粗细&quot; class=&quot;headerlink&quot; title=&quot;3)定义两条圆弧的粗细&quot;&gt;&lt;/a&gt;3)定义两条圆弧的粗细&lt;/h3&gt;&lt;figure class=&quot;highlight xml&quot;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&quot;gutter&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;1&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;2&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;code&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;app:back_width=&quot;2dp&quot;&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;app:front_width=&quot;10dp&quot;&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/figure&gt;
+&lt;h3 id=&quot;4-设置圆弧中显示文字&quot;&gt;&lt;a href=&quot;#4-设置圆弧中显示文字&quot; class=&quot;headerlink&quot; title=&quot;4)设置圆弧中显示文字&quot;&gt;&lt;/a&gt;4)设置圆弧中显示文字&lt;/h3&gt;&lt;figure class=&quot;highlight xml&quot;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&quot;gutter&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;1&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;2&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;3&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;4&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;code&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;app:is_need_unit=&quot;true&quot;&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;app:string_unit=&quot;步&quot;&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;app:is_need_title=&quot;true&quot;&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;app:string_title=&quot;截止当前已走&quot;&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/figure&gt;
+&lt;p&gt;类似QQ健康中当日步数圆弧显示：&lt;/p&gt;
+&lt;p&gt;&lt;img src=&quot;https://raw.githubusercontent.com/Shinelw/ColorArcProgressBar/master/demo_qq.gif&quot; alt=&quot;&quot;&gt;&lt;/p&gt;
+&lt;h3 id=&quot;5）设置圆弧外刻度值&quot;&gt;&lt;a href=&quot;#5）设置圆弧外刻度值&quot; class=&quot;headerlink&quot; title=&quot;5）设置圆弧外刻度值&quot;&gt;&lt;/a&gt;5）设置圆弧外刻度值&lt;/h3&gt;&lt;figure class=&quot;highlight java&quot;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&quot;gutter&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;1&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;code&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;app:is_need_dial=&lt;span class=&quot;string&quot;&gt;&quot;true&quot;&lt;/span&gt;&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/figure&gt;
+&lt;p&gt;模拟仪表盘：&lt;/p&gt;
+&lt;p&gt;&lt;img src=&quot;https://raw.githubusercontent.com/Shinelw/ColorArcProgressBar/master/demo_dashboard.gif&quot; alt=&quot;&quot;&gt;&lt;/p&gt;
+</content>
+    
+    <summary type="html">
+    
+      &lt;p&gt;这是一个可定制的圆形进度条，通过xml参数配置可实现QQ健康中步数的弧形进度显示、仪盘表显示速度、最常见的下载进度条等功能。&lt;/p&gt;
+&lt;p&gt;Github下载地址：&lt;a href=&quot;https://github.com/Shinelw/ColorArcProgressBar&quot;&gt;https://github.com/Shinelw/ColorArcProgressBar&lt;/a&gt;&lt;/p&gt;
+    
+    </summary>
+    
+    
+      <category term="Android组件" scheme="http://shinelw.github.io/tags/Android%E7%BB%84%E4%BB%B6/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>设计模式之工厂方法模式</title>
+    <link href="http://shinelw.github.io/2015/10/10/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F%E4%B9%8B%E5%B7%A5%E5%8E%82%E6%96%B9%E6%B3%95%E6%A8%A1%E5%BC%8F/"/>
+    <id>http://shinelw.github.io/2015/10/10/设计模式之工厂方法模式/</id>
+    <published>2015-10-10T02:37:33.000Z</published>
+    <updated>2016-04-21T13:30:05.000Z</updated>
+    
+    <content type="html">&lt;p&gt;Author ： &lt;a href=&quot;https://github.com/Shinelw&quot; target=&quot;_blank&quot; rel=&quot;external&quot;&gt;Shinelw&lt;/a&gt;&lt;/p&gt;
+&lt;blockquote&gt;
+&lt;p&gt;我们来假设生活中的一个场景，老师布置下来一项任务，让每一个人做一个简单的手工工艺品。为了完成这样一个即使很简单的工艺品，我们需要使用到纸张、胶水、剪刀等工具和材料。如果这些工具和材料都由我们自己生产出来，那么这个工艺品如果要制作成功，则需要依赖于我们自己制作这些工具和材料的进度，而这些工具和材料制造的复杂程度要远远大于这件工艺品制作的复杂度。其实，我们只是制作这样一个简单的工艺品，完全没有必要因为工具本身的复杂程度而影响工艺品的制作。因此，最好的方法就是这些工具由专门的工厂来制作，我们只需要了解这些工具和材料，直接使用制作工艺品即可。在一个项目中，我们也很经常会遇到像这样的情况，工厂方法模式也就应运而生。&lt;br&gt;&lt;a id=&quot;more&quot;&gt;&lt;/a&gt;&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;h2 id=&quot;一、定义&quot;&gt;&lt;a href=&quot;#一、定义&quot; class=&quot;headerlink&quot; title=&quot;一、定义&quot;&gt;&lt;/a&gt;一、定义&lt;/h2&gt;&lt;p&gt;定义一个用于创建对象的接口，让子类决定实例化哪一个类。工厂方法使一个类的实例化延迟到其子类。所谓的决定并不是模式允许子类本身在运行时做决定，而是指在编写创建者类时，不需知道创建的产品是哪一个，选择了使用哪个子类，就决定了实际创建的产品是什么。&lt;/p&gt;
+&lt;p&gt;某种程度上，工厂方法模式改变了我们直接用new创建对象的方式，一个很好的开始，意义重大。&lt;/p&gt;
+&lt;p&gt;适用性：&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;在以下情况下可以使用工厂方法模式：
+    ·当一个类不知道它做必须创建的对象的类的时候。
+    ·当一个类希望由它的子类来指定它所创建的对象的时候。
+    ·当类将创建对象的职责委托给多个帮助子类的某一个，并且希望将哪一个帮助子类是代理者这一信息局部化的时候。
+&lt;/code&gt;&lt;/pre&gt;&lt;h2 id=&quot;二、角色&quot;&gt;&lt;a href=&quot;#二、角色&quot; class=&quot;headerlink&quot; title=&quot;二、角色&quot;&gt;&lt;/a&gt;二、角色&lt;/h2&gt;&lt;pre&gt;&lt;code&gt;·Product：定义工厂方法所创建的对象的接口
+·ConcreteProduct：实现Product接口
+·Creator：抽象工厂
+·ConcreteCreator：重定义工厂方法以返回一个ConcreteProduct实例。
+&lt;/code&gt;&lt;/pre&gt;&lt;h2 id=&quot;三、实现&quot;&gt;&lt;a href=&quot;#三、实现&quot; class=&quot;headerlink&quot; title=&quot;三、实现&quot;&gt;&lt;/a&gt;三、实现&lt;/h2&gt;&lt;p&gt;1.定义工厂方法所创建的对象的接口&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;public interface Product {
+    public void doSomething();
+}
+&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;2.实现Product的接口&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;public class ConcreteProduct implements Product {
+    public void doSomething() {
+        System.out.println(&amp;quot;hello world&amp;quot;);
+    }
+}
+&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;3.抽象工厂&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;public interface Creator {
+    //定义工厂方法，返回
+    public ConcreteProduct factoryMethod();
+}
+&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;4.具体工厂实现&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;public class ConcreteCreator implements Creator {
+    public ConcreteProduct factoryMethod() {
+        return new ConcreteProduct();
+    }
+}
+&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;5.客户端调用&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;ConcreteCreator factory = new ConcreteCreator();
+ConcreteProudct product = factory.factoryMethod();
+product.doSomething();
+&lt;/code&gt;&lt;/pre&gt;&lt;h3 id=&quot;四、Android源码中的运用&quot;&gt;&lt;a href=&quot;#四、Android源码中的运用&quot; class=&quot;headerlink&quot; title=&quot;四、Android源码中的运用&quot;&gt;&lt;/a&gt;四、Android源码中的运用&lt;/h3&gt;&lt;pre&gt;&lt;code&gt;//抽象产品
+public interface Runnable {
+    public abstract void run();
+}
+
+//抽象工厂
+public interface ThreadFactory {
+        Thread newThread(Runnable r);
+}    
+&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;下面是具体的实现：&lt;br&gt;比如AsyncTask类中工厂的具体实现如下&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;//工厂实现类
+private static final ThreadFactory sThreadFactory = new ThreadFactory() {
+private final AtomicInteger mCount = new AtomicInteger(1);
+public Thread newThread(Runnable r) {
+    return new Thread(r, &amp;quot;AsyncTask #&amp;quot; + mCount.getAndIncrement());
+    }
+};
+
+//产品类
+public class Thread implements Runnable {
+    //具体方法
+    //...
+}
+&lt;/code&gt;&lt;/pre&gt;&lt;blockquote&gt;
+&lt;p&gt;用Factory Method模式创建对象并不一定会让我们的代码更短,实事上往往更长,我们也使用了更多的类,真正的目的在于这样可以灵活的,有弹性的创建不确定的对象.而且,代码的可重用性提高了,客户端的应用简化了,客户程序的代码会大大减少,变的更具可读性。&lt;/p&gt;
+&lt;/blockquote&gt;
+</content>
+    
+    <summary type="html">
+    
+      &lt;p&gt;Author ： &lt;a href=&quot;https://github.com/Shinelw&quot;&gt;Shinelw&lt;/a&gt;&lt;/p&gt;
+&lt;blockquote&gt;
+&lt;p&gt;我们来假设生活中的一个场景，老师布置下来一项任务，让每一个人做一个简单的手工工艺品。为了完成这样一个即使很简单的工艺品，我们需要使用到纸张、胶水、剪刀等工具和材料。如果这些工具和材料都由我们自己生产出来，那么这个工艺品如果要制作成功，则需要依赖于我们自己制作这些工具和材料的进度，而这些工具和材料制造的复杂程度要远远大于这件工艺品制作的复杂度。其实，我们只是制作这样一个简单的工艺品，完全没有必要因为工具本身的复杂程度而影响工艺品的制作。因此，最好的方法就是这些工具由专门的工厂来制作，我们只需要了解这些工具和材料，直接使用制作工艺品即可。在一个项目中，我们也很经常会遇到像这样的情况，工厂方法模式也就应运而生。&lt;br&gt;
+    
+    </summary>
+    
+    
+      <category term="设计模式" scheme="http://shinelw.github.io/tags/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>设计模式之单例模式</title>
+    <link href="http://shinelw.github.io/2015/10/03/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F%E4%B9%8B%E5%8D%95%E4%BE%8B%E6%A8%A1%E5%BC%8F/"/>
+    <id>http://shinelw.github.io/2015/10/03/设计模式之单例模式/</id>
+    <published>2015-10-03T07:37:14.000Z</published>
+    <updated>2016-04-21T13:30:05.000Z</updated>
+    
+    <content type="html">&lt;p&gt;Author ： &lt;a href=&quot;https://github.com/Shinelw&quot; target=&quot;_blank&quot; rel=&quot;external&quot;&gt;Shinelw&lt;/a&gt;&lt;/p&gt;
+&lt;blockquote&gt;
+&lt;p&gt;单例其实就是唯一实例的意思，也就是说一个类只有一个唯一的实例。开发人员都知道，在java里，只要new一个类，就会创建这个类的一个实例，如果把这个类new多次，就会创建这个类的多个实例，但是有时候不管new多少次，就只需这个类的一个实例，比如日志记录中的管理类，Android中的InputMethodManager类、Editable类等。&lt;br&gt;&lt;a id=&quot;more&quot;&gt;&lt;/a&gt;&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;h2 id=&quot;一、概念&quot;&gt;&lt;a href=&quot;#一、概念&quot; class=&quot;headerlink&quot; title=&quot;一、概念&quot;&gt;&lt;/a&gt;一、概念&lt;/h2&gt;&lt;p&gt;单例模式确保某个类只有一个实例，而且自行实例化并向整个系统提供这个实例。在计算机系统中，线程池、缓存、日志对象、对话框、打印机、显卡的驱动程序对象常被设计成单例。这些应用都或多或少具有资源管理器的功能。每台计算机可以有若干个打印机，但只能有一个Printer Spooler，以避免两个打印作业同时输出到打印机中。每台计算机可以有若干通信端口，系统应当集中管理这些通信端口，以避免一个通信端口同时被两个请求同时调用。总之，选择单例模式就是为了避免不一致状态。&lt;/p&gt;
+&lt;p&gt;单例模式特点：&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;1.单例类只能有一个实例。
+2.单例类必须自己创建自己的唯一实例
+3.单例类必须给所有其他对象提供这一实例
+&lt;/code&gt;&lt;/pre&gt;&lt;h2 id=&quot;二、分类&quot;&gt;&lt;a href=&quot;#二、分类&quot; class=&quot;headerlink&quot; title=&quot;二、分类&quot;&gt;&lt;/a&gt;二、分类&lt;/h2&gt;&lt;p&gt;  &lt;em&gt;单例模式有很多种写法，&lt;/em&gt;&lt;/p&gt;
+&lt;h3 id=&quot;1-饿汉式单例模式&quot;&gt;&lt;a href=&quot;#1-饿汉式单例模式&quot; class=&quot;headerlink&quot; title=&quot;1.饿汉式单例模式&quot;&gt;&lt;/a&gt;1.饿汉式单例模式&lt;/h3&gt;&lt;figure class=&quot;highlight java&quot;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&quot;gutter&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;1&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;2&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;3&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;4&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;5&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;6&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;7&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;8&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;9&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;code&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;public&lt;/span&gt; &lt;span class=&quot;class&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;class&lt;/span&gt; &lt;span class=&quot;title&quot;&gt;Singleton&lt;/span&gt; &lt;/span&gt;&amp;#123;&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;	&lt;span class=&quot;keyword&quot;&gt;private&lt;/span&gt; &lt;span class=&quot;keyword&quot;&gt;static&lt;/span&gt; Singleton instance = &lt;span class=&quot;keyword&quot;&gt;new&lt;/span&gt; Singleton();&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;	&lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;private&lt;/span&gt; &lt;span class=&quot;title&quot;&gt;Singleton&lt;/span&gt;&lt;span class=&quot;params&quot;&gt;()&lt;/span&gt; &lt;/span&gt;&amp;#123;&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;		&lt;span class=&quot;comment&quot;&gt;//防止通过构造方法获取实例&lt;/span&gt;&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;	&amp;#125;&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;	&lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;public&lt;/span&gt; &lt;span class=&quot;keyword&quot;&gt;static&lt;/span&gt; Singleton &lt;span class=&quot;title&quot;&gt;getInstance&lt;/span&gt;&lt;span class=&quot;params&quot;&gt;()&lt;/span&gt; &lt;/span&gt;&amp;#123;&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;		&lt;span class=&quot;keyword&quot;&gt;return&lt;/span&gt; instance&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;	&amp;#125;&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;&amp;#125;&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/figure&gt;
+&lt;p&gt;这里需要注意的是，在单例模式中，需要将构造函数定义为private（私有），以防止通过构造方法获取该类的实例。&lt;/p&gt;
+&lt;h3 id=&quot;2-懒汉式单例模式&quot;&gt;&lt;a href=&quot;#2-懒汉式单例模式&quot; class=&quot;headerlink&quot; title=&quot;2.懒汉式单例模式&quot;&gt;&lt;/a&gt;2.懒汉式单例模式&lt;/h3&gt;&lt;figure class=&quot;highlight java&quot;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&quot;gutter&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;1&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;2&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;3&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;4&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;5&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;6&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;7&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;8&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;9&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;10&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;11&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;12&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;code&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;public&lt;/span&gt; &lt;span class=&quot;class&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;class&lt;/span&gt; &lt;span class=&quot;title&quot;&gt;Singleton&lt;/span&gt; &lt;/span&gt;&amp;#123;&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;	&lt;span class=&quot;keyword&quot;&gt;private&lt;/span&gt; &lt;span class=&quot;keyword&quot;&gt;static&lt;/span&gt; Single instance;&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;	&lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;private&lt;/span&gt; &lt;span class=&quot;title&quot;&gt;Singleton&lt;/span&gt;&lt;span class=&quot;params&quot;&gt;()&lt;/span&gt; &lt;/span&gt;&amp;#123;&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;		&lt;span class=&quot;comment&quot;&gt;//防止通过构造方法获取实例&lt;/span&gt;&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;	&amp;#125;&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;	&lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;public&lt;/span&gt; &lt;span class=&quot;keyword&quot;&gt;static&lt;/span&gt; Singleton &lt;span class=&quot;title&quot;&gt;getInstance&lt;/span&gt;&lt;span class=&quot;params&quot;&gt;()&lt;/span&gt; &lt;/span&gt;&amp;#123;&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;		&lt;span class=&quot;keyword&quot;&gt;if&lt;/span&gt;(instance == &lt;span class=&quot;keyword&quot;&gt;null&lt;/span&gt;) &amp;#123;&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;			instance = &lt;span class=&quot;keyword&quot;&gt;new&lt;/span&gt; Singleton();&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;		&amp;#125;&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;		&lt;span class=&quot;keyword&quot;&gt;return&lt;/span&gt; instance;&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;	&amp;#125;&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;&amp;#125;&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/figure&gt;
+&lt;p&gt;上述的写法为一般的懒汉式，这种写法在单线程中使用是完全没有问题的。但是在多线程中就会出现问题，但多个线程同时都进行&lt;strong&gt;&lt;em&gt;if(instance == null)&lt;/em&gt;&lt;/strong&gt;判断时，就会产生多个该类的实例，这就违背了单例模式的原则。所以就要将其改成线程安全的懒汉式写法。&lt;/p&gt;
+&lt;figure class=&quot;highlight java&quot;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&quot;gutter&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;1&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;2&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;3&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;4&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;5&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;6&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;7&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;8&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;9&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;10&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;11&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;12&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;13&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;14&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;code&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;&lt;span class=&quot;comment&quot;&gt;/**懒汉式变种，解决线程安全问题**/&lt;/span&gt; &lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;public&lt;/span&gt; &lt;span class=&quot;class&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;class&lt;/span&gt; &lt;span class=&quot;title&quot;&gt;Singleton&lt;/span&gt; &lt;/span&gt;&amp;#123;&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;	&lt;span class=&quot;keyword&quot;&gt;private&lt;/span&gt; &lt;span class=&quot;keyword&quot;&gt;static&lt;/span&gt; Single instance;&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;	&lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;private&lt;/span&gt; &lt;span class=&quot;title&quot;&gt;Singleton&lt;/span&gt;&lt;span class=&quot;params&quot;&gt;()&lt;/span&gt; &lt;/span&gt;&amp;#123;&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;		&lt;span class=&quot;comment&quot;&gt;//防止通过构造方法获取实例&lt;/span&gt;&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;	&amp;#125;&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;	&lt;span class=&quot;comment&quot;&gt;//增加同步机制&lt;/span&gt;&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;	&lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;public&lt;/span&gt; &lt;span class=&quot;keyword&quot;&gt;static&lt;/span&gt; &lt;span class=&quot;keyword&quot;&gt;synchronized&lt;/span&gt; Singleton &lt;span class=&quot;title&quot;&gt;getInstance&lt;/span&gt;&lt;span class=&quot;params&quot;&gt;()&lt;/span&gt; &lt;/span&gt;&amp;#123;&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;		&lt;span class=&quot;keyword&quot;&gt;if&lt;/span&gt;(instance == &lt;span class=&quot;keyword&quot;&gt;null&lt;/span&gt;) &amp;#123;&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;			instance = &lt;span class=&quot;keyword&quot;&gt;new&lt;/span&gt; Singleton();&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;		&amp;#125;&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;		&lt;span class=&quot;keyword&quot;&gt;return&lt;/span&gt; instance;&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;	&amp;#125;&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;&amp;#125;&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/figure&gt;
+&lt;p&gt;但是，将同步机制放在获取实例方法上，会导致程序每获取一次实例，都进入synchronized（同步）机制，如果在程序运行时，需要大量获取该类的实例，这种写法就非常低效。&lt;em&gt;于是另外又有一种写法，将那个synchronized放在产生实例的代码前，如下：&lt;/em&gt;&lt;/p&gt;
+&lt;figure class=&quot;highlight java&quot;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&quot;gutter&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;1&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;2&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;3&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;4&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;5&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;6&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;7&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;8&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;9&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;10&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;11&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;12&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;13&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;14&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;15&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;code&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;public&lt;/span&gt; &lt;span class=&quot;class&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;class&lt;/span&gt; &lt;span class=&quot;title&quot;&gt;Singleton&lt;/span&gt; &lt;/span&gt;&amp;#123;&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;	&lt;span class=&quot;keyword&quot;&gt;private&lt;/span&gt; &lt;span class=&quot;keyword&quot;&gt;static&lt;/span&gt; Single instance;&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;	&lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;private&lt;/span&gt; &lt;span class=&quot;title&quot;&gt;Singleton&lt;/span&gt;&lt;span class=&quot;params&quot;&gt;()&lt;/span&gt; &lt;/span&gt;&amp;#123;&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;		&lt;span class=&quot;comment&quot;&gt;//防止通过构造方法获取实例&lt;/span&gt;&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;	&amp;#125;&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;	&lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;public&lt;/span&gt; &lt;span class=&quot;keyword&quot;&gt;static&lt;/span&gt; Singleton &lt;span class=&quot;title&quot;&gt;getInstance&lt;/span&gt;&lt;span class=&quot;params&quot;&gt;()&lt;/span&gt; &lt;/span&gt;&amp;#123;&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;		&lt;span class=&quot;comment&quot;&gt;//增加同步机制&lt;/span&gt;&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;		&lt;span class=&quot;keyword&quot;&gt;if&lt;/span&gt;(instance == &lt;span class=&quot;keyword&quot;&gt;null&lt;/span&gt;) &amp;#123;&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;			&lt;span class=&quot;keyword&quot;&gt;synchronized&lt;/span&gt;（Singleton.class）&amp;#123;&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;			instance = &lt;span class=&quot;keyword&quot;&gt;new&lt;/span&gt; Singleton();&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;			&amp;#125;&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;		&amp;#125;&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;		&lt;span class=&quot;keyword&quot;&gt;return&lt;/span&gt; instance;&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;	&amp;#125;&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;&amp;#125;&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/figure&gt;
+&lt;p&gt;同时，上述代码虽然避免了每次进入同步机制，但是又存在多线程下返回多个实例的问题。为此产生了另一种写法：双检测锁机制。&lt;/p&gt;
+&lt;h3 id=&quot;3-双检测锁机制单例模式&quot;&gt;&lt;a href=&quot;#3-双检测锁机制单例模式&quot; class=&quot;headerlink&quot; title=&quot;3.双检测锁机制单例模式&quot;&gt;&lt;/a&gt;3.双检测锁机制单例模式&lt;/h3&gt;&lt;figure class=&quot;highlight java&quot;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&quot;gutter&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;1&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;2&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;3&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;4&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;5&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;6&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;7&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;8&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;9&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;10&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;11&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;12&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;13&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;14&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;15&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;16&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;17&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;code&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;public&lt;/span&gt; &lt;span class=&quot;class&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;class&lt;/span&gt; &lt;span class=&quot;title&quot;&gt;Singleton&lt;/span&gt; &lt;/span&gt;&amp;#123;&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;	&lt;span class=&quot;keyword&quot;&gt;private&lt;/span&gt; &lt;span class=&quot;keyword&quot;&gt;static&lt;/span&gt; Single instance;&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;	&lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;private&lt;/span&gt; &lt;span class=&quot;title&quot;&gt;Singleton&lt;/span&gt;&lt;span class=&quot;params&quot;&gt;()&lt;/span&gt; &lt;/span&gt;&amp;#123;&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;		&lt;span class=&quot;comment&quot;&gt;//防止通过构造方法获取实例&lt;/span&gt;&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;	&amp;#125;&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;	&lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;public&lt;/span&gt; &lt;span class=&quot;keyword&quot;&gt;static&lt;/span&gt; Singleton &lt;span class=&quot;title&quot;&gt;getInstance&lt;/span&gt;&lt;span class=&quot;params&quot;&gt;()&lt;/span&gt; &lt;/span&gt;&amp;#123;&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;		&lt;span class=&quot;comment&quot;&gt;//双检测锁机制&lt;/span&gt;&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;		&lt;span class=&quot;keyword&quot;&gt;if&lt;/span&gt;(instance == &lt;span class=&quot;keyword&quot;&gt;null&lt;/span&gt;) &amp;#123;&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;			&lt;span class=&quot;keyword&quot;&gt;synchronized&lt;/span&gt;（Singleton.class）&amp;#123;&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;				&lt;span class=&quot;keyword&quot;&gt;if&lt;/span&gt;(instance == &lt;span class=&quot;keyword&quot;&gt;null&lt;/span&gt;) &amp;#123;&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;					instance = &lt;span class=&quot;keyword&quot;&gt;new&lt;/span&gt; Singleton();&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;				&amp;#125;&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;			&amp;#125;&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;		&amp;#125;&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;		&lt;span class=&quot;keyword&quot;&gt;return&lt;/span&gt; instance;&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;	&amp;#125;&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;&amp;#125;&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/figure&gt;
+&lt;blockquote&gt;
+&lt;p&gt;饿汉式和懒汉式区别:&lt;/p&gt;
+&lt;p&gt;饿汉就是类一旦加载，就把单例初始化完成，保证getInstance的时候，单例是已经存在的了，而懒汉比较懒，只有当调用getInstance的时候，才回去初始化这个单例。&lt;br&gt;另外从以下两点再区分以下这两种方式：&lt;/p&gt;
+&lt;p&gt;1、线程安全：&lt;/p&gt;
+&lt;p&gt;饿汉式天生就是线程安全的，可以直接用于多线程而不会出现问题，懒汉式本身是非线程安全的，为了实现线程安全有以上三种写法,这三种实现在资源加载和性能方面有些区别。&lt;/p&gt;
+&lt;p&gt;2、资源加载和性能：&lt;/p&gt;
+&lt;p&gt;饿汉式在类创建的同时就实例化一个静态对象出来，不管之后会不会使用这个单例，都会占据一定的内存，但是相应的，在第一次调用时速度也会更快，因为其资源已经初始化完成。&lt;/p&gt;
+&lt;p&gt;而懒汉式顾名思义，会延迟加载，在第一次使用该单例的时候才会实例化对象出来，第一次调用时要做初始化，如果要做的工作比较多，性能上会有些延迟，之后就和饿汉式一样了。&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;h3 id=&quot;4-内部类的实现&quot;&gt;&lt;a href=&quot;#4-内部类的实现&quot; class=&quot;headerlink&quot; title=&quot;4.内部类的实现&quot;&gt;&lt;/a&gt;4.内部类的实现&lt;/h3&gt;&lt;figure class=&quot;highlight java&quot;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&quot;gutter&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;1&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;2&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;3&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;4&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;5&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;6&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;7&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;8&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;9&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;10&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;11&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;code&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;public&lt;/span&gt; &lt;span class=&quot;class&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;class&lt;/span&gt; &lt;span class=&quot;title&quot;&gt;Singleton&lt;/span&gt; &lt;/span&gt;&amp;#123;&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;	&lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;private&lt;/span&gt; &lt;span class=&quot;title&quot;&gt;Singleton&lt;/span&gt;&lt;span class=&quot;params&quot;&gt;()&lt;/span&gt; &lt;/span&gt;&amp;#123;&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;		&lt;span class=&quot;comment&quot;&gt;//防止通过构造方法获取实例&lt;/span&gt;&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;	&amp;#125;&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;	&lt;span class=&quot;keyword&quot;&gt;private&lt;/span&gt; &lt;span class=&quot;keyword&quot;&gt;static&lt;/span&gt; SingletonHolder &amp;#123;&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;		&lt;span class=&quot;keyword&quot;&gt;private&lt;/span&gt; &lt;span class=&quot;keyword&quot;&gt;static&lt;/span&gt; Single instance = &lt;span class=&quot;keyword&quot;&gt;new&lt;/span&gt; Singleton();&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;	&amp;#125;&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;	&lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;public&lt;/span&gt; &lt;span class=&quot;keyword&quot;&gt;static&lt;/span&gt; Singleton &lt;span class=&quot;title&quot;&gt;getInstance&lt;/span&gt;&lt;span class=&quot;params&quot;&gt;()&lt;/span&gt; &lt;/span&gt;&amp;#123;&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;		reutrn SingletonHolder.instance;&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;	&amp;#125;&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;&amp;#125;&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/figure&gt;
+&lt;p&gt;优点：延迟加载，线程安全（java中class加载时互斥的），也减少了内存消耗&lt;/p&gt;
+&lt;h2 id=&quot;三、Android中源码运用&quot;&gt;&lt;a href=&quot;#三、Android中源码运用&quot; class=&quot;headerlink&quot; title=&quot;三、Android中源码运用&quot;&gt;&lt;/a&gt;三、Android中源码运用&lt;/h2&gt;&lt;h3 id=&quot;1-InputMethodManager类&quot;&gt;&lt;a href=&quot;#1-InputMethodManager类&quot; class=&quot;headerlink&quot; title=&quot;1.InputMethodManager类&quot;&gt;&lt;/a&gt;1.InputMethodManager类&lt;/h3&gt;&lt;figure class=&quot;highlight java&quot;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&quot;gutter&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;1&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;2&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;3&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;4&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;5&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;6&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;7&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;code&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;public&lt;/span&gt; &lt;span class=&quot;keyword&quot;&gt;final&lt;/span&gt; &lt;span class=&quot;class&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;class&lt;/span&gt; &lt;span class=&quot;title&quot;&gt;InputMethodManager&lt;/span&gt; &lt;/span&gt;&amp;#123; &lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;static&lt;/span&gt; &lt;span class=&quot;keyword&quot;&gt;final&lt;/span&gt; &lt;span class=&quot;keyword&quot;&gt;boolean&lt;/span&gt; DEBUG = &lt;span class=&quot;keyword&quot;&gt;false&lt;/span&gt;; &lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;static&lt;/span&gt; &lt;span class=&quot;keyword&quot;&gt;final&lt;/span&gt; String TAG = &lt;span class=&quot;string&quot;&gt;&quot;InputMethodManager&quot;&lt;/span&gt;; &lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;static&lt;/span&gt; &lt;span class=&quot;keyword&quot;&gt;final&lt;/span&gt; Object mInstanceSync = &lt;span class=&quot;keyword&quot;&gt;new&lt;/span&gt; Object(); &lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;static&lt;/span&gt; InputMethodManager mInstance; &lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;final&lt;/span&gt; IInputMethodManager mService; &lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;final&lt;/span&gt; Looper mMainLooper;&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/figure&gt;
+&lt;p&gt;创建唯一的实例static InputMethodManager mInstance; &lt;/p&gt;
+&lt;figure class=&quot;highlight java&quot;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&quot;gutter&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;1&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;2&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;3&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;4&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;5&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;6&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;7&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;8&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;9&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;10&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;11&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;12&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;13&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;14&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;15&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;16&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;17&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;18&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;19&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;20&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;21&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;22&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;23&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;24&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;code&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;&lt;span class=&quot;comment&quot;&gt;/** &lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;* Retrieve the global InputMethodManager instance, creating it if it &lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;* doesn&#39;t already exist. &lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;* &lt;span class=&quot;doctag&quot;&gt;@hide&lt;/span&gt; &lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;*/&lt;/span&gt; &lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;&lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;static&lt;/span&gt; &lt;span class=&quot;keyword&quot;&gt;public&lt;/span&gt; InputMethodManager &lt;span class=&quot;title&quot;&gt;getInstance&lt;/span&gt;&lt;span class=&quot;params&quot;&gt;(Context context)&lt;/span&gt; &lt;/span&gt;&amp;#123; &lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;return&lt;/span&gt; getInstance(context.getMainLooper()); &lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;&amp;#125; &lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;&lt;span class=&quot;comment&quot;&gt;/** &lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;* Internally, the input method manager can&#39;t be context-dependent, so &lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;* we have this here for the places that need it. &lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;* &lt;span class=&quot;doctag&quot;&gt;@hide&lt;/span&gt; &lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;*/&lt;/span&gt; &lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;&lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;static&lt;/span&gt; &lt;span class=&quot;keyword&quot;&gt;public&lt;/span&gt; InputMethodManager &lt;span class=&quot;title&quot;&gt;getInstance&lt;/span&gt;&lt;span class=&quot;params&quot;&gt;(Looper mainLooper)&lt;/span&gt; &lt;/span&gt;&amp;#123; &lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;synchronized&lt;/span&gt; (mInstanceSync) &amp;#123; &lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;if&lt;/span&gt; (mInstance != &lt;span class=&quot;keyword&quot;&gt;null&lt;/span&gt;) &amp;#123; &lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;return&lt;/span&gt; mInstance; &lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;&amp;#125; &lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;IBinder b = ServiceManager.getService(Context.INPUT_METHOD_SERVICE); &lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;IInputMethodManager service = IInputMethodManager.Stub.asInterface(b); &lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;mInstance = &lt;span class=&quot;keyword&quot;&gt;new&lt;/span&gt; InputMethodManager(service, mainLooper); &lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;&amp;#125; &lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;return&lt;/span&gt; mInstance; &lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;&amp;#125;&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/figure&gt;
+&lt;p&gt;防止多线程同时创建实例： &lt;/p&gt;
+&lt;figure class=&quot;highlight java&quot;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&quot;gutter&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;1&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;2&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;3&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;4&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;5&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;code&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;synchronized&lt;/span&gt; (mInstanceSync) &amp;#123; &lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;if&lt;/span&gt; (mInstance != &lt;span class=&quot;keyword&quot;&gt;null&lt;/span&gt;) &amp;#123; &lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;	&lt;span class=&quot;keyword&quot;&gt;return&lt;/span&gt; mInstance; &lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;	&amp;#125;&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;&amp;#125;&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/figure&gt;
+&lt;p&gt;当没有创建实例对象时，调用&lt;em&gt;mInstance = new InputMethodManager(service, mainLooper)&lt;/em&gt;;&lt;br&gt;其中类构造函数如下所示&lt;/p&gt;
+&lt;figure class=&quot;highlight java&quot;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&quot;gutter&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;1&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;2&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;3&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;4&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;5&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;6&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;7&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;8&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;9&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;10&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;code&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;InputMethodManager(IInputMethodManager service, Looper looper) &amp;#123; &lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;mService = service; &lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;mMainLooper = looper; &lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;mH = &lt;span class=&quot;keyword&quot;&gt;new&lt;/span&gt; H(looper); &lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;mIInputContext = &lt;span class=&quot;keyword&quot;&gt;new&lt;/span&gt; ControlledInputConnectionWrapper(looper, &lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;mDummyInputConnection); &lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;if&lt;/span&gt; (mInstance == &lt;span class=&quot;keyword&quot;&gt;null&lt;/span&gt;) &amp;#123; &lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;mInstance = &lt;span class=&quot;keyword&quot;&gt;this&lt;/span&gt;; &lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;&amp;#125; &lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;&amp;#125;&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/figure&gt;
+&lt;h3 id=&quot;2-AccessibilityManager类&quot;&gt;&lt;a href=&quot;#2-AccessibilityManager类&quot; class=&quot;headerlink&quot; title=&quot;2.AccessibilityManager类&quot;&gt;&lt;/a&gt;2.AccessibilityManager类&lt;/h3&gt;&lt;figure class=&quot;highlight java&quot;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&quot;gutter&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;1&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;2&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;3&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;4&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;5&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;6&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;7&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;8&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;code&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;&lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;public&lt;/span&gt; &lt;span class=&quot;keyword&quot;&gt;static&lt;/span&gt; AccessibilityManager &lt;span class=&quot;title&quot;&gt;getInstance&lt;/span&gt;&lt;span class=&quot;params&quot;&gt;(Context context)&lt;/span&gt; &lt;/span&gt;&amp;#123;  &lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;  		&lt;span class=&quot;keyword&quot;&gt;synchronized&lt;/span&gt; (sInstanceSync) &amp;#123;  &lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;      		&lt;span class=&quot;keyword&quot;&gt;if&lt;/span&gt; (sInstance == &lt;span class=&quot;keyword&quot;&gt;null&lt;/span&gt;) &amp;#123;  &lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;          		sInstance = &lt;span class=&quot;keyword&quot;&gt;new&lt;/span&gt; AccessibilityManager(context);  &lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;     				 &amp;#125;  &lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;  		&amp;#125;  &lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;  			&lt;span class=&quot;keyword&quot;&gt;return&lt;/span&gt; sInstance;  &lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;&amp;#125;&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/figure&gt;
+&lt;h3 id=&quot;3-Editable类&quot;&gt;&lt;a href=&quot;#3-Editable类&quot; class=&quot;headerlink&quot; title=&quot;3.Editable类&quot;&gt;&lt;/a&gt;3.Editable类&lt;/h3&gt;&lt;pre&gt;&lt;code class=&quot;java&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;private&lt;/span&gt; &lt;span class=&quot;keyword&quot;&gt;static&lt;/span&gt; Editable.Factory sInstance = &lt;span class=&quot;keyword&quot;&gt;new&lt;/span&gt; Editable.Factory();  
+&lt;span class=&quot;comment&quot;&gt;/** 
+ * Returns the standard Editable Factory. 
+ */&lt;/span&gt;  
+&lt;span class=&quot;keyword&quot;&gt;public&lt;/span&gt; &lt;span class=&quot;keyword&quot;&gt;static&lt;/span&gt; Editable.&lt;span class=&quot;function&quot;&gt;Factory &lt;span class=&quot;title&quot;&gt;getInstance&lt;/span&gt;&lt;span class=&quot;params&quot;&gt;()&lt;/span&gt; &lt;/span&gt;{  
+    &lt;span class=&quot;keyword&quot;&gt;return&lt;/span&gt; sInstance;  
+}
+&lt;/code&gt;&lt;/pre&gt;
+</content>
+    
+    <summary type="html">
+    
+      &lt;p&gt;Author ： &lt;a href=&quot;https://github.com/Shinelw&quot;&gt;Shinelw&lt;/a&gt;&lt;/p&gt;
+&lt;blockquote&gt;
+&lt;p&gt;单例其实就是唯一实例的意思，也就是说一个类只有一个唯一的实例。开发人员都知道，在java里，只要new一个类，就会创建这个类的一个实例，如果把这个类new多次，就会创建这个类的多个实例，但是有时候不管new多少次，就只需这个类的一个实例，比如日志记录中的管理类，Android中的InputMethodManager类、Editable类等。&lt;br&gt;
+    
+    </summary>
+    
+    
+      <category term="设计模式" scheme="http://shinelw.github.io/tags/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>设计模式学习</title>
+    <link href="http://shinelw.github.io/2015/09/10/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F%E5%AD%A6%E4%B9%A0/"/>
+    <id>http://shinelw.github.io/2015/09/10/设计模式学习/</id>
+    <published>2015-09-10T07:36:52.000Z</published>
+    <updated>2016-04-21T13:30:05.000Z</updated>
+    
+    <content type="html">&lt;p&gt;Author ：  &lt;a href=&quot;https://github.com/Shinelw&quot; target=&quot;_blank&quot; rel=&quot;external&quot;&gt;Shinelw&lt;/a&gt;&lt;/p&gt;
+&lt;blockquote&gt;
+&lt;p&gt;作为一个Android的开发者，平时在开发的过程中用到设计模式的地方并不是很多，但是看过Android源码的人应该都知道，Android的源码基本都是遵循设计模式编写的。所以，为了可以更加深入地研究Android，我开始学习设计模式。&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;a id=&quot;more&quot;&gt;&lt;/a&gt;
+&lt;p&gt;《设计模式》一书中，总结出23种设计模式，分别从对象的构建、对象的结构、对象的行为将这23中设计模式分为三类：&lt;/p&gt;
+&lt;p&gt;1.创建型模式&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;·单例模式（Singleton）
+·工厂方法模式（Factory Method）
+·抽象工厂模式（Abstract Factory）
+·原型模式（Prototype）
+·创建者模式（Builder）
+&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;2.结构型模式&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;·适配器模式（Adapter）
+·门面模式（Facade）
+·代理模式（Proxy）
+·合成模式（Composite）
+·享元模式（Flyweight）
+·装饰模式（Decorator）
+·桥模式（Bridge）
+&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;3.行为型模式&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;·策略模式（Strategy）
+·迭代器模式（Iterator）
+·模板方法模式（Template Method）
+·中介者模式（Mediator）
+·访问者模式（Visitor）
+·职责链模式（Chain of Responsibility）
+·状态模式（State）
+·解释器模式（Interpreter）
+·观察者模式（Observer）
+·命令模式（Command）
+·备忘录模式（Memento）
+&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;接下来的学习中，我会结合Android源码中使用到相关设计模式进行分析。&lt;/p&gt;
+&lt;blockquote&gt;
+&lt;p&gt;持续更新~~希望自己可以坚持不懈学习下去。&lt;/p&gt;
+&lt;/blockquote&gt;
+</content>
+    
+    <summary type="html">
+    
+      &lt;p&gt;Author ：  &lt;a href=&quot;https://github.com/Shinelw&quot;&gt;Shinelw&lt;/a&gt;&lt;/p&gt;
+&lt;blockquote&gt;
+&lt;p&gt;作为一个Android的开发者，平时在开发的过程中用到设计模式的地方并不是很多，但是看过Android源码的人应该都知道，Android的源码基本都是遵循设计模式编写的。所以，为了可以更加深入地研究Android，我开始学习设计模式。&lt;/p&gt;
+&lt;/blockquote&gt;
+    
+    </summary>
+    
+    
+      <category term="设计模式" scheme="http://shinelw.github.io/tags/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>你好，世界。</title>
+    <link href="http://shinelw.github.io/2015/09/03/hello-world/"/>
+    <id>http://shinelw.github.io/2015/09/03/hello-world/</id>
+    <published>2015-09-03T10:17:24.000Z</published>
+    <updated>2016-04-21T13:30:05.000Z</updated>
+    
+    <content type="html">&lt;p&gt;你好，我是Shinelw，Android菜鸟一枚。&lt;/p&gt;
+&lt;p&gt;学习Android到现在已经有一段时间了，做了一些小项目。感觉很多都是重复性的代码，开发中遇到的坑过了一段时间往往还会再次遇到，很多时候感觉提高不多，学习的东西学了忘，忘了学。&lt;/p&gt;
+&lt;p&gt;之前其实很早以前就决定要开始以写博客的方式记录下来，最早是博客园，后来是CSDN，后来往往是因为自己的惰性没有坚持下来。&lt;/p&gt;
+&lt;p&gt;所以折腾了好久，用Github Page + Hexo 搭建了属于自己的博客，记录下自己这一路来自己的学习过程。希望自己可以一直坚持不懈的学习和记录总结。&lt;/p&gt;
+&lt;p&gt;Do More.&lt;/p&gt;
+&lt;p&gt;不要在该拼搏的时光里选择安逸。&lt;/p&gt;
+&lt;p&gt;加油~&lt;/p&gt;
+</content>
+    
+    <summary type="html">
+    
+      &lt;p&gt;你好，我是Shinelw，Android菜鸟一枚。&lt;/p&gt;
+&lt;p&gt;学习Android到现在已经有一段时间了，做了一些小项目。感觉很多都是重复性的代码，开发中遇到的坑过了一段时间往往还会再次遇到，很多时候感觉提高不多，学习的东西学了忘，忘了学。&lt;/p&gt;
+&lt;p&gt;之前其实很早以前
+    
+    </summary>
+    
+    
+      <category term="随笔" scheme="http://shinelw.github.io/tags/%E9%9A%8F%E7%AC%94/"/>
+    
+  </entry>
+  
+</feed>
