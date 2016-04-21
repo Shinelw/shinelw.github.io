@@ -5,7 +5,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="http://shinelw.github.io/"/>
-  <updated>2016-04-21T13:30:05.000Z</updated>
+  <updated>2016-04-21T13:42:28.000Z</updated>
   <id>http://shinelw.github.io/</id>
   
   <author>
@@ -20,7 +20,7 @@
     <link href="http://shinelw.github.io/2016/04/21/wish-app-analysis-app-device-id/"/>
     <id>http://shinelw.github.io/2016/04/21/wish-app-analysis-app-device-id/</id>
     <published>2016-04-21T08:52:56.000Z</published>
-    <updated>2016-04-21T13:30:05.000Z</updated>
+    <updated>2016-04-21T13:42:28.000Z</updated>
     
     <content type="html">&lt;h2 id=&quot;概述&quot;&gt;&lt;a href=&quot;#概述&quot; class=&quot;headerlink&quot; title=&quot;概述&quot;&gt;&lt;/a&gt;&lt;strong&gt;概述&lt;/strong&gt;&lt;/h2&gt;&lt;p&gt;本文对Wish App进行了反编译，对应用中app_device_id字段的生成算法进行了逆向分析。&lt;br&gt;使用到的工具有：&lt;/p&gt;
 &lt;ol&gt;
@@ -56,7 +56,7 @@
 &lt;h2 id=&quot;总体流程&quot;&gt;&lt;a href=&quot;#总体流程&quot; class=&quot;headerlink&quot; title=&quot;总体流程&quot;&gt;&lt;/a&gt;&lt;strong&gt;总体流程&lt;/strong&gt;&lt;/h2&gt;&lt;p&gt;大致流程图如下：&lt;br&gt;&lt;img src=&quot;https://raw.githubusercontent.com/Shinelw/Android/master/BlogPicture/Wish_analysis/Screen%20Shot%202016-04-18%20at%208.33.22%20PM.png&quot; alt=&quot;&quot;&gt;&lt;/p&gt;
 &lt;p&gt;在手机中路径/Docment/Wish/devicedata保存下来的值：&lt;br&gt;&lt;img src=&quot;https://raw.githubusercontent.com/Shinelw/Android/master/BlogPicture/Wish_analysis/Screen%20Shot%202016-04-21%20at%202.10.55%20PM.png&quot; alt=&quot;&quot;&gt;&lt;/p&gt;
 &lt;p&gt;与抓包得到的数值吻合：&lt;br&gt;&lt;img src=&quot;https://raw.githubusercontent.com/Shinelw/Android/master/BlogPicture/Wish_analysis/Screen%20Shot%202016-04-21%20at%202.09.41%20PM.png&quot; alt=&quot;&quot;&gt;&lt;/p&gt;
-&lt;h2 id=&quot;总结：&quot;&gt;&lt;a href=&quot;#总结：&quot; class=&quot;headerlink&quot; title=&quot;总结：&quot;&gt;&lt;/a&gt;&lt;strong&gt;总结：&lt;/strong&gt;&lt;/h2&gt;&lt;p&gt;由于app_device_id字段对应的值是随机产生的，但是由上述代码分析可知，每一次访问网络的时候都要发送app_device_id字段，这就要求对应值要是唯一的，以确保进行操作的设备是安全的。而这里对实现唯一的方法就是永远只随机产生一次，通过SharedPreferences和File方式分别把值分别保存下来。只有当应用卸载重新安装并且删除本地文件device_data的时候才会重新随机产生一个app_device_id值，然后一般用户是不可以在删除应用的时候同时找到它所保存的文件路径并删除，这就达到了设备ID的唯一性。&lt;/p&gt;
+&lt;h2 id=&quot;总结：&quot;&gt;&lt;a href=&quot;#总结：&quot; class=&quot;headerlink&quot; title=&quot;总结：&quot;&gt;&lt;/a&gt;&lt;strong&gt;总结：&lt;/strong&gt;&lt;/h2&gt;&lt;p&gt;由于app_device_id字段对应的值是随机产生的，但是由上述代码分析可知，每一次访问网络的时候都要发送app_device_id字段，这就要求对应值要是唯一的，以确保进行操作的设备是安全的。而这里对实现唯一的方法就是永远只随机产生一次，通过SharedPreferences和File方式分别把值分别保存下来。只有当应用卸载重新安装并且删除本地文件device_data的时候才会重新随机产生一个app_device_id值，然后一般用户是不会在删除应用的时候同时找到它所保存的文件路径并删除，这就达到了设备ID的唯一性。&lt;/p&gt;
 </content>
     
     <summary type="html">
