@@ -1,0 +1,88 @@
+# Site settings
+title: Shinelw Blog
+SEOTitle: 沈良炜的博客 | Shinelw Blog
+header-img: img/home-bg.jpg
+email: shinelw.cool@gmail.com
+description: "在该拼搏的时光里不要选择安逸。"
+keyword: "Shinelw, 沈良炜, @Shinelw Shinelw's Blog, Android Developer"
+url: "http://shinelw.com"              # your host, for absolute URL
+baseurl: ""         # for example, '/blog' if your blog hosted on 'host/blog'
+
+
+
+# SNS settings
+RSS: true
+weibo_username:     shenliangwei
+zhihu_username:     Shinelw
+github_username:    Shinelw
+#twitter_username:  huxpro
+facebook_username:  沈良炜
+
+
+
+# Build settings
+# from 2016, 'pygments' is unsupported on GitHub Pages. Use 'rouge' for highlighting instead.
+highlighter: rouge
+permalink: pretty
+paginate: 10
+exclude: ["less","node_modules","Gruntfile.js","package.json","README.md"]
+anchorjs: true                          # if you want to customize anchor. check out line:181 of `post.html`
+
+
+
+# Gems
+# from PR#40, to support local preview for Jekyll 3.0
+gems: [jekyll-paginate]
+
+
+
+# Markdown settings
+# replace redcarpet to kramdown,
+# although redcarpet can auto highlight code, the lack of header-id make the catalog impossible, so I switch to kramdown
+# document: http://jekyllrb.com/docs/configuration/#kramdown
+markdown: kramdown
+kramdown:
+  input: GFM                            # use Github Flavored Markdown !important
+
+
+
+# Disqus settings
+#disqus_username: _your_disqus_short_name_
+
+# Duoshuo settings
+duoshuo_username: shinelw
+# Share component is depend on Comment so we can NOT use share only.
+duoshuo_share: true                     # set to false if you want to use Comment without Sharing
+
+
+
+
+# Analytics settings
+# Baidu Analytics
+ba_track_id: fdssdfafadsfadsf
+# Google Analytics
+ga_track_id: 'UA-76180718-1'            # Format: UA-xxxxxx-xx
+ga_domain: shinelw.com
+
+
+
+# Sidebar settings
+sidebar: true                           # whether or not using Sidebar.
+sidebar-about-description: "在该拼搏的时光里不要选择安逸。"
+sidebar-avatar: /img/shinelw-icon.png     # use absolute URL, seeing it's used in both `/` and `/about/`
+
+
+
+# Featured Tags
+featured-tags: true                     # whether or not using Feature-Tags
+featured-condition-size: 1              # A tag will be featured if the size of it is more than this condition value
+
+
+
+# Friends
+friends: [
+    {
+        title: "Shinelw Blog",
+        href: "http://shinelw.com"
+    }
+]
