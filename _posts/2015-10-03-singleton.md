@@ -1,10 +1,10 @@
 ---
 layout:     post
 title:      "设计模式之单例模式"
-subtitle:   ""
+subtitle:   "Singleton"
 date:       2015-10-03 15:37:14
 author:     "Shinelw"
-header-img: "img/post-bg-2015.jpg"
+header-img: "img/home-bg.jpg"
 catalog: true
 tags:
     - 设计模式
@@ -24,6 +24,7 @@ Author ： [Shinelw](https://github.com/Shinelw)
 	1.单例类只能有一个实例。
 	2.单例类必须自己创建自己的唯一实例
 	3.单例类必须给所有其他对象提供这一实例
+	
 ## 二、分类
 
   *单例模式有很多种写法，*
@@ -102,6 +103,7 @@ Author ： [Shinelw](https://github.com/Shinelw)
 ```
 
 同时，上述代码虽然避免了每次进入同步机制，但是又存在多线程下返回多个实例的问题。为此产生了另一种写法：双检测锁机制。
+
 ### 3.双检测锁机制单例模式
 	
 ```java	
