@@ -26,6 +26,7 @@ dependencies {
     compile 'com.github.shinelw.colorarcprogressbar:library:1.0.3'
 }
 ```
+
 ## 2、XML
 
 ```xml
@@ -46,6 +47,7 @@ dependencies {
         android:layout_marginBottom="150dp"
         />
 ```
+
 ## 3、代码
 
 ```java
