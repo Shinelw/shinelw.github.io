@@ -7,7 +7,7 @@ author:     "Shinelw"
 header-img: "img/post-bg-2015.jpg"
 catalog: true
 tags:
-    - AndroidStdio
+    - AndroidStudio
 ---
 
 今天微博被各种 Android Studio 2.0 刷屏了，赶紧更新体验了一把。
