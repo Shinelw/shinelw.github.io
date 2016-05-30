@@ -126,6 +126,7 @@ mPatchManager.addPatch(patchDir);
 			patchNames = patch.getPatchNames();
 			for (String patchName : patchNames) {
 				classes = patch.getClasses(patchName);
+				//对每个patch逐一进行fix
 				mAndFixManager.fix(patch.getFile(), mContext.getClassLoader(),
 						classes);
 			}
@@ -133,7 +134,9 @@ mPatchManager.addPatch(patchDir);
 	}
 ```
 
-**loadPatch()**中对本地的patch进行了遍历，获取每个patch的信息，逐一进行**fix()**，其中参数*classes*为patch中配置文件*Patch.MF*的*Patch-Classes*字段对应的所有类。
+**loadPatch()**中对本地的patch进行了遍历，获取每个patch的信息，逐一进行**fix()**，其中参数*classes*为patch中配置文件*Patch.MF*的*Patch-Classes*字段对应的所有类，即为要修复的类。
+
+接下来进入AndFixManager中。
 
 ### 2. AndFixManager
 
@@ -258,6 +261,8 @@ mPatchManager.addPatch(patchDir);
 	}
 ```
 
+定位到需要修复的方法以后，进入AndFix进行方法的替换。
+
 ### 3. AndFix
 
 AndFix是Java层进行方法替换的核心类，在该类中提供了Native层的接口，加载了**andfix.cpp**，主要进行了Native层的初始化，以及目标修复类的替换工作。
@@ -267,6 +272,7 @@ AndFix是Java层进行方法替换的核心类，在该类中提供了Native层�
 		try {
 			//jni方法
 			replaceMethod(src, dest);
+			//初始化字段，修改访问权限为public
 			initFields(dest.getDeclaringClass());
 		} catch (Throwable e) {
 			Log.e(TAG, "addReplaceMethod", e);
@@ -290,7 +296,9 @@ private static void initFields(Class<?> clazz) {
 	}
 ```
 
-该方法将被替换类的方法全部改成public， 具体操作也在native层实现。
+该方法将被替换类的方法全部改成public， 具体操作也在Native层实现。
+
+紧接着进入核心的Native层。
 
 ### 4. Native层分析
 
@@ -307,7 +315,7 @@ private static void initFields(Class<?> clazz) {
 		if (isChecked)
 			return isSupport;
 		isChecked = true;
-		//不支持云os
+		//不支持云os && AndFix.setup()执行成功 && android版本支持
 		if (!isYunOS() && AndFix.setup() && isSupportSDKVersion()) {
 			isSupport = true;
 		}
@@ -317,6 +325,8 @@ private static void initFields(Class<?> clazz) {
 		return isSupport;
 	}
 ```
+
+可以看出是否支持关键在与AndFix的setup()方法中。
 
 **AndFix.setup()**处理如下：
 
@@ -336,6 +346,8 @@ public static boolean setup() {
 }
 ```	
 
+根据是否为art和版本号，执行native层的setup()方法。
+
 进入Native层，针对于art和dalvik，有各自的处理方法。我们来看**andfix.cpp**中的*setup（）*方法。
 
 **setup()方法：**
@@ -354,7 +366,9 @@ static jboolean setup(JNIEnv* env, jclass clazz, jboolean isart,
 }
 ```
 
-根据ART和Dalvik的不同，*setup()*方法分别进入不同的方法执行，这里先分析*Dalvik*部分。
+ART和Dalvik的不同，*setup()*方法会分别进入不同的方法执行，
+
+#### Dalvik部分
 
 进入*dalvik_setup()*方法中，位于*dalvik_method_replace.cpp*中，如下：
 
@@ -403,12 +417,12 @@ extern void __attribute__ ((visibility ("hidden"))) dalvik_replaceMethod(
 			dvmThreadSelf_fnPtr(), clazz);
 	//将类状态设置为装载完毕
 	clz->status = CLASS_INITIALIZED;
-	//得到指向新类的指针
+	//得到指向新方法的指针
 	Method* meth = (Method*) env->FromReflectedMethod(src);
-	//得到指向需要修复的目标类的指针
+	//得到指向需要修复的目标方法的指针
 	Method* target = (Method*) env->FromReflectedMethod(dest);
 	
-	//新类指向目标类，实现类的替换
+	//新方法指向目标方法，实现方法的替换
 	meth->clazz = target->clazz;
 	meth->accessFlags |= ACC_PUBLIC;
 	meth->methodIndex = target->methodIndex;
@@ -421,6 +435,93 @@ extern void __attribute__ ((visibility ("hidden"))) dalvik_replaceMethod(
 	meth->nativeFunc = target->nativeFunc;
 }
 ```
+
+
+#### ART部分
+
+art部分根据版本号的不同，进行了不同的处理。代码树为：
+
+![](https://raw.githubusercontent.com/Shinelw/shinelw.github.io/master/assets/art.png)
+
+进入art_method_replace.cpp代码中，
+
+```c++
+//art下始终支持
+extern jboolean __attribute__ ((visibility ("hidden"))) art_setup(JNIEnv* env,
+		int level) {
+	apilevel = level;
+	return JNI_TRUE;
+}
+//根据不同版本进行不同的替换处理
+extern void __attribute__ ((visibility ("hidden"))) art_replaceMethod(
+		JNIEnv* env, jobject src, jobject dest) {
+	if (apilevel > 22) {
+		replace_6_0(env, src, dest);
+	} else if (apilevel > 21) {
+		replace_5_1(env, src, dest);
+	} else {
+		replace_5_0(env, src, dest);
+	}
+}
+//根据不同版本进行不同的权限设置处理
+extern void __attribute__ ((visibility ("hidden"))) art_setFieldFlag(
+		JNIEnv* env, jobject field) {
+	if (apilevel > 22) {
+		setFieldFlag_6_0(env, field);
+	} else if (apilevel > 21) {
+		setFieldFlag_5_1(env, field);
+	} else {
+		setFieldFlag_5_0(env, field);
+	}
+}
+```
+
+根据不同版本号，分别进入5_0,5_1,6_0中处理。这里以5.0为例，
+进入art_method_replace_5_0.cpp中，
+
+```c++
+void replace_5_0(JNIEnv* env, jobject src, jobject dest) {
+	//获得指向新的方法的指针
+	art::mirror::ArtMethod* smeth =
+			(art::mirror::ArtMethod*) env->FromReflectedMethod(src);
+			
+	//获得指向被替换的目标方法的指针
+	art::mirror::ArtMethod* dmeth =
+			(art::mirror::ArtMethod*) env->FromReflectedMethod(dest);
+	//目标方法的装载器和方法中声明类设置为新方法对应值
+	dmeth->declaring_class_->class_loader_ =
+			smeth->declaring_class_->class_loader_;
+	dmeth->declaring_class_->clinit_thread_id_ =
+			smeth->declaring_class_->clinit_thread_id_;
+	dmeth->declaring_class_->status_ = smeth->declaring_class_->status_-1;
+
+	//新方法指向目标方法，实现方法的替换
+	smeth->declaring_class_ = dmeth->declaring_class_;
+	smeth->access_flags_ = dmeth->access_flags_;
+	smeth->frame_size_in_bytes_ = dmeth->frame_size_in_bytes_;
+	smeth->dex_cache_initialized_static_storage_ =
+			dmeth->dex_cache_initialized_static_storage_;
+	smeth->dex_cache_resolved_types_ = dmeth->dex_cache_resolved_types_;
+	smeth->dex_cache_resolved_methods_ = dmeth->dex_cache_resolved_methods_;
+	smeth->vmap_table_ = dmeth->vmap_table_;
+	smeth->core_spill_mask_ = dmeth->core_spill_mask_;
+	smeth->fp_spill_mask_ = dmeth->fp_spill_mask_;
+	smeth->mapping_table_ = dmeth->mapping_table_;
+	smeth->code_item_offset_ = dmeth->code_item_offset_;
+	smeth->entry_point_from_compiled_code_ =
+			dmeth->entry_point_from_compiled_code_;
+
+	smeth->entry_point_from_interpreter_ = dmeth->entry_point_from_interpreter_;
+	smeth->native_method_ = dmeth->native_method_;
+	smeth->method_index_ = dmeth->method_index_;
+	smeth->method_dex_index_ = dmeth->method_dex_index_;
+
+	LOGD("replace_5_0: %d , %d", smeth->entry_point_from_compiled_code_,
+			dmeth->entry_point_from_compiled_code_);
+
+}
+```
+
 
 至此，AndFix的整个方法替换流程已经结束。
 
