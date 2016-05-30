@@ -441,7 +441,257 @@ extern void __attribute__ ((visibility ("hidden"))) dalvik_replaceMethod(
 
 使用jd-gui逆向打开apkpatch.jar文件，整个jar的代码树如下图：
 
-![]()
+![](https://raw.githubusercontent.com/Shinelw/shinelw.github.io/master/assets/apkpatch_tree.png)
+
+
+打开整个项目入口Main类，
+
+![](https://raw.githubusercontent.com/Shinelw/shinelw.github.io/master/assets/main.png)
+
+在main方法中，对命令行的输入进行了参数获取，然后执行apkPatch.doPatch()方法。
+
+```java
+ApkPatch apkPatch = new ApkPatch(from, to, name, out,
+			 keystore, password, alias, entry);
+apkPatch.doPatch();
+```
+
+跟随跳转，我们进入ApkPatch类中的doPatch()方法中。
+
+```java
+public void doPatch()
+  {
+    try
+    { 
+      //得到输出路径，没有则新建
+      File smaliDir = new File(this.out, "smali");
+      if (!smaliDir.exists()) {
+        smaliDir.mkdir();
+      }
+      try
+      {	
+      	//清除文件夹中文件
+        FileUtils.cleanDirectory(smaliDir);
+      }
+      catch (IOException e)
+      {
+        throw new RuntimeException(e);
+      }
+      File dexFile = new File(this.out, "diff.dex");
+      if ((dexFile.exists()) && (!dexFile.delete())) {
+        throw new RuntimeException("diff.dex can't be removed.");
+      }
+      File outFile = new File(this.out, "diff.apatch");
+      if ((outFile.exists()) && (!outFile.delete())) {
+        throw new RuntimeException("diff.apatch can't be removed.");
+      }
+      //找出差异信息
+      DiffInfo info = new DexDiffer().diff(this.from, this.to);
+      
+      //将Info写入.smali文件中，构建dex文件
+      this.classes = buildCode(smaliDir, dexFile, info);
+      
+      //生成配置文件，签名写入生成diff.apatch文件
+      build(outFile, dexFile);
+      
+      //重命名diff.apatch,生成最终的补丁
+      release(this.out, dexFile, outFile);
+    }
+    catch (Exception e)
+    {
+      e.printStackTrace();
+    }
+  }
+```
+
+代码中可以看出，创建patch补丁大致是四个步骤，为diff()、buildCode()、build()、release()，接下来我们对每个步骤进行分析。
+
+### 1. diff() - 找出新旧apk中差异信息
+
+```java
+public DiffInfo diff(File newFile, File oldFile)
+    throws IOException
+  {
+    DexBackedDexFile newDexFile = DexFileFactory.loadDexFile(newFile, 19, 
+      true);
+    DexBackedDexFile oldDexFile = DexFileFactory.loadDexFile(oldFile, 19, 
+      true);
+    
+    DiffInfo info = DiffInfo.getInstance();
+    boolean contains = false;
+    //新旧apk的classes.dex双重遍历，比较每个字段和方法
+    for (DexBackedClassDef newClazz : newDexFile.getClasses())
+    {
+      Set<? extends DexBackedClassDef> oldclasses = oldDexFile
+        .getClasses();
+      for (DexBackedClassDef oldClazz : oldclasses) {
+        if (newClazz.equals(oldClazz))
+        {
+          compareField(newClazz, oldClazz, info);
+          compareMethod(newClazz, oldClazz, info);
+          contains = true;
+          break;
+        }
+      }
+      if (!contains) {
+        info.addAddedClasses(newClazz);
+      }
+    }
+    return info;
+  }
+```
+
+在compareField()和compareMethod()的比较最后，将修改过或新增的字段和方法加入到Info中。
+
+比较字段：
+
+```java
+//Info中添加修改字段
+info.addModifiedFields(object);
+...
+//Info中加入新增字段
+info.addAddedFields(object);
+```
+
+比较方法：
+
+```java
+//Info中加入修改方法
+info.addModifiedMethods(object);
+...
+//Info中加入新增方法
+info.addAddedMethods(object);
+```
+
+### 2. buildCode() - Info信息写入.smali文件中，生成dex文件
+
+```java
+private static Set<String> buildCode(File smaliDir, File dexFile, DiffInfo info)
+    throws IOException, RecognitionException, FileNotFoundException
+  {	
+  	//将所有差异点写入list中
+    Set<String> classes = new HashSet();
+    Set<DexBackedClassDef> list = new HashSet();
+    list.addAll(info.getAddedClasses());
+    list.addAll(info.getModifiedClasses());
+    ...
+    //遍历所有差异点，写入smali文件中
+    for (DexBackedClassDef classDef : list)
+    {
+      String className = classDef.getType();
+      baksmali.disassembleClass(classDef, outFileNameHandler, options);
+      File smaliFile = inFileNameHandler.getUniqueFilenameForClass(
+        TypeGenUtil.newType(className));
+      classes.add(TypeGenUtil.newType(className)
+        .substring(1, TypeGenUtil.newType(className).length() - 1)
+        .replace('/', '.'));
+      SmaliMod.assembleSmaliFile(smaliFile, dexBuilder, true, true);
+    }
+    //生成diff.dex文件
+    dexBuilder.writeTo(new FileDataStore(dexFile));
+    return classes;
+}
+```
+
+### 3. build() - 根据keystore进行签名，生成.apatch补丁文件
+
+```java
+protected void build(File outFile, File dexFile)
+    throws KeyStoreException, FileNotFoundException, IOException, NoSuchAlgorithmException, CertificateException, UnrecoverableEntryException
+  {	
+  	//keystore信息，签名写入
+    KeyStore keyStore = KeyStore.getInstance(KeyStore.getDefaultType());
+    KeyStore.PrivateKeyEntry privateKeyEntry = null;
+    InputStream is = new FileInputStream(this.keystore);
+    keyStore.load(is, this.password.toCharArray());
+    privateKeyEntry = (KeyStore.PrivateKeyEntry)keyStore.getEntry(this.alias, 
+      new KeyStore.PasswordProtection(this.entry.toCharArray()));
+      
+    //patch构造器，写入meta配置信息和封装patch补丁
+    PatchBuilder builder = new PatchBuilder(outFile, dexFile, 
+      privateKeyEntry, System.out);
+    builder.writeMeta(getMeta());
+    builder.sealPatch();
+  }
+```
+
+进入PatchBuilder类中，
+
+```java
+  //构造方法，生成classes.dex文件
+  public PatchBuilder(File outFile, File dexFile, KeyStore.PrivateKeyEntry key, PrintStream verboseStream)
+  {
+    try
+    {
+      this.mBuilder = new SignedJarBuilder(new FileOutputStream(outFile, false), key.getPrivateKey(), 
+        (X509Certificate)key.getCertificate());
+      this.mBuilder.writeFile(dexFile, "classes.dex");
+    }
+    catch (Exception e)
+    {
+      e.printStackTrace();
+    }
+  }
+  
+  //写入配置信息
+  public void writeMeta(Manifest manifest)
+  {
+    try
+    {
+      this.mBuilder.getOutputStream().putNextEntry(
+        new JarEntry("META-INF/PATCH.MF"));
+      manifest.write(this.mBuilder.getOutputStream());
+    }
+    catch (Exception e)
+    {
+      e.printStackTrace();
+    }
+  }
+  
+  //关闭Builder，对配置信息、classes.dex进行封装，生成diff.apatch补丁文件
+  public void sealPatch()
+  {
+    try
+    {
+      this.mBuilder.close();
+    }
+    catch (Exception e)
+    {
+      e.printStackTrace();
+    }
+  }
+```
+
+至此，第三步完成以后，会生成一个diff.apatch的文件，这个文件其他内容上跟最终补丁文件已经一致，那么最后一步**release()**做了什么呢。
+
+### 4. release() - 重命名diff.apatch文件
+
+```java
+  protected void release(File outDir, File dexFile, File outFile)
+    throws NoSuchAlgorithmException, FileNotFoundException, IOException
+  {
+    MessageDigest messageDigest = MessageDigest.getInstance("md5");
+    FileInputStream fileInputStream = new FileInputStream(dexFile);
+    byte[] buffer = new byte[''];
+    int len = 0;
+    while ((len = fileInputStream.read(buffer)) > 0) {
+      messageDigest.update(buffer, 0, len);
+    }
+    //16进制生成MD5字符串，重命名.apatch补丁文件
+    String md5 = HexUtil.hex(messageDigest.digest());
+    fileInputStream.close();
+    outFile.renameTo(new File(outDir, this.name + "-" + md5 + ".apatch"));
+  }
+```
+
+很显然，release()方法做的唯一一件事就是对补丁文件进行了重命名。
+
+到这里，经过四个步骤，生成了最终的补丁文件，在命令行后共生成diff.dex、smali文件、md5.apatch三个文件。其中md5.apatch文件就是我们进行热修复的补丁。
+
+
+
+
+
 
 
 
