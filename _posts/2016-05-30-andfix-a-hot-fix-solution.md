@@ -1,13 +1,13 @@
 ---
 layout:     post
-title:      "Android - 热修复方案"
+title:      "AndFix - 热修复方案原理分析"
 subtitle:   "AndFix - A Hot Fix Solution"
 date:       2016-05-29 12:52:56
 author:     "Shinelw"
 header-img: "img/post-bg-2015.jpg"
 catalog: true
 tags:
-    - Android
+    - HotFix
 ---
 
 AndFix是阿里开源的一种在线bug热修复的方案，当线上应用出现紧急Bug时，无需再重新发版本，通过发送补丁的方式达到修复Bug的功能，相对于之前同样为阿里开源的Dexposed来说，AndFix支持Android2.3-6.0，并且同时支持Dalvik和ART模式。
@@ -687,6 +687,14 @@ protected void build(File outFile, File dexFile)
 很显然，release()方法做的唯一一件事就是对补丁文件进行了重命名。
 
 到这里，经过四个步骤，生成了最终的补丁文件，在命令行后共生成diff.dex、smali文件、md5.apatch三个文件。其中md5.apatch文件就是我们进行热修复的补丁。
+
+## 总结
+
+AndFix提供了一种Native层hook Java层代码的思路，实现了动态的替换方法。在处理简单没有特别复杂的方法中有独特的优势，但因为在加载类时跳过了类装载过程直接设置为初始化完毕，所以不支持新增静态变量和方法。
+
+附AndFix项目地址：
+
+[https://github.com/alibaba/AndFix](https://github.com/alibaba/AndFix)
 
 
 
