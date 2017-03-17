@@ -1,7 +1,7 @@
 ---
 layout:     post
 title:      "谈谈Kotlin特性在开发中的应用"
-subtitle:   "Kotlin"
+subtitle:   "Kotlin - Apply in coding"
 date:       2017-03-17 17:51:56
 author:     "Shinelw"
 header-img: "img/post-bg-2015.jpg"
