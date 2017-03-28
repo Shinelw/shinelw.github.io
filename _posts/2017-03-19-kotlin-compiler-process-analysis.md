@@ -422,7 +422,7 @@ KotlinParser语法分析器调用KotParsing进行语法分析，并生成AST抽�
 
 关于如何生成一个简单表达式的AST树，可以参考下图：
 
-![](PsiBuilder.gif)
+![](https://github.com/Shinelw/shinelw.github.io/blob/master/assets/PsiBuilder.gif?raw=true)
 
 
 ### 2.3 语义分析及中间代码生成
@@ -442,13 +442,13 @@ println(c)
 
 在Kotlin编译器中，语义分析的工作位于**org.jetbrains.kotlin.resolve**模块下。
 
-![](语义分析.png)
+![](https://github.com/Shinelw/shinelw.github.io/blob/master/assets/%E8%AF%AD%E4%B9%89%E5%88%86%E6%9E%90.png?raw=true)
 
 该模块包含了所有的的上下文相关属性的检查，包括对表达式语句、常量、智能转换等上下文相关属性检查。
 
 语义分析器进行了上下文相关属性的检查之后，会生成中间代码，位于**org.jetbrains.kotlin.ir**模块中。
 
-![](中间代码生成.png)
+![](https://github.com/Shinelw/shinelw.github.io/blob/master/assets/%E4%B8%AD%E9%97%B4%E4%BB%A3%E7%A0%81%E7%94%9F%E6%88%90.png?raw=true)
 
 如图所示，Psi2IrTranslator文件将AST抽象语法树转换成了IR中间表示形式（即中间代码）。
 
