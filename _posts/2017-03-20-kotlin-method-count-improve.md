@@ -1,3 +1,15 @@
+---
+layout:     post
+title:      "Kotlin属性引发的方法数问题"
+subtitle:   "Methods several problems induced by Kotlin property"
+date:       2017-03-20 16:51:57
+author:     "Shinelw"
+header-img: "img/post-bg-2015.jpg"
+catalog: true
+tags:
+    - Kotlin
+---
+
 # Kotlin属性引发的方法数问题
 Kotlin最重要的一个优势就是简洁。说白了就是写的代码比Java来的少，所以很大程度上使用Kotlin开发会减少项目中的代码行数。然而，如果你觉得方法数肯定也减少的话，那就too young too simple了！首先，撇开引入Kotlin标准库的7000个方法数不谈，接下来我们来谈谈Kotlin属性带来的方法数问题。
 
