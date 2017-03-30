@@ -1,0 +1,4 @@
+# Kotlin新特性之JavaScript支持
+Kotlin1.1版本正式加入了对JavaScript的支持，也就是说我们可以Kotlin进行网页开发，并且Kotlin也支持了与JavaScript的相互操作。众所周知，JavaScript是动态类型的语言，而相对来说，Kotlin和Java都是静态类型的。同时，两者在编译运行也很不一样，Java更偏向与编译型语言，而JavaScript更偏向于解释型语言。所以，在Kotlin完美兼容Java的同时，增加了JavaScript的支持，让人好奇不已。接下来，我们就来谈谈Kotlin如何支持JavaScript，以及它是怎么实现的。
+
+## 
