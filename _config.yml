@@ -5,7 +5,7 @@ header-img: img/home-bg.jpg
 email: shinelw.cool@gmail.com
 description: "在该拼搏的时光里不要选择安逸。"
 keyword: "Shinelw, 沈良炜, @Shinelw Shinelw's Blog, Android Developer"
-url: "http://shinelw.com"              # your host, for absolute URL
+url: "http://shinelw.github.io"              # your host, for absolute URL
 baseurl: ""         # for example, '/blog' if your blog hosted on 'host/blog'
 
 
@@ -62,7 +62,7 @@ duoshuo_share: true                     # set to false if you want to use Commen
 ba_track_id: fdssdfafadsfadsf
 # Google Analytics
 ga_track_id: 'UA-76180718-1'            # Format: UA-xxxxxx-xx
-ga_domain: shinelw.com
+ga_domain: shinelw.github.io
 
 
 
@@ -83,6 +83,6 @@ featured-condition-size: 0              # A tag will be featured if the size of 
 friends: [
     {
         title: "Shinelw Blog",
-        href: "http://shinelw.com"
+        href: "http://shinelw.github.io"
     }
 ]
