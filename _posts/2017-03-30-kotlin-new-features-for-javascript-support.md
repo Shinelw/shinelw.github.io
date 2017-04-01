@@ -27,7 +27,7 @@ fun main(args: Arrays<String>) {
 
 然后Kotlin编译器进行编译，会生成以下输出结果：
 
-![](../assets/1.png)
+![1.png](https://github.com/Shinelw/shinelw.github.io/blob/master/assets/1.png?raw=true)
 
 从图中可以看出，当Kotlin编译器进行编译转换成了JavaScript，主要输出了两个文件:
 
@@ -360,13 +360,13 @@ function main(args) {
 
 ### Kotlin-Java
 
-![kt-java](../assets/kt-java.png)
+![kt-java](https://github.com/Shinelw/shinelw.github.io/blob/master/assets/kt-java.png?raw=true)
 
 我们可以看到，Kotlin-Java模式中，Kotlinc（编译器）将`*.kt`文件编译成了`*.class`字节码文件，同时`*.java`文件可通过Kotlinc或者Javac编译成`*.class`字节码文件，然后通过JVM虚拟机执行。
 
 ### Kotlin-JavaScript
 
-![kt-js](../assets/kt-js.png)
+![kt-js](https://github.com/Shinelw/shinelw.github.io/blob/master/assets/kt-js.png?raw=true)
 
 然而，Kotlin-JavaScript模式中，Kotlinc(编译器)只是进行了转换JS的操作，然后与标准库`kotlin.js`、项目中JS文件一起再通过`JavaScript引擎`执行。
 
