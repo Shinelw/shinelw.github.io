@@ -1,7 +1,7 @@
 ---
 layout:     post
 title:      "谈谈Kotlin特性在开发中的应用"
-subtitle:   "Kotlin - Apply In Coding"
+subtitle:   "Talking about Kotlin Characteristic in Development"
 date:       2017-03-17 17:51:57
 author:     "Shinelw"
 header-img: "img/post-bg-2015.jpg"
