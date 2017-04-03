@@ -1,10 +1,10 @@
 # Site settings
 title: Shinelw Blog
-SEOTitle: 沛轩 | Shinelw Blog
+SEOTitle: PASSION | Shinelw Blog
 header-img: img/home-bg.jpg
 email: shinelw.cool@gmail.com
-description: "在该拼搏的时光里不要选择安逸。"
-keyword: "Shinelw, @Shinelw Shinelw's Blog, Android Developer, 沛轩"
+description: "好好学习天天向上。"
+keyword: "Shinelw, @Shinelw Shinelw's Blog, Android Developer, 沛轩, PASSION, 沈良炜"
 url: "http://shinelw.com"              # your host, for absolute URL
 baseurl: ""         # for example, '/blog' if your blog hosted on 'host/blog'
 
@@ -68,7 +68,7 @@ ga_domain: shinelw.com
 
 # Sidebar settings
 sidebar: true                           # whether or not using Sidebar.
-sidebar-about-description: "好好学习天天向上"
+sidebar-about-description: "好好学习天天向上。"
 sidebar-avatar: /img/shinelw-icon.png     # use absolute URL, seeing it's used in both `/` and `/about/`
 
 
