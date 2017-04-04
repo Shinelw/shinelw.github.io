@@ -1,7 +1,7 @@
 # Site settings
 title: Shinelw Blog
 SEOTitle: PASSION | Shinelw Blog
-header-img: img/home-bg.png
+header-img: img/home-bg.jpg
 email: shinelw.cool@gmail.com
 description: "好好学习天天向上。"
 keyword: "Shinelw, @Shinelw Shinelw's Blog, Android Developer, 沛轩, PASSION, 沈良炜"
@@ -13,7 +13,7 @@ baseurl: ""         # for example, '/blog' if your blog hosted on 'host/blog'
 # SNS settings
 RSS: true
 weibo_username:     shenliangwei
-zhihu_username:     Shinelw
+zhihu_username:     shinelw
 github_username:    Shinelw
 #twitter_username:  huxpro
 facebook_username:  shinelw
