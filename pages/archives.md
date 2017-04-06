@@ -1,6 +1,6 @@
 ---
 layout: page
-title: "Archive"
+title: "Archives"
 description: "Here are all the articles archived."
 header-img: "img/home-bg.jpg"
 ---

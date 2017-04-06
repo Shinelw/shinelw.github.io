@@ -15,8 +15,9 @@ header-img: "img/about-bg.jpg"
 
 
 ### 版权声明
+  ![CC BY-NC-ND 4.0](https://mirrors.creativecommons.org/presskit/buttons/88x31/png/by-nc-nd.png)
 
-- 本博客采用[知识共享署名-非商业性使用-禁止演绎 3.0 中国大陆许可协议](http://creativecommons.org/licenses/by-nc-nd/3.0/cn/)进行许可
+- 本博客采用[知识共享署名-非商业性使用-禁止演绎 4.0 国际许可协议](http://creativecommons.org/licenses/by-nc-nd/3.0/cn/)进行许可
 - 所有博文内容均为原创，转载请务必注明作者[Shinelw](https://github.com/Shinelw)以及原文出处链接，且不得篡改原文内容。
 - 转载不得用于任何商业目的.
 
