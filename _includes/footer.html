@@ -75,16 +75,18 @@
                 <p class="copyright text-muted">
                     Copyright &copy; {{ site.title }} {{ site.time | date: '%Y' }}
                     <br>
-                     Theme by <a href="http://huangxuan.me">Hux</a> 
+                     Theme by <a href="http://huangxuan.me">Hux</a>
                     <span style="display: inline-block; margin: 0 5px;">
                         <i class="fa fa-heart"></i>
-                    </span> 
+                    </span>
                     <span id="busuanzi_container_site_pv">
-                        PV:<span id="busuanzi_value_site_pv"></span>
+                        PV: <span id="busuanzi_value_site_pv"></span>
                     </span>
                     <span id="busuanzi_container_site_uv">
-                        UV:<span id="busuanzi_value_site_uv">From(16.6.14)</span>
+                        UV: <span id="busuanzi_value_site_uv"></span>
                     </span>
+                    <br>
+                    Blog is licensed under <a rel="license" href="http://creativecommons.org/licenses/by-nc-nd/3.0/cn/">CC BY-NC-ND 3.0 CN</a>
                 </p>
             </div>
         </div>
@@ -113,15 +115,15 @@
     }
 </script>
 
-<!-- 
-     Because of the native support for backtick-style fenced code blocks 
-     right within the Markdown is landed in Github Pages, 
-     From V1.6, There is no need for Highlight.js, 
+<!--
+     Because of the native support for backtick-style fenced code blocks
+     right within the Markdown is landed in Github Pages,
+     From V1.6, There is no need for Highlight.js,
      so Huxblog drops it officially.
 
-     - https://github.com/blog/2100-github-pages-now-faster-and-simpler-with-jekyll-3-0  
-     - https://help.github.com/articles/creating-and-highlighting-code-blocks/ 
-     - https://github.com/jneen/rouge/wiki/list-of-supported-languages-and-lexers   
+     - https://github.com/blog/2100-github-pages-now-faster-and-simpler-with-jekyll-3-0
+     - https://help.github.com/articles/creating-and-highlighting-code-blocks/
+     - https://github.com/jneen/rouge/wiki/list-of-supported-languages-and-lexers
 -->
 <!--
     <script>
@@ -208,7 +210,7 @@
             l = $('<li class="'+n+'_nav"></li>').append(c);
             $(selector).append(l);
         });
-        return true;    
+        return true;
     }
 
     generateCatalog(".catalog-body");
@@ -240,4 +242,3 @@
     });
 </script>
 {% endif %}
-

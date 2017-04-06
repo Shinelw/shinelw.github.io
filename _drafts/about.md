@@ -5,26 +5,21 @@ description: "Hey, this is Shinelw."
 header-img: "img/about-bg.jpg"
 ---
 
-<!-- Main Container -->
-<div class="zh post-container">
+<!-- Language Selector -->
+### 关于我
 
-<h3 id="关于我">关于我</h3>
-<ul>
-  <li>Shinelw，Android开发者。</li>
-  <li>2013-2017本科就读于<a href="http://www.uestc.edu.cn/">郫县高级男子技术学院</a>。</li>
-  <li>目前就职于阿里巴巴集团手淘事业部。</li>
-</ul>
+- Shinelw，Android开发者。
+- 2013-2017本科就读于[郫县高级男子技术学院](http://www.uestc.edu.cn/)。
+- 目前就职于阿里巴巴集团手淘事业部。
 
-<br>
 
-<h3 id="版权声明">版权声明</h3>
-<ul>
-  <li>本博客采用<a href="http://creativecommons.org/licenses/by-nc-nd/3.0/cn/">知识共享署名-非商业性使用-禁止演绎 3.0 中国大陆许可协议</a>进行许可。</li>
-  <li>所有博文内容均为原创，转载请务必注明作者<a href="https://github.com/Shinelw">Shinelw</a>以及原文出处链接，且不得篡改原文内容。</li>
-  <li>转载不得用于任何商业目的。</li>
-</ul>
 
-</div>
+### 版权声明
+
+- 本博客采用[知识共享署名-非商业性使用-禁止演绎 3.0 中国大陆许可协议](http://creativecommons.org/licenses/by-nc-nd/3.0/cn/)进行许可
+- 所有博文内容均为原创，转载请务必注明作者[Shinelw](https://github.com/Shinelw)以及原文出处链接，且不得篡改原文内容。
+- 转载不得用于任何商业目的.
+
 
 {% if site.duoshuo_username %}
 <!-- 多说评论框 start -->

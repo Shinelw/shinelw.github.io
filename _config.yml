@@ -4,7 +4,7 @@ SEOTitle: PASSION | Shinelw Blog
 header-img: img/home-bg.jpg
 email: shinelw.cool@gmail.com
 description: "好好学习天天向上。"
-keyword: "Shinelw, @Shinelw Shinelw's Blog, Android Developer, 沛轩, PASSION, 沈良炜"
+keyword: "Shinelw, @Shinelw Shinelw's Blog, Android Developer, 沛轩, PASSION, 沈良炜, Shinelw Blog"
 url: "http://shinelw.com"              # your host, for absolute URL
 baseurl: ""         # for example, '/blog' if your blog hosted on 'host/blog'
 
@@ -15,8 +15,8 @@ RSS: true
 weibo_username:     shenliangwei
 zhihu_username:     shinelw
 github_username:    Shinelw
-#twitter_username:  huxpro
-facebook_username:  shinelw
+#twitter_username:  shinelw
+#facebook_username:  shinelw
 
 
 
@@ -47,12 +47,12 @@ kramdown:
 
 
 # Disqus settings
-#disqus_username: _your_disqus_short_name_
+disqus_username: shinelw
 
 # Duoshuo settings
-duoshuo_username: shinelw
+#duoshuo_username: shinelw
 # Share component is depend on Comment so we can NOT use share only.
-duoshuo_share: true                     # set to false if you want to use Comment without Sharing
+#duoshuo_share: true                     # set to false if you want to use Comment without Sharing
 
 
 
