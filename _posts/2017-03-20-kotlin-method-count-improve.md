@@ -20,18 +20,19 @@ Kotlin最重要的一个优势就是简洁。说白了就是写的代码比Java�
 
 看上去就是下面这样子的：
 
-```
+```java
 //Kotlin
 class Hello {
     var a: Int = 1
-    
+
     var b: Int = 1
         set(value) {value * 3}
 
 }
 ```
 等价于Java中：
-```
+
+```java
 public final class Hello {
    private int a = 1;
    private int b = 1;
@@ -56,7 +57,7 @@ public final class Hello {
 
 看上去是不是很简洁，在Kotlin中我们不需要写防御性的getter和setter方法以保证字段private不可见。显然，这让我们在开发过程中少写了很多代码。但这往往需要有代价的，如果你是个Java开发者，对于暴露出来的公开字段，比如常量的处理，代码是长这样的：
 
-```
+```java
 //Kotlin
 
 class Constants {
@@ -162,10 +163,10 @@ public final class Constants {
       public final int getREQUEST_CANCEL() {
          return Constants.REQUEST_CANCEL;
       }
-      
+
       private Companion() {
       }
-      
+
       // $FF: synthetic method
       public Companion(DefaultConstructorMarker $constructor_marker) {
          this();
@@ -187,7 +188,7 @@ public final class Constants {
 
 我们到Kotlin编译过程的最后阶段---目标代码生成，定位到PropertyCodegen类，如果生成属性相关代码。
 
-```
+```java
 public class PropertyCodegen {
 
     private void gen(
@@ -213,11 +214,11 @@ public class PropertyCodegen {
 }
 ```
 
-看代码，我们需要做的是，让**isAccessorNeeded(declaration, descriptor, getter)**和 **isAccessorNeeded(declaration, descriptor, setter)**的判断都返回false，不让其执行到**generateGetter(declaration, descriptor, getter)**和**generateSetter(declaration, descriptor, setter)**代码，阻止生成属性的setter/getter方法。
+看代码，我们需要做的是，让 **isAccessorNeeded(declaration, descriptor, getter)** 和 **isAccessorNeeded(declaration, descriptor, setter** )的判断都返回false，不让其执行到** generateGetter(declaration, descriptor, getter)** 和 **generateSetter(declaration, descriptor, setter)** 代码，阻止生成属性的setter/getter方法。
 
 我们看看**isAccessorNeeded**里做了什么事。
 
-```
+```java
   private boolean isAccessorNeeded(
             @Nullable KtProperty declaration,
             @NotNull PropertyDescriptor descriptor,
@@ -230,7 +231,7 @@ public class PropertyCodegen {
 
         //不要为DefaultImpls中的默认访问器生成接口属性的访问器
         if (kind == OwnerKind.DEFAULT_IMPLS && isDefaultAccessor) return false;
-		
+
         if (declaration == null) return true;
 
         //委托或扩展属性只能通过访问器引用
@@ -255,50 +256,50 @@ public class PropertyCodegen {
 
 ### 情况一：const修饰或者@JvmFiled注解
 
-```
+```java
 public static boolean isConstOrHasJvmFieldAnnotation(@NotNull PropertyDescriptor propertyDescriptor) {
         return propertyDescriptor.isConst() || hasJvmFieldAnnotation(propertyDescriptor);
     }
 ```
 
-可以看到，当属性描述的_isConst()_为TRUE时，即对应以下情况：
+可以看到，当属性描述的_isConst()_ 为TRUE时，即对应以下情况：
 
-```
+```jav
 const val a = 1。
 ```
 
 再看看注解，
 
-```
+```java
 fun DeclarationDescriptor.hasJvmFieldAnnotation(): Boolean {
     return findJvmFieldAnnotation() != null
 }
 
-fun DeclarationDescriptor.findJvmFieldAnnotation() = 
+fun DeclarationDescriptor.findJvmFieldAnnotation() =
 	DescriptorUtils.getAnnotationByFqName(annotations, FqName("kotlin.jvm.JvmField"))
 ```
 
 当定义的属性找到了@JvmField时，返回TRUE,即对应以下情况：
 
-```
+```java
 @JvmField var a
 ```
 
 接下来，我们来验证我们的想法。
 
-```
+```java
 class Hello {
     companion object {
         const val A = 1
         @JvmField val B = 2
     }
-    
+
 }
 ```
 
 转换为Java代码，
 
-```
+```java
 public final class Hello {
    public static final int A = 1;
    @JvmField
@@ -324,18 +325,17 @@ public final class Hello {
 
 可想而知，当属性类型为val时，属性值则不可改变，所以只会生成getter访问方法，而不会生成setter方法。
 
-```
+```java
 boolean isDefaultAccessor = accessor == null || !accessor.hasBody();
- 
+
 if (kind == OwnerKind.DEFAULT_IMPLS && isDefaultAccessor) {
 	return false;
 }
 ```
 
-当属性声明为val时，访问器accessor，也就是**property.getSetter()**返回null。
+当属性声明为val时，访问器accessor，也就是 **property.getSetter()** 返回null。
 
-```
-
+```java
  public KtPropertyAccessor getSetter() {
      for (KtPropertyAccessor accessor : getAccessors()) {
          if (accessor.isSetter()) return accessor;
@@ -343,7 +343,7 @@ if (kind == OwnerKind.DEFAULT_IMPLS && isDefaultAccessor) {
 
      return null;
  }
-    
+
  public boolean isSetter() {
         KotlinPropertyAccessorStub stub = getStub();
         if (stub != null) {
@@ -355,7 +355,7 @@ if (kind == OwnerKind.DEFAULT_IMPLS && isDefaultAccessor) {
 
 以下验证此种情况。
 
-```
+```java
 //Kotlin
 class Hello {
 	val a: Int = 1
@@ -364,7 +364,7 @@ class Hello {
 
 在Java中等价转换为：
 
-```
+```java
 public final class Hello {
    private final int a = 1;
 
@@ -377,7 +377,7 @@ public final class Hello {
 
 ### 情况三： 权限访问设置为private
 
-```
+```java
  boolean isDefaultAccessor = accessor == null || !accessor.hasBody();
  if (Visibilities.isPrivate(descriptor.getVisibility())) {
             return !isDefaultAccessor;
@@ -388,7 +388,7 @@ public final class Hello {
 
 以下验证此种情况。
 
-```
+```java
 //Kotlin
 
 class Hello {
@@ -398,7 +398,7 @@ class Hello {
 
 在Java中转换为：
 
-```
+```java
 public final class Hello {
    private int a = 1;
 }
@@ -408,7 +408,7 @@ public final class Hello {
 
 以下验证此种情况。
 
-```
+```java
 class Hello {
 
     private var a: Int
@@ -419,7 +419,7 @@ class Hello {
 
 在Java中等价转换为：
 
-```
+```java
 public final class Hello {
    private final int getA() {
       return this.getA();
@@ -440,7 +440,7 @@ public final class Hello {
 
 所以，一开始的代码就可以转变成一下两种情形：
 
-```
+```java
 //Kotlin
 
 class Constants {
@@ -467,7 +467,7 @@ class Constants {
 
 或者是：
 
-```
+```java
 class Constants {
     companion object {
         @JvmField val CONTENT_TYPE = "Content-Type"
@@ -492,12 +492,3 @@ class Constants {
 ```
 
 在暴露给外界调用的同时，不会新增多余的方法数。
-
-
-
-
-
-
-
-
-
