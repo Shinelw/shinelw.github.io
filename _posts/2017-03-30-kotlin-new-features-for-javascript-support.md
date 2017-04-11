@@ -18,7 +18,7 @@ Kotlin1.1版本正式加入了对JavaScript的支持，也就是说我们可以K
 我们先通过一个简单的例子说明Kotlin如何支持JavaScript。
 定义以下Kotlin代码：
 
-```java
+```kotlin
 //Main.kt
 fun main(args: Arrays<String>) {
   println("Hello JavaScript")
@@ -36,7 +36,7 @@ fun main(args: Arrays<String>) {
 
 接下来，我们来看看上述Kotlin代码转成JavaScript的等价代码，即KotlinJaSample.js。
 
-```java
+```kotlin
 if (typeof kotlin === 'undefined') {
   throw new Error("Error loading module 'KotlinJsSample'. Its dependency 'kotlin' was not found. Please, check whether 'kotlin' is loaded prior to 'KotlinJsSample'.");
 }
@@ -184,7 +184,7 @@ var KotlinJsSample = function (_, Kotlin) {
 
 不信？我们可以试试。
 
-```java
+```kotlin
 fun main(args: Array<String>) {
     val message = "Hello JavaScript"
     val console = "console."
@@ -209,7 +209,7 @@ function main(args) {
 
 运行结果：
 
-```java
+```kotlin
 KotlinJsSample.js:9 Uncaught TypeError: console.log is not a function
     at main (KotlinJsSample.js:9)
     at KotlinJsSample.js:13
@@ -225,7 +225,7 @@ KotlinJsSample.js:9 Uncaught TypeError: console.log is not a function
 
 大概就是下面这样子的，
 
-```java
+```kotlin
 //Mian.kt
 external fun hello(message: String)
 
@@ -295,7 +295,7 @@ JavaScript中有以下几种数据类型：
 
 那么，如此一来，转换出了问题，在JavaScript中使用必然也会导致问题。举个例子：
 
-```java
+```kotlin
 //Hello.kt
 class Hello {
     //定义输入返回均为Long类型的函数
@@ -324,7 +324,7 @@ console.log(t.longTest(1, 2))
 
 运行，理想状态下，输出结果3。然而，报错了。。。
 
-```java
+```kotlin
 Hello.kt:8 Uncaught TypeError: a.add is not a function
     at Hello.longTest (Hello.kt:8)
     at A.js:5
@@ -336,7 +336,7 @@ Hello.kt:8 Uncaught TypeError: a.add is not a function
 
 我们试试在Kotlin中调用它，
 
-```java
+```kotlin
 fun main(args: Array<String>) {
     Hello().longTest(1L, 2L)
 }

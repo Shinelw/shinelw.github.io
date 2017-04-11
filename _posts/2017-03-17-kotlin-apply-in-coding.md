@@ -36,7 +36,7 @@ public class Person {
         this.age = age;
         this.height = height;
     }
-    
+
     public String getName() {
         return name;
     }
@@ -52,11 +52,11 @@ public class Person {
     public void setAge(int age) {
         this.age = age;
     }
-    
+
     public int getSex() {
     	 return sex;
     }
-    
+
     public void setSex(int sex) {
     	this.sex = sex;
     }
@@ -74,7 +74,7 @@ public class Person {
         return "Person{" +
                 "name='" + name + '\'' +
                 ", age=" + age +
-                ", sex=" + (sex == 0 ? "男" : "女") + 
+                ", sex=" + (sex == 0 ? "男" : "女") +
                 ", height=" + height +
                 '}';
  }
@@ -88,21 +88,26 @@ data class Person(var name: String,
 					 var sex: Int,
 					 var height: Float)
 ```
+
 Kotlin提供的数据类会让你自动获得所需的getter、setters、toString()，这很大程度上减少了大量重复的工作。当然，我们也可以很轻松的去覆盖这些函数，做自定义的事情，但是在大多数情况下，只需声明类和属性就已经足够了。
 
 ### 2. 区间表达式
 在Java中我们经常要写这样的代码，
+
 ```java
 for(int i = 0; i <= 10; i++){
 	System.out.println(i)
 }
 ```
-但是在Kotlin中，支持**..**操作符形式的区间表达式，我们转换成Kotlin就变成了这样：
+
+但是在Kotlin中，支持 **..** 操作符形式的区间表达式，我们转换成Kotlin就变成了这样：
+
 ```kotlin
 for(i in 0..10){
 	println(i)
 }
 ```
+
 是不是简洁优雅很多，不仅如此，还有更多相关的功能。
 
 ```kotlin
@@ -125,7 +130,7 @@ for(i in 0 until 10){
 ### 3. Lamda表达式
 Java在Java8才支持Lamda语法，在Kotlin里完全支持。有对比才有差距，看例子：
 
-**Java中：**
+** Java中：**
 
 ```java
 btn.setOnClickListener(new View.OnClickListener() {
@@ -135,7 +140,7 @@ btn.setOnClickListener(new View.OnClickListener() {
 }});
 ```
 
-**Kotlin中：**
+** Kotlin中：**
 
 ```kotlin
 btn.setOnClickListener { //dosomething }
@@ -147,14 +152,15 @@ btn.setOnClickListener { //dosomething }
 看一个例子：
 
 ```kotlin
-fun MutableList<Int>.swap(index1: Int, index2: Int) { 
-	val tmp = this[index1] // 'this' 对应该列表 
+fun MutableList<Int>.swap(index1: Int, index2: Int) {
+	val tmp = this[index1] // 'this' 对应该列表
 	this[index1] = this[index2]	this[index2] = tmp	}
 }
 
 //使用
 val l = mutableListOf(1, 2, 3)l.swap(0, 2) // 'swap()' 内部的 'this' 得到 'l' 的值
 ```
+
 是不是功能强大且代码简洁优雅？当然，扩展并不能真正的修改它所扩展的类。通过定义一个扩展，我们并没有在一个类中插入新的方法，仅仅是可以通过该类型的变量用点表达式来调用这个新函数。
 口说无凭，我们来看看Kotlin编译后的字节码：
 
@@ -206,7 +212,7 @@ val l = mutableListOf(1, 2, 3)l.swap(0, 2) // 'swap()' 内部的 'this' 得到 
     LOCALVARIABLE index2 I L0 L5 2
     MAXSTACK = 4
     MAXLOCALS = 4
-    
+
   // compiled from: extension.kt
 }
 
@@ -251,12 +257,14 @@ public final class ExtensionKt {
 var a: String = "abcd"
 a = null //编译错误
 ```
+
 如果要允许为空，我们需要手动声明一个变量为可空字符串类型，写为**String?**
 
 ```kotlin
 var a: String? = "abcd"
 a = null //编译成功
 ```
+
 那怎么实现默认不可为Null呢？
 我们来看一下字节码:
 
@@ -267,7 +275,7 @@ a = null //编译成功
     GETSTATIC PersonKt.a : Ljava/lang/String;
     ARETURN
    L1
-   
+
    //init
    static <clinit>()V
    L0
@@ -294,7 +302,7 @@ person.name = "shinelw"  //编译失败
 person?.name = "shinelw" //编译成功
 ```
 
-如上面的代码所示，当person对象可为null时，必须强制使用**?.**来进行null检查。看看**?.**在字节码里的样子，
+如上面的代码所示，当person对象可为null时，必须强制使用 **?.** 来进行null检查。看看 **?.** 在字节码里的样子，
 
 ```
     LINENUMBER 13 L1
@@ -327,6 +335,7 @@ public class A {
 	String c;
 }
 ```
+
 现在呢，Kotlin中是这样的：
 
 ```kotlin
@@ -336,6 +345,7 @@ class A {
 	var c: String? = null
 }
 ```
+
 看出区别了吗？
 
 在Kotlin中我们需要在定义变量是就必须给出初始值。开发过程中，很多情况下变量在定义时尚不知道要赋何值的，Kotlin强制初始化赋值让整个代码看起来很“怪异”。对我来说，如果一个变量可为null时，它应该是隐含地就默认给予了null值。
@@ -370,7 +380,7 @@ open class A
 我们建议使用构建器模式，当Java的构造器存在多个可选的参数时，情况就会变得很复杂，代码冗长，也更容易出错。Kotlin提供了一种更有效的构造器方式，通过默认参数的功能实现。
 
 ```kotlin
-data class Person(var name: String, 
+data class Person(var name: String,
 					 var age: Int = 18,
 					 var sex: Int = 0,
 					 var height: Float = 1.8f
@@ -396,6 +406,7 @@ object Singleton {
 //使用时
 Singleton.a()
 ```
+
 完全不需要手动构建，看上去很好。但是我有一点质疑，它是不是线程安全的，是不是懒加载的。随后通过Kotlin编译器得到字节码，然后再反编译回Java代码。是长这样子的：
 
 ```java
@@ -414,6 +425,7 @@ public class Singleton {
    }
 }
 ```
+
 糟糕的是，从上面代码可以看出，Kotlin的**object**只是一个最简单的饿汉式的单例模式。在第一次加载类到内存的时候就会初始化，虽然它是线程安全的，但是不完美，对吗？
 
 如果你是一个追求完美的人，下面是类似于静态内部类方式实现的单例模式，懒加载且线程安全。缺点是跟Java一样，需要手动构建。：)
@@ -428,7 +440,7 @@ class Singleton private constructor(){
     private object SingletonHolder {
         val instance: Singleton = Singleton()
     }
-    
+
     //各种函数..
     fun a(){}
 }
@@ -454,6 +466,7 @@ override fun a(){...}
 因为Java中的任何应用都可以为null，但是在Kotlin中是默认不可为null的，这使得Kotlin对来自Java的对象要求严格空安全是不现实的。Java声明的类型在Kotlin中会被特别对待，称之为**平台类型**。对这种类型的空检查会放宽，因此他们的安全保证与Java中是相同的。
 
 看下面的例子：
+
 ```java
 public class Person{
 	public String getName(){
@@ -466,6 +479,7 @@ public class Person{
 val person = Person()
 val name = person.name // 编译通过 运行值为null
 ```
+
 name本是非null变量，因为调用Java对象所以变成平台类型，放宽了类型空检查。
 
 当然，如果你想要延续Kotlin严格空安全机制的话，可是有办法滴。我们需要在编写Java代码时加上@NotNull注解，这个很熟悉吧，在介绍空安全机制的时候说过Kotlin在实现默认非null属性就是这么实现的。然后代码就变成了这样，
@@ -477,6 +491,7 @@ public class Person{
 	}
 }
 ```
+
 然后在运行的时候就会报以下的错误：
 
 ```
@@ -496,6 +511,3 @@ Exception in thread "main" java.lang.IllegalStateException: @NotNull method Pers
 总而言之，经过短短一个月的Kotlin使用，在实际项目中开发展现出的特性应用是让我感到兴奋的。作为一名开发者，在我眼里，Kotlin设计出来不是抛开Java谈的，而是在Java的毛病的基础上，进行的再开发，拥有很多其他语言优秀的特性，同时完全兼容Java。毕竟，对于一家大企业来讲，为了一门新语言完全摒弃一个很成熟的项目进行再开发是不现实的。相反的是，对于项目中Java难于处理的逻辑，Kotlin的优势一览无余，相辅相成，Kotlin和Java配合使用时目前最完美的方案。
 
 但不可否认的是，Kotlin真的让人感到潜力十足，值得大家去试一试。
-
-
-
