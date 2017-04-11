@@ -5,8 +5,8 @@
     <description>好好学习天天向上。</description>
     <link>http://shinelw.com/</link>
     <atom:link href="http://shinelw.com/feed.xml" rel="self" type="application/rss+xml" />
-    <pubDate>Wed, 12 Apr 2017 01:43:15 +0800</pubDate>
-    <lastBuildDate>Wed, 12 Apr 2017 01:43:15 +0800</lastBuildDate>
+    <pubDate>Wed, 12 Apr 2017 02:21:01 +0800</pubDate>
+    <lastBuildDate>Wed, 12 Apr 2017 02:21:01 +0800</lastBuildDate>
     <generator>Jekyll v3.1.6</generator>
     
       <item>
@@ -389,9 +389,9 @@
 
 &lt;p&gt;官方文档：&lt;a href=&quot;https://kotlinlang.org/docs/reference/js-overview.html&quot;&gt;https://kotlinlang.org/docs/reference/js-overview.html&lt;/a&gt;&lt;/p&gt;
 </description>
-        <pubDate>Fri, 31 Mar 2017 00:51:57 +0800</pubDate>
-        <link>http://shinelw.com/2017/03/31/kotlin-new-features-for-javascript-support/</link>
-        <guid isPermaLink="true">http://shinelw.com/2017/03/31/kotlin-new-features-for-javascript-support/</guid>
+        <pubDate>Wed, 29 Mar 2017 20:52:56 +0800</pubDate>
+        <link>http://shinelw.com/2017/03/29/kotlin-new-features-for-javascript-support/</link>
+        <guid isPermaLink="true">http://shinelw.com/2017/03/29/kotlin-new-features-for-javascript-support/</guid>
         
         <category>Kotlin</category>
         
@@ -881,9 +881,9 @@
 
 &lt;p&gt;在暴露给外界调用的同时，不会新增多余的方法数。&lt;/p&gt;
 </description>
-        <pubDate>Tue, 21 Mar 2017 00:51:57 +0800</pubDate>
-        <link>http://shinelw.com/2017/03/21/kotlin-method-count-improve/</link>
-        <guid isPermaLink="true">http://shinelw.com/2017/03/21/kotlin-method-count-improve/</guid>
+        <pubDate>Mon, 20 Mar 2017 20:52:56 +0800</pubDate>
+        <link>http://shinelw.com/2017/03/20/kotlin-method-count-improve/</link>
+        <guid isPermaLink="true">http://shinelw.com/2017/03/20/kotlin-method-count-improve/</guid>
         
         <category>Kotlin</category>
         
@@ -1465,9 +1465,9 @@ public void setA(int a) {
 
 &lt;p&gt;Kotlin编译器在编译前端（即词法分析、语法分析、语义分析、中间代码生成）并没有做让人感到惊讶的事情，和Java是基本一致的。与Java相比，所与众不同，也最重要的细节在编译后端（目标代码生成）环节。Kotlin编译器在目标代码生成环节做了很多类似于Java封装的事情，比如自动生成Getter/Setter代码的生成、Companion转变成静态类、修改类属性为final不可继承等等工作。可以说，大部分Kotlin的特性都在这个环节处理产生。可以这么说，Kotlin将我们本来在代码层做的一些封装工作转移到了编译后端阶段，以使得我们可以更加简洁的使用Kotlin语言。&lt;/p&gt;
 </description>
-        <pubDate>Mon, 20 Mar 2017 04:51:57 +0800</pubDate>
-        <link>http://shinelw.com/2017/03/20/kotlin-compiler-process-analysis/</link>
-        <guid isPermaLink="true">http://shinelw.com/2017/03/20/kotlin-compiler-process-analysis/</guid>
+        <pubDate>Sun, 19 Mar 2017 20:52:56 +0800</pubDate>
+        <link>http://shinelw.com/2017/03/19/kotlin-compiler-process-analysis/</link>
+        <guid isPermaLink="true">http://shinelw.com/2017/03/19/kotlin-compiler-process-analysis/</guid>
         
         <category>Kotlin</category>
         
@@ -1978,9 +1978,9 @@ val name = person.name // 编译通过 运行值为null
 
 &lt;p&gt;但不可否认的是，Kotlin真的让人感到潜力十足，值得大家去试一试。&lt;/p&gt;
 </description>
-        <pubDate>Sat, 18 Mar 2017 01:51:57 +0800</pubDate>
-        <link>http://shinelw.com/2017/03/18/kotlin-apply-in-coding/</link>
-        <guid isPermaLink="true">http://shinelw.com/2017/03/18/kotlin-apply-in-coding/</guid>
+        <pubDate>Fri, 17 Mar 2017 20:52:56 +0800</pubDate>
+        <link>http://shinelw.com/2017/03/17/kotlin-apply-in-coding/</link>
+        <guid isPermaLink="true">http://shinelw.com/2017/03/17/kotlin-apply-in-coding/</guid>
         
         <category>Kotlin</category>
         
@@ -2862,6 +2862,66 @@ val name = person.name // 编译通过 运行值为null
       </item>
     
       <item>
+        <title>Charles:移动端设备网络抓包</title>
+        <description>&lt;p&gt;今天安利一款软件，Charles。最近在研究应用安全的东西，经常需要对应用访问网络进行抓包，然后发现Charles这款软件，最突出的特点就是简单好用易上手~啊哈哈哈
+&lt;!--more--&gt;&lt;/p&gt;
+
+&lt;p&gt;首先是应用界面，如下：
+&lt;img src=&quot;https://raw.githubusercontent.com/Shinelw/Android/master/BlogPicture/charles/Screen%20Shot%202016-04-21%20at%203.14.04%20PM.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;下载地址：&lt;a href=&quot;http://www.charlesproxy.com&quot;&gt;http://www.charlesproxy.com&lt;/a&gt;&lt;/p&gt;
+
+&lt;p&gt;下载下来以后会提示只有30天免费试用期，这时候只有两种选择，要么购买，要么破解。（对于我这种穷学生来说，只好破解了= =）
+目前最新版本是3.11.4，所以google搜索一下charles 3.11.4 注册文件，要是你还懒得搜索的话，可以&lt;a href=&quot;https://github.com/Shinelw/Android/raw/master/BlogPicture/charles/charles.jar&quot;&gt;点这里&lt;/a&gt;，我已经把注册文件保存在github上，如需自取~
+至于安装的话，鉴于我的环境是mac osx，所以就讲一下mac中的破解方法。&lt;/p&gt;
+
+&lt;h3 id=&quot;section&quot;&gt;&lt;strong&gt;破解方法：&lt;/strong&gt;&lt;/h3&gt;
+&lt;ol&gt;
+  &lt;li&gt;打开Applications找到Charles软件，显示包内容，打开Java文件夹。&lt;/li&gt;
+  &lt;li&gt;把下载好的charles.jar文件替换到Java文件夹中，重启应用就ok了。&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;p&gt;接下来是配置方法，在3.10版本以后，配置方法就变得特别简单，只要跟随Help中SLL Proxying中的操作就ok了。
+&lt;img src=&quot;https://raw.githubusercontent.com/Shinelw/Android/master/BlogPicture/charles/Screen%20Shot%202016-04-21%20at%203.47.52%20PM.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+
+&lt;h3 id=&quot;section-1&quot;&gt;&lt;strong&gt;配置&lt;/strong&gt;&lt;/h3&gt;
+&lt;ol&gt;
+  &lt;li&gt;安装本地证书。
+ 点击Help中SLL Proxying中的Install Charles Root Certificate，然后输入密码，选择全部信任。&lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;移动设备网络配置。
+ 点击Help中SLL Proxying中 Install Charles Root Certificate on a Mobile Device or Remote Browser…,然后就会跳出如下弹窗。
+ &lt;img src=&quot;https://raw.githubusercontent.com/Shinelw/Android/master/BlogPicture/charles/Screen%20Shot%202016-04-21%20at%203.47.17%20PM.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+
+    &lt;p&gt;根据弹窗信息更改配置，如下图： 
+ &lt;img src=&quot;https://raw.githubusercontent.com/Shinelw/Android/master/BlogPicture/charles/Screen%20Shot%202016-04-21%20at%203.51.36%20PM.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+  &lt;/li&gt;
+  &lt;li&gt;完成配置以后，手机浏览器打开 &lt;a href=&quot;http://www.charlesproxy.com/getssl&quot;&gt;http://www.charlesproxy.com/getssl&lt;/a&gt; ，就会下载ssl证书，并且进行安装。如下图，当安装完成以后右键想要抓包的网址选择Enable SSL Proxying就可以对HTTPS数据进行抓包了！
+&lt;img src=&quot;https://raw.githubusercontent.com/Shinelw/Android/master/BlogPicture/charles/Screen%20Shot%202016-04-21%20at%203.53.23%20PM.png&quot; alt=&quot;&quot; /&gt;&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;p&gt;抓包效果图：&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;https://raw.githubusercontent.com/Shinelw/Android/master/BlogPicture/charles/Screen%20Shot%202016-04-21%20at%203.50.53%20PM.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;以上，就是所有的配置过程。&lt;/p&gt;
+
+&lt;h3 id=&quot;section-2&quot;&gt;&lt;strong&gt;总结&lt;/strong&gt;&lt;/h3&gt;
+&lt;p&gt;抓包对于程序员来说应该是一个必备的技能点，而且很有趣。比如在抓包的过程中会发现很多应用对于密码都是明文的= =
+继续加油吧~&lt;/p&gt;
+</description>
+        <pubDate>Thu, 21 Apr 2016 23:45:03 +0800</pubDate>
+        <link>http://shinelw.com/2016/04/21/about-charles/</link>
+        <guid isPermaLink="true">http://shinelw.com/2016/04/21/about-charles/</guid>
+        
+        <category>工具</category>
+        
+        <category>抓包</category>
+        
+        
+      </item>
+    
+      <item>
         <title>Wish App逆向分析app_device_id字段生成算法</title>
         <description>&lt;h2 id=&quot;section&quot;&gt;&lt;strong&gt;概述&lt;/strong&gt;&lt;/h2&gt;
 
@@ -3004,11 +3064,10 @@ val name = person.name // 编译通过 运行值为null
 &lt;h2 id=&quot;section-2&quot;&gt;&lt;strong&gt;总结：&lt;/strong&gt;&lt;/h2&gt;
 
 &lt;p&gt;由于app_device_id字段对应的值是随机产生的，但是由上述代码分析可知，每一次访问网络的时候都要发送app_device_id字段，这就要求对应值要是唯一的，以确保进行操作的设备是安全的。而这里对实现唯一的方法就是永远只随机产生一次，通过SharedPreferences和File方式分别把值分别保存下来。只有当应用卸载重新安装并且删除本地文件device_data的时候才会重新随机产生一个app_device_id值，然后一般用户是不可以在删除应用的时候同时找到它所保存的文件路径并删除，这就达到了设备ID的唯一性。&lt;/p&gt;
-
 </description>
-        <pubDate>Fri, 22 Apr 2016 00:52:56 +0800</pubDate>
-        <link>http://shinelw.com/2016/04/22/wish-app-analysis-app-device-id/</link>
-        <guid isPermaLink="true">http://shinelw.com/2016/04/22/wish-app-analysis-app-device-id/</guid>
+        <pubDate>Thu, 21 Apr 2016 20:52:56 +0800</pubDate>
+        <link>http://shinelw.com/2016/04/21/wish-app-analysis-app-device-id/</link>
+        <guid isPermaLink="true">http://shinelw.com/2016/04/21/wish-app-analysis-app-device-id/</guid>
         
         <category>Android逆向分析</category>
         
@@ -3016,61 +3075,34 @@ val name = person.name // 编译通过 运行值为null
       </item>
     
       <item>
-        <title>Charles:移动端设备网络抓包</title>
-        <description>&lt;p&gt;今天安利一款软件，Charles。最近在研究应用安全的东西，经常需要对应用访问网络进行抓包，然后发现Charles这款软件，最突出的特点就是简单好用易上手~啊哈哈哈
-&lt;!--more--&gt;&lt;/p&gt;
+        <title>Ubuntu 15.10 配置Android Studio出现的问题</title>
+        <description>&lt;p&gt;最近重新安装了Ubuntu系统，升级到15.10，在一番折腾重新配置Android Studio的时候，发现不能正确关联本地的Android SDK。&lt;/p&gt;
 
-&lt;p&gt;首先是应用界面，如下：
-&lt;img src=&quot;https://raw.githubusercontent.com/Shinelw/Android/master/BlogPicture/charles/Screen%20Shot%202016-04-21%20at%203.14.04%20PM.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+&lt;p&gt;显示错误如下：&lt;/p&gt;
 
-&lt;p&gt;下载地址：&lt;a href=&quot;http://www.charlesproxy.com&quot;&gt;http://www.charlesproxy.com&lt;/a&gt;&lt;/p&gt;
+&lt;blockquote&gt;
+  &lt;p&gt;unable to run mksdcard sdk tool&lt;/p&gt;
+&lt;/blockquote&gt;
 
-&lt;p&gt;下载下来以后会提示只有30天免费试用期，这时候只有两种选择，要么购买，要么破解。（对于我这种穷学生来说，只好破解了= =）
-目前最新版本是3.11.4，所以google搜索一下charles 3.11.4 注册文件，要是你还懒得搜索的话，可以&lt;a href=&quot;https://github.com/Shinelw/Android/raw/master/BlogPicture/charles/charles.jar&quot;&gt;点这里&lt;/a&gt;，我已经把注册文件保存在github上，如需自取~
-至于安装的话，鉴于我的环境是mac osx，所以就讲一下mac中的破解方法。&lt;/p&gt;
+&lt;p&gt;google了一番发现是升级到15.10系统以后系统内缺少32位的lib。&lt;/p&gt;
 
-&lt;h3 id=&quot;section&quot;&gt;&lt;strong&gt;破解方法：&lt;/strong&gt;&lt;/h3&gt;
-&lt;ol&gt;
-  &lt;li&gt;打开Applications找到Charles软件，显示包内容，打开Java文件夹。&lt;/li&gt;
-  &lt;li&gt;把下载好的charles.jar文件替换到Java文件夹中，重启应用就ok了。&lt;/li&gt;
-&lt;/ol&gt;
+&lt;p&gt;所以，安装上相应的库就可以了。&lt;/p&gt;
 
-&lt;p&gt;接下来是配置方法，在3.10版本以后，配置方法就变得特别简单，只要跟随Help中SLL Proxying中的操作就ok了。
-&lt;img src=&quot;https://raw.githubusercontent.com/Shinelw/Android/master/BlogPicture/charles/Screen%20Shot%202016-04-21%20at%203.47.52%20PM.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+&lt;p&gt;执行以下命令：&lt;/p&gt;
 
-&lt;h3 id=&quot;section-1&quot;&gt;&lt;strong&gt;配置&lt;/strong&gt;&lt;/h3&gt;
-&lt;ol&gt;
-  &lt;li&gt;安装本地证书。
- 点击Help中SLL Proxying中的Install Charles Root Certificate，然后输入密码，选择全部信任。&lt;/li&gt;
-  &lt;li&gt;
-    &lt;p&gt;移动设备网络配置。
- 点击Help中SLL Proxying中 Install Charles Root Certificate on a Mobile Device or Remote Browser…,然后就会跳出如下弹窗。
- &lt;img src=&quot;https://raw.githubusercontent.com/Shinelw/Android/master/BlogPicture/charles/Screen%20Shot%202016-04-21%20at%203.47.17%20PM.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;sudo apt-get install lib32z1 lib32ncurses5  lib32stdc++6
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
 
-    &lt;p&gt;根据弹窗信息更改配置，如下图： 
- &lt;img src=&quot;https://raw.githubusercontent.com/Shinelw/Android/master/BlogPicture/charles/Screen%20Shot%202016-04-21%20at%203.51.36%20PM.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
-  &lt;/li&gt;
-  &lt;li&gt;完成配置以后，手机浏览器打开 &lt;a href=&quot;http://www.charlesproxy.com/getssl&quot;&gt;http://www.charlesproxy.com/getssl&lt;/a&gt; ，就会下载ssl证书，并且进行安装。如下图，当安装完成以后右键想要抓包的网址选择Enable SSL Proxying就可以对HTTPS数据进行抓包了！
-&lt;img src=&quot;https://raw.githubusercontent.com/Shinelw/Android/master/BlogPicture/charles/Screen%20Shot%202016-04-21%20at%203.53.23%20PM.png&quot; alt=&quot;&quot; /&gt;&lt;/li&gt;
-&lt;/ol&gt;
-
-&lt;p&gt;抓包效果图：&lt;/p&gt;
-
-&lt;p&gt;&lt;img src=&quot;https://raw.githubusercontent.com/Shinelw/Android/master/BlogPicture/charles/Screen%20Shot%202016-04-21%20at%203.50.53%20PM.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
-
-&lt;p&gt;以上，就是所有的配置过程。&lt;/p&gt;
-
-&lt;h3 id=&quot;section-2&quot;&gt;&lt;strong&gt;总结&lt;/strong&gt;&lt;/h3&gt;
-&lt;p&gt;抓包对于程序员来说应该是一个必备的技能点，而且很有趣。比如在抓包的过程中会发现很多应用对于密码都是明文的= =
-继续加油吧~&lt;/p&gt;
+&lt;p&gt;完美解决~&lt;/p&gt;
 </description>
-        <pubDate>Thu, 21 Apr 2016 23:45:03 +0800</pubDate>
-        <link>http://shinelw.com/2016/04/21/about-charles/</link>
-        <guid isPermaLink="true">http://shinelw.com/2016/04/21/about-charles/</guid>
+        <pubDate>Fri, 08 Apr 2016 23:25:06 +0800</pubDate>
+        <link>http://shinelw.com/2016/04/08/ubuntu15-10-install-android-studio-trouble/</link>
+        <guid isPermaLink="true">http://shinelw.com/2016/04/08/ubuntu15-10-install-android-studio-trouble/</guid>
         
-        <category>工具</category>
+        <category>AndroidStudio</category>
         
-        <category>抓包</category>
+        <category>Ubuntu</category>
         
         
       </item>
@@ -3151,44 +3183,11 @@ val name = person.name // 编译通过 运行值为null
 
 &lt;p&gt;注：若翻译效果不佳，望请谅解。&lt;/p&gt;
 </description>
-        <pubDate>Sat, 09 Apr 2016 04:46:06 +0800</pubDate>
-        <link>http://shinelw.com/2016/04/09/Android-Studio-2-0-coming/</link>
-        <guid isPermaLink="true">http://shinelw.com/2016/04/09/Android-Studio-2-0-coming/</guid>
+        <pubDate>Fri, 08 Apr 2016 20:52:56 +0800</pubDate>
+        <link>http://shinelw.com/2016/04/08/Android-Studio-2-0-coming/</link>
+        <guid isPermaLink="true">http://shinelw.com/2016/04/08/Android-Studio-2-0-coming/</guid>
         
         <category>AndroidStudio</category>
-        
-        
-      </item>
-    
-      <item>
-        <title>Ubuntu 15.10 配置Android Studio出现的问题</title>
-        <description>&lt;p&gt;最近重新安装了Ubuntu系统，升级到15.10，在一番折腾重新配置Android Studio的时候，发现不能正确关联本地的Android SDK。&lt;/p&gt;
-
-&lt;p&gt;显示错误如下：&lt;/p&gt;
-
-&lt;blockquote&gt;
-  &lt;p&gt;unable to run mksdcard sdk tool&lt;/p&gt;
-&lt;/blockquote&gt;
-
-&lt;p&gt;google了一番发现是升级到15.10系统以后系统内缺少32位的lib。&lt;/p&gt;
-
-&lt;p&gt;所以，安装上相应的库就可以了。&lt;/p&gt;
-
-&lt;p&gt;执行以下命令：&lt;/p&gt;
-
-&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;sudo apt-get install lib32z1 lib32ncurses5  lib32stdc++6
-&lt;/code&gt;&lt;/pre&gt;
-&lt;/div&gt;
-
-&lt;p&gt;完美解决~&lt;/p&gt;
-</description>
-        <pubDate>Fri, 08 Apr 2016 23:25:06 +0800</pubDate>
-        <link>http://shinelw.com/2016/04/08/ubuntu15-10-install-android-studio-trouble/</link>
-        <guid isPermaLink="true">http://shinelw.com/2016/04/08/ubuntu15-10-install-android-studio-trouble/</guid>
-        
-        <category>AndroidStudio</category>
-        
-        <category>Ubuntu</category>
         
         
       </item>

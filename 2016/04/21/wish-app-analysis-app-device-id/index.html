@@ -10,9 +10,9 @@
     <meta name="keyword"  content="Shinelw, @Shinelw Shinelw's Blog, Android Developer, 沛轩, PASSION, 沈良炜, Shinelw Blog">
     <link rel="shortcut icon" href="/img/favicon.ico">
 
-    <title>Android Studio 2.0 新特性体验 - Passion | Shinelw Blog</title>
+    <title>Wish App逆向分析app_device_id字段生成算法 - Passion | Shinelw Blog</title>
 
-    <link rel="canonical" href="http://shinelw.com/2016/04/09/Android-Studio-2-0-coming/">
+    <link rel="canonical" href="http://shinelw.com/2016/04/21/wish-app-analysis-app-device-id/">
 
     <!-- Bootstrap Core CSS -->
     <link rel="stylesheet" href="/css/bootstrap.min.css">
@@ -176,11 +176,11 @@
                 <div class="post-heading">
                     <div class="tags">
                         
-                        <a class="tag" href="/tags/#AndroidStudio" title="AndroidStudio">AndroidStudio</a> 
+                        <a class="tag" href="/tags/#Android逆向分析" title="Android逆向分析">Android逆向分析</a> 
                     </div>
-                    <h1>Android Studio 2.0 新特性体验</h1>  
-                    <h2 class="subheading">Android Studio 2.0 is coming</h2> 
-                    <span class="meta">Posted by Shinelw on April 9, 2016.   Viewed <span id="busuanzi_value_page_pv"></span> times.
+                    <h1>Wish App逆向分析app_device_id字段生成算法</h1>  
+                    <h2 class="subheading">Wish App Analysis how to build the app_device_id</h2> 
+                    <span class="meta">Posted by Shinelw on April 21, 2016.   Viewed <span id="busuanzi_value_page_pv"></span> times.
                     </span>
                 </div>
             </div>
@@ -199,79 +199,147 @@
                 col-md-10 col-md-offset-1
                 post-container">
 
-                <p>今天微博被各种 Android Studio 2.0 刷屏了，赶紧更新体验了一把。</p>
+                <h2 id="section"><strong>概述</strong></h2>
+
+<p>本文对Wish App进行了反编译，对应用中app_device_id字段的生成算法进行了逆向分析。</p>
+
+<p>使用到的工具有：</p>
+
+<ol>
+  <li>Apktool：获取资源文件和smali 反汇编代码</li>
+  <li>dex2jar：反编译apk，将其中的classes.dex转化成jar文件</li>
+  <li>jd-gui：打开jar文件，查看java源码</li>
+</ol>
+
+<p>反编译环境：mac osx</p>
+
+<h2 id="apkjavasmali"><strong>apk反编译获得java代码和smali反汇编代码</strong></h2>
+
+<p><strong>1. 从google play下载Wish.apk</strong></p>
+
+<p><img src="https://raw.githubusercontent.com/Shinelw/Android/master/BlogPicture/Wish_analysis/Screen%20Shot%202016-04-18%20at%206.24.54%20PM.png" alt="" /></p>
+
+<p><strong>2. 使用dex2jar把apk解包，将其中的classes.dex转换为jar文件</strong></p>
+
+<p>打开终端，执行命令： <strong>d2j-dex2jar Wish.apk</strong> ，如下图，得到Wish-dex2jar.jar</p>
+
+<p><img src="https://raw.githubusercontent.com/Shinelw/Android/master/BlogPicture/Wish_analysis/Screen%20Shot%202016-04-18%20at%206.33.32%20PM.png" alt="" /></p>
+
+<p><strong>3. 使用jd-gui查看Wish-dex2jar.jar文件，即java源代码</strong></p>
+
+<p>在jd-gui中打开Wish-dex2jar.jar文件，得到Java的源代码，如下图：</p>
+
+<p><img src="https://raw.githubusercontent.com/Shinelw/Android/master/BlogPicture/Wish_analysis/Screen%20Shot%202016-04-18%20at%206.36.44%20PM.png" alt="" /></p>
+
+<p><strong>4. 使用Apktool反编译apk，得到smali反汇编代码</strong></p>
+
+<p>终端执行命令： <strong>apktool d -f Wish.apk -o Wish</strong> , 如下图：</p>
+
+<p><img src="https://raw.githubusercontent.com/Shinelw/Android/master/BlogPicture/Wish_analysis/Screen%20Shot%202016-04-18%20at%206.42.38%20PM.png" alt="" /></p>
+
+<p>此时，得到Wish文件夹，里面包含apk中的xml、切图等资源文件和可供分析的smali反编译代码。</p>
+
+<p><img src="https://raw.githubusercontent.com/Shinelw/Android/master/BlogPicture/Wish_analysis/Screen%20Shot%202016-04-18%20at%206.43.30%20PM.png" alt="" /></p>
+
+<h2 id="appdeviceid"><strong>分析app_device_id字段生成算法</strong></h2>
+
+<p><strong>1. 快速定位app_device_id字段代码位置</strong></p>
+
+<p>jd-gui使用search功能快速定位app_device_id在代码中的位置，如下图：</p>
+
+<p><img src="https://raw.githubusercontent.com/Shinelw/Android/master/BlogPicture/Wish_analysis/Screen%20Shot%202016-04-18%20at%206.46.16%20PM.png" alt="" /></p>
+
+<p>可知，关键代码为：</p>
 
 <blockquote>
-  <p>这里推荐一个博客<a href="http://android-developers.blogspot.com">Android Developers Blog</a>，这是Google官方博客，Android的最新技术都会火热更新在上面。</p>
+  <p>paramHttpRequestParams.put(“app_device_id”, getDeviceId());</p>
 </blockquote>
 
-<p>接下来的新特性介绍内容大致翻译自 Android Developers Blog 文章 <a href="http://android-developers.blogspot.com/2016/04/android-studio-2-0.html">Android Studio 2.0</a>。</p>
+<p>应用在每次进行网络请求的时候会上传app_device_id字段，字段对应的值为getDeviceId()方法中返回的值。所以接下来对该方法进行分析。</p>
 
-<p>Android Studio 2.0 包括以下可供开发者用于工作流程的新特性：</p>
+<p><strong>2. getDeviceId()方法分析</strong></p>
 
-<ul>
-  <li><strong>Instant Run(即时运行)</strong> - 面向每个热爱快速构建应用的开发者。对应用做一些修改，就可以显示在运行的app上。对于多次编译/运行调试的应用来说，Instant Run（即时运行）会节省很多时间。</li>
-  <li><strong>Android Emulator(安卓虚拟器)</strong> - 新的模拟器大约会比之前版本的虚拟器快3倍，通过ADB增强你可以更加快速的把数据和应用放入虚拟器中，比真机要快上10倍。跟真机一样，官方的虚拟器也包括了 Google Play Services（谷歌服务框架），所以可以在虚拟器上测试更多的API功能。最后，新的模拟器拥有更多的特性，比如管理电话，电池，网络，GPS，等等。</li>
-  <li><strong>Cloud Test Lab Integration(云服务集成)</strong> - 一旦编写好，在任何地方都可以运行。利用继承在 Android Studio 内部的 Cloud Test Lab 云服务，可以更加快速、方便地在更广泛的 Android 真机上测试。</li>
-  <li><strong>App Indexing Code Generation &amp; Test</strong> - 通过 Android Studio 中的 App Indexing 可以在你的应用中添加URL来提升你的应用在 Google Search 中的可见度。</li>
-  <li><strong>GPU Debugger Preview(GPU调试预览)</strong> - 对于那些开发基于 OpenGL ES 的游戏或应用来说，现在可以看见每一帧和GL的状态。</li>
-  <li><strong>IntelliJ 15 Update</strong> - Android Studio 基于IntelliJ 构建，已升级到最新版本。</li>
-</ul>
+<p>我们来先看getDeviceId()的代码实现：</p>
 
-<h3 id="section"><strong>深入了解新特性</strong></h3>
+<p><img src="https://raw.githubusercontent.com/Shinelw/Android/master/BlogPicture/Wish_analysis/Screen%20Shot%202016-04-18%20at%207.00.37%20PM.png" alt="" /></p>
 
-<p><strong>Instant Run</strong></p>
+<p>从代码中可以很明显的将整个获取DeviceId的过程分为三部分：</p>
 
-<p>当你点击Instant Run 按钮时，Instant Run 会分析你这次所做的更改然后决定怎么以更快的方式部署运行新的代码。</p>
+<p>（1）从SharedPreferences存储中取出DeviceUuid。</p>
 
-<p><img src="https://raw.githubusercontent.com/Shinelw/Android/master/BlogPicture/Android-Studio-2.0-coming/image02.png" alt="" /></p>
+<p>代码段为：</p>
 
-<p>需要注意的是，Instant Run 需要运行在API 14或高于14的Android 设备或虚拟器上。</p>
+<p><img src="https://raw.githubusercontent.com/Shinelw/Android/master/BlogPicture/Wish_analysis/Screen%20Shot%202016-04-18%20at%208.35.24%20PM.png" alt="" /></p>
 
-<p><strong>Android Emulator</strong></p>
+<p>（2）如果SharedPreferences中没有保存DeviceUuid值的话，就从本地的文件夹中取，文件地址具体地址为/Document/Wish/device_data_。若得到值以后，通过SharedPreferences保存起来。</p>
 
-<p>新的Android 虚拟器在CPU、RAM和IO上都比之前快了3倍以上。当你准备编译时，ADB增强让push速度快10倍！在绝大多数情况下，在官方虚拟器上开发会快于真机，并且想Instant Run 这样的新特性在新的虚拟器在能更好的工作。</p>
+<p>代码段为：</p>
 
-<p>除此之外，新的Android 虚拟器拥有一个全新的界面和传感器控制面板，并且你可以直接将APK拉入虚拟器中完成快速安装，对窗口进行扩大缩放，使用多种触控方法等等。</p>
+<p><img src="https://raw.githubusercontent.com/Shinelw/Android/master/BlogPicture/Wish_analysis/Screen%20Shot%202016-04-18%20at%208.36.23%20PM.png" alt="" /></p>
 
-<p><img src="https://raw.githubusercontent.com/Shinelw/Android/master/BlogPicture/Android-Studio-2.0-coming/image00.png" alt="" /></p>
+<p>（3）如果本地文件中也没有的话，就创建一个（此时的情况跟安装应用后第一次进入的情形一样）。创建的过程使用了随机产生的方式，即java.util.UUID类中提供的randomUUID()方法。格式为：23c2add6-aa30-4442-97c8-81930766f089。 然后将得到的值以SharedPreferences的方式保存起来。</p>
 
-<p><strong>Cloud Test Lab</strong></p>
+<p>代码段为：</p>
 
-<p>Cloud Test Lab 允许你在更广泛的设备和虚拟器上测试你的应用。一旦你完成了初始测试，Cloud Test Lab 可以提供给你更大范围的设备来进行测试。即使你没有明确的写了测试，Cloud Test Lab 可以执行基本的测试集以保证你的应用不会Crash。</p>
+<p><img src="https://raw.githubusercontent.com/Shinelw/Android/master/BlogPicture/Wish_analysis/Screen%20Shot%202016-04-18%20at%208.37.22%20PM.png" alt="" /></p>
 
-<p><img src="https://raw.githubusercontent.com/Shinelw/Android/master/BlogPicture/Android-Studio-2.0-coming/image06.png" alt="" /></p>
+<p>当获取到随机值后，新开线程将值保存在本地固定文件夹/Docment/Wish/device_data_下。</p>
 
-<p>Android Studio中新的接口允许你配置想要运行在Cloud Test Lab 上的测试文件夹，并且允许你看见测试的结果。</p>
+<p>代码段为：</p>
 
-<p><strong>App Indexing</strong></p>
+<p><img src="https://raw.githubusercontent.com/Shinelw/Android/master/BlogPicture/Wish_analysis/Screen%20Shot%202016-04-18%20at%208.38.05%20PM.png" alt="" /></p>
 
-<p>现在，通过App Indexing API，你的应用可以在Google搜索中更容易的被用户找到。通过配置AndroidMainfest.xml文件，Android Studio 2.0 可以帮助你创建正确的URL以便运行在Google App Indexing 服务中。当你添加了URL以后，你可以看到以下的效果：</p>
+<p>由于在run方法中出现/<em>Error</em>/，run()方法中的代码无法进行反编译。所以用smali进行验证。</p>
 
-<p><img src="https://raw.githubusercontent.com/Shinelw/Android/master/BlogPicture/Android-Studio-2.0-coming/image05.png" alt="" /></p>
+<p><strong>3. smali代码分析新开线程保存DeviceUuid值在本地device_data的过程</strong></p>
 
-<p><strong>GPU Debugger Preview</strong></p>
+<p>smali文件夹中包含一下文件：</p>
 
-<p>如果你开发OpenGL ES 游戏或者图形应用，现在你拥有一个全新的GPU调试器。即使现在只是一个预览版，但是你可以一帧一帧的识别和调试应用。</p>
+<p><img src="https://raw.githubusercontent.com/Shinelw/Android/master/BlogPicture/Wish_analysis/Screen%20Shot%202016-04-18%20at%207.30.11%20PM.png" alt="" /></p>
 
-<p><img src="https://raw.githubusercontent.com/Shinelw/Android/master/BlogPicture/Android-Studio-2.0-coming/image08.png" alt="" /></p>
+<p>找到com.contextlogic.wish.api.core中的WishApi.smali，打开该文件定位到getDeviceId方法下，如图：(代码太多，故中间省略。)</p>
 
-<h3 id="tips"><strong>Tips</strong></h3>
-<ol>
-  <li>为了使用Instant Run 和Android虚拟器，对于之前的项目，都需要将gradle 插件版本更新到2.0.0。</li>
-  <li>之后创建的新项目都默认使用Instant Run。</li>
-</ol>
+<p><img src="https://raw.githubusercontent.com/Shinelw/Android/master/BlogPicture/Wish_analysis/Picture1.png" alt="" /></p>
 
-<h3 id="section-1"><strong>体验感受</strong></h3>
-<ol>
-  <li>Instant Run是版本最大亮点，没有之一。体验下来确实快了很多，而且在你修改界面以后运行后能直接显示该页面效果，而不是重新启动应用。</li>
-  <li>新的虚拟机感觉噱头大于实际使用效果，还是喜欢用真机测试，爽。</li>
-  <li>其他特性具体效果在接下来中的开发再慢慢体验啦。</li>
-</ol>
+<p>逐步定位到新开线程的代码处：</p>
 
-<p>赶紧更新耍起来吧~~~</p>
+<p><img src="https://raw.githubusercontent.com/Shinelw/Android/master/BlogPicture/Wish_analysis/Screen%20Shot%202016-04-18%20at%207.49.17%20PM.png" alt="" /></p>
 
-<p>注：若翻译效果不佳，望请谅解。</p>
+<p>从代码中可以看到，定义了一个局部变量writeableDeviceId来保存DeviceUuid值，然后开启一个线程，跳转到WishApi$2.smali中去。</p>
+
+<p>打开WishApi$2.smali代码，</p>
+
+<p><img src="https://raw.githubusercontent.com/Shinelw/Android/master/BlogPicture/Wish_analysis/Screen%20Shot%202016-04-18%20at%207.56.22%20PM.png" alt="" /></p>
+
+<p>代码中就只有一个run()方法。</p>
+
+<p>在run()方法中，一共就干了两件事，</p>
+
+<p>（1）定位到/Document/Wish/device_data_。如果存在，就直接定位到该文件下；如果不存在，就新建Wish文件夹，新建device_data。</p>
+
+<p><img src="https://raw.githubusercontent.com/Shinelw/Android/master/BlogPicture/Wish_analysis/Screen%20Shot%202016-04-18%20at%208.06.22%20PM.png" alt="" /></p>
+
+<p>（2）打开FileOutputStream将值写入到device_data_文件中去。</p>
+
+<p><img src="https://raw.githubusercontent.com/Shinelw/Android/master/BlogPicture/Wish_analysis/Picture2.png" alt="" /></p>
+
+<h2 id="section-1"><strong>总体流程</strong></h2>
+
+<p>大致流程图如下：</p>
+
+<p><img src="https://raw.githubusercontent.com/Shinelw/Android/master/BlogPicture/Wish_analysis/Screen%20Shot%202016-04-18%20at%208.33.22%20PM.png" alt="" /></p>
+
+<p>在手机中路径/Docment/Wish/devicedata保存下来的值：</p>
+
+<p><img src="https://raw.githubusercontent.com/Shinelw/Android/master/BlogPicture/Wish_analysis/Screen%20Shot%202016-04-21%20at%202.10.55%20PM.png" alt="" /></p>
+
+<p>与抓包得到的数值吻合：</p>
+
+<p><img src="https://raw.githubusercontent.com/Shinelw/Android/master/BlogPicture/Wish_analysis/Screen%20Shot%202016-04-21%20at%202.09.41%20PM.png" alt="" /></p>
+
+<h2 id="section-2"><strong>总结：</strong></h2>
+
+<p>由于app_device_id字段对应的值是随机产生的，但是由上述代码分析可知，每一次访问网络的时候都要发送app_device_id字段，这就要求对应值要是唯一的，以确保进行操作的设备是安全的。而这里对实现唯一的方法就是永远只随机产生一次，通过SharedPreferences和File方式分别把值分别保存下来。只有当应用卸载重新安装并且删除本地文件device_data的时候才会重新随机产生一个app_device_id值，然后一般用户是不可以在删除应用的时候同时找到它所保存的文件路径并删除，这就达到了设备ID的唯一性。</p>
 
                 <a id="article-end-anchor"></a>
                 <hr>
@@ -364,14 +432,14 @@
                         <a href="/tags/#Ubuntu" title="Ubuntu" rel="1">
                                     Ubuntu
                                 </a>   
+                        <a href="/tags/#Android逆向分析" title="Android逆向分析" rel="1">
+                                    Android逆向分析
+                                </a>   
                         <a href="/tags/#工具" title="工具" rel="1">
                                     工具
                                 </a>   
                         <a href="/tags/#抓包" title="抓包" rel="1">
                                     抓包
-                                </a>   
-                        <a href="/tags/#Android逆向分析" title="Android逆向分析" rel="1">
-                                    Android逆向分析
                                 </a>   
                         <a href="/tags/#Android" title="Android" rel="1">
                                     Android
@@ -407,9 +475,9 @@
 <script type="text/javascript">
     /* * * CONFIGURATION VARIABLES * * */
     var disqus_shortname = "shinelw";
-    var disqus_identifier = "/2016/04/09/Android-Studio-2-0-coming";
-    var disqus_title = "Android Studio 2.0 新特性体验"
-    var disqus_url = "http://shinelw.com/2016/04/09/Android-Studio-2-0-coming/";
+    var disqus_identifier = "/2016/04/21/wish-app-analysis-app-device-id";
+    var disqus_title = "Wish App逆向分析app_device_id字段生成算法"
+    var disqus_url = "http://shinelw.com/2016/04/21/wish-app-analysis-app-device-id/";
 
     (function() {
         var dsq = document.createElement('script');

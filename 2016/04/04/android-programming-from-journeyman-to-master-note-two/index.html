@@ -10,9 +10,9 @@
     <meta name="keyword"  content="Shinelw, @Shinelw Shinelw's Blog, Android Developer, 沛轩, PASSION, 沈良炜, Shinelw Blog">
     <link rel="shortcut icon" href="/img/favicon.ico">
 
-    <title>你好，世界。 - Passion | Shinelw Blog</title>
+    <title>《Android开发进阶 从小工到专家》读书笔记 2 - Passion | Shinelw Blog</title>
 
-    <link rel="canonical" href="http://shinelw.com/2015/09/04/hello-world/">
+    <link rel="canonical" href="http://shinelw.com/2016/04/04/android-programming-from-journeyman-to-master-note-two/">
 
     <!-- Bootstrap Core CSS -->
     <link rel="stylesheet" href="/css/bootstrap.min.css">
@@ -176,11 +176,11 @@
                 <div class="post-heading">
                     <div class="tags">
                         
-                        <a class="tag" href="/tags/#随笔" title="随笔">随笔</a> 
+                        <a class="tag" href="/tags/#读书笔记" title="读书笔记">读书笔记</a> 
                     </div>
-                    <h1>你好，世界。</h1>  
-                    <h2 class="subheading">Hello,World.</h2> 
-                    <span class="meta">Posted by Shinelw on September 4, 2015.   Viewed <span id="busuanzi_value_page_pv"></span> times.
+                    <h1>《Android开发进阶 从小工到专家》读书笔记 2</h1>  
+                    <h2 class="subheading">《Android Programming from journeyman to master》 Note II</h2> 
+                    <span class="meta">Posted by Shinelw on April 4, 2016.   Viewed <span id="busuanzi_value_page_pv"></span> times.
                     </span>
                 </div>
             </div>
@@ -199,19 +199,146 @@
                 col-md-10 col-md-offset-1
                 post-container">
 
-                <p>你好，我是Shinelw，Android菜鸟一枚。</p>
+                <h1 id="ui-view">第二章 创造出丰富多彩的UI View与动画</h1>
 
-<p>学习Android到现在已经有一段时间了，做了一些小项目。感觉很多都是重复性的代码，开发中遇到的坑过了一段时间往往还会再次遇到，很多时候感觉提高不多，学习的东西学了忘，忘了学。</p>
+<h2 id="viewlistview--recyclerview">1. 重要的View控件：ListView 与 RecyclerView</h2>
 
-<p>之前其实很早以前就决定要开始以写博客的方式记录下来，最早是博客园，后来是CSDN，后来往往是因为自己的惰性没有坚持下来。</p>
+<h3 id="listview"><strong>ListView</strong></h3>
 
-<p>所以折腾了好久，用Github Page + Hexo 搭建了属于自己的博客，记录下自己这一路来自己的学习过程。希望自己可以一直坚持不懈的学习和记录总结。</p>
+<p>列表数据的显示需要4个元素，分别为：</p>
 
-<p>Do More.</p>
+<ol>
+  <li>用来显示列表的ListView</li>
+  <li>用来把数据映射到ListView上的Adapter</li>
+  <li>需要展示的数据集</li>
+  <li>数据显示的View模板</li>
+</ol>
 
-<p>不要在该拼搏的时光里选择安逸。</p>
+<p>其中重点是Adapter的实现，需要实现的函数为：</p>
 
-<p>加油~</p>
+<ol>
+  <li>getCount():获取数据的个数</li>
+  <li>getItem(int): 获取position数据的位置</li>
+  <li>getItemId(int): 获取position位置的数据id，一般直接返回position即可</li>
+  <li>getView(int,View,ViewGroup): 获取position位置上的ItemView视图</li>
+</ol>
+
+<p><strong>ListView的ItemView复用机制：</strong></p>
+
+<div class="language-java highlighter-rouge"><pre class="highlight"><code>	<span class="kd">public</span> <span class="n">View</span> <span class="nf">getView</span><span class="o">(</span><span class="kt">int</span> <span class="n">position</span><span class="o">,</span> <span class="n">View</span> <span class="n">convertView</span><span class="o">,</span> <span class="n">ViewGroup</span> <span class="n">parent</span><span class="o">){</span>
+		<span class="n">View</span> <span class="n">view</span> <span class="o">=</span> <span class="kc">null</span><span class="o">;</span>
+		<span class="c1">//视图缓存</span>
+		<span class="k">if</span><span class="o">(</span><span class="n">convertView</span> <span class="o">!=</span> <span class="kc">null</span><span class="o">){</span>
+			<span class="n">view</span> <span class="o">=</span> <span class="n">convertView</span><span class="o">;</span>
+		<span class="o">}</span><span class="k">else</span><span class="o">{</span>
+			<span class="c1">//重新加载视图</span>
+		<span class="o">}</span>
+		<span class="c1">//进行数据绑定</span>
+		<span class="c1">//返回Item View</span>
+		<span class="k">return</span> <span class="n">view</span><span class="o">;</span>
+	<span class="o">}</span>
+</code></pre>
+</div>
+
+<p>其中convertView代表缓存的Item View，如果有缓存的话convertView不为空，此时直接复用该视图；否则需要重新创建一个新的视图，最后绑定数据并且将该Item View返回。</p>
+
+<p><strong>ListVie数据更新：</strong></p>
+
+<p>ListView运用了Adapter模式，在Adapter类中运用了观察者模式实现数据源发生改变后的更新。</p>
+
+<p>大致流程如下：</p>
+
+<ol>
+  <li>setAdapter时创建AdapterDataSetObserver对象，注册到mAdapter中；</li>
+  <li>在数据源发生改变时调用adapter的notifyDataSetChanged()；</li>
+  <li>在notifyDataSetChanged()方法中调用DataSetObservable对象的notifyChanged方法，在该方法中通知所有观察者数据发生了变化，使观察者进行相关的操作；</li>
+  <li>notifyChanged中调用观察者的onChanged()方法，在onChanged()方法中调用ViewGroup的requestLayout()进行重新策略布局、绘制整个ListView的Item View.</li>
+</ol>
+
+<h3 id="recyclerview"><strong>RecyclerView</strong></h3>
+
+<p>RecyclerView封装了ViewHolder类型，该类型中有一个itemView，代表的就是每一项数据的根视图，需要在构造函数中传递给ViewHolder对象。</p>
+
+<p>实现RecyclerView的Adapter需要实现一下两个函数：</p>
+
+<ol>
+  <li>onCreateViewHolder():创建ViewHolder</li>
+  <li>onBindViewHolder():绑定数据</li>
+</ol>
+
+<p>RecyclerView优势（扩展性强）：</p>
+
+<ol>
+  <li>使用ViewHolder，对ListView的Adapter进行了再次封装，不需要考虑缓存问题。</li>
+  <li>将布局方式抽象为LayoutManager，默认提供了LinearLayoutManager、GridLayoutManager、StaggeredGridLayoutManager 3中布局，对应为线性布局、网格布局、交错网格布局。</li>
+  <li>对于ItemView的控制更精细，可以通过ItemDecoration为Item View添加装饰，手动设置分割线等等；用ItemAnimator为Item View添加动画效果。</li>
+</ol>
+
+<h2 id="section">2. 自定义控件</h2>
+
+<p>自定义控件重要的知识点：</p>
+
+<ul>
+  <li>View的测量与布局</li>
+  <li>View的绘制</li>
+  <li>处理触摸事件</li>
+  <li>动画效果</li>
+</ul>
+
+<h3 id="view"><strong>自定义View</strong></h3>
+
+<p>继承View实现自定义View，过程如下：</p>
+
+<ol>
+  <li>继承自View创建自定义控件；</li>
+  <li>如有需要自定义View属性，也就是在values/attrs.xml中定义属性集；</li>
+  <li>在xml中引入命名控件，设置属性；</li>
+  <li>在代码中读取xml中的属性，初始化视图；</li>
+  <li>测量视图大小；</li>
+  <li>绘制视图内容。</li>
+</ol>
+
+<h3 id="view-1"><strong>View的尺寸测量</strong></h3>
+
+<p>measure()方法接收两个参数：</p>
+
+<ul>
+  <li>widthMeasureSpec</li>
+  <li>heightMeasureSpec
+这两个值分别用于确定视图的宽度、高度的规格和大小。</li>
+</ul>
+
+<p>MeasureSpec的值由：</p>
+
+<ul>
+  <li>specSize: 记录大小</li>
+  <li>specMode: 记录规格</li>
+</ul>
+
+<p>共同组成。</p>
+
+<p><strong>specMode的三种类型：</strong></p>
+
+<ol>
+  <li><strong>EXACTLY</strong>: 子视图大小由specSize的值决定，对应match_parent、具体的数值。</li>
+  <li><strong>AT_MOST</strong>: 子视图最多只能specSize的大小， 对应warp_content。</li>
+  <li><strong>UNSPECIFIED</strong>: 开发人员将视图按照自己的意愿设置成任意的大小，没有任何限制。（基本没有用到）</li>
+</ol>
+
+<h3 id="canvaspaint"><strong>Canvas与Paint(画布与画笔)</strong></h3>
+
+<p>整个View就是一张画布，也就是Canvas。通过画笔Paint在这张画布上绘制各种各样的图形、元素，修改画笔的属性可以将同一个元素绘制出不同的效果。</p>
+
+<p><strong>Canvas中save()与restore()</strong></p>
+
+<ul>
+  <li><strong>save()</strong>: 存储当前矩阵和剪裁状态到一个私有的栈中。随后调用translate，scale，rotate，skew，concat，clipRect，clipPath等函数还是会正常执行，但是调用了restore()之后，这些调用产生的效果就会失效，在save之前的Canvas状态都会被恢复。</li>
+  <li><strong>restore()</strong>: 恢复save之前的状态。</li>
+</ul>
+
+<h3 id="viewgroup"><strong>自定义ViewGroup</strong></h3>
+
+<p>应用场景：当我们需要自定义子视图的排列方式时。</p>
 
                 <a id="article-end-anchor"></a>
                 <hr>
@@ -228,11 +355,18 @@
 
 
                 <ul class="pager">
+                    
+                    <li class="previous">
+                        <a href="/2016/02/28/ColorArcProgressBar/" data-toggle="tooltip" data-placement="top" title="ColorArcProgressBar——实现QQ健康步数显示、仪表盘效果">
+                        Previous<br>
+                        <span>ColorArcProgressBar——实现QQ健康步数显示、仪表盘效果</span>
+                        </a>
+                    </li>
                      
                     <li class="next">
-                        <a href="/2015/09/10/design-pattern-learning/" data-toggle="tooltip" data-placement="top" title="设计模式学习">
+                        <a href="/2016/04/08/Android-Studio-2-0-coming/" data-toggle="tooltip" data-placement="top" title="Android Studio 2.0 新特性体验">
                         Next<br>
-                        <span>设计模式学习</span>
+                        <span>Android Studio 2.0 新特性体验</span>
                         </a>
                     </li>
                     
@@ -297,14 +431,14 @@
                         <a href="/tags/#Ubuntu" title="Ubuntu" rel="1">
                                     Ubuntu
                                 </a>   
+                        <a href="/tags/#Android逆向分析" title="Android逆向分析" rel="1">
+                                    Android逆向分析
+                                </a>   
                         <a href="/tags/#工具" title="工具" rel="1">
                                     工具
                                 </a>   
                         <a href="/tags/#抓包" title="抓包" rel="1">
                                     抓包
-                                </a>   
-                        <a href="/tags/#Android逆向分析" title="Android逆向分析" rel="1">
-                                    Android逆向分析
                                 </a>   
                         <a href="/tags/#Android" title="Android" rel="1">
                                     Android
@@ -340,9 +474,9 @@
 <script type="text/javascript">
     /* * * CONFIGURATION VARIABLES * * */
     var disqus_shortname = "shinelw";
-    var disqus_identifier = "/2015/09/04/hello-world";
-    var disqus_title = "你好，世界。"
-    var disqus_url = "http://shinelw.com/2015/09/04/hello-world/";
+    var disqus_identifier = "/2016/04/04/android-programming-from-journeyman-to-master-note-two";
+    var disqus_title = "《Android开发进阶 从小工到专家》读书笔记 2"
+    var disqus_url = "http://shinelw.com/2016/04/04/android-programming-from-journeyman-to-master-note-two/";
 
     (function() {
         var dsq = document.createElement('script');

@@ -10,9 +10,9 @@
     <meta name="keyword"  content="Shinelw, @Shinelw Shinelw's Blog, Android Developer, 沛轩, PASSION, 沈良炜, Shinelw Blog">
     <link rel="shortcut icon" href="/img/favicon.ico">
 
-    <title>Wish App逆向分析app_device_id字段生成算法 - Passion | Shinelw Blog</title>
+    <title>你好，世界。 - Passion | Shinelw Blog</title>
 
-    <link rel="canonical" href="http://shinelw.com/2016/04/22/wish-app-analysis-app-device-id/">
+    <link rel="canonical" href="http://shinelw.com/2015/09/03/hello-world/">
 
     <!-- Bootstrap Core CSS -->
     <link rel="stylesheet" href="/css/bootstrap.min.css">
@@ -176,11 +176,11 @@
                 <div class="post-heading">
                     <div class="tags">
                         
-                        <a class="tag" href="/tags/#Android逆向分析" title="Android逆向分析">Android逆向分析</a> 
+                        <a class="tag" href="/tags/#随笔" title="随笔">随笔</a> 
                     </div>
-                    <h1>Wish App逆向分析app_device_id字段生成算法</h1>  
-                    <h2 class="subheading">Wish App Analysis how to build the app_device_id</h2> 
-                    <span class="meta">Posted by Shinelw on April 22, 2016.   Viewed <span id="busuanzi_value_page_pv"></span> times.
+                    <h1>你好，世界。</h1>  
+                    <h2 class="subheading">Hello,World.</h2> 
+                    <span class="meta">Posted by Shinelw on September 3, 2015.   Viewed <span id="busuanzi_value_page_pv"></span> times.
                     </span>
                 </div>
             </div>
@@ -199,148 +199,19 @@
                 col-md-10 col-md-offset-1
                 post-container">
 
-                <h2 id="section"><strong>概述</strong></h2>
+                <p>你好，我是Shinelw，Android菜鸟一枚。</p>
 
-<p>本文对Wish App进行了反编译，对应用中app_device_id字段的生成算法进行了逆向分析。</p>
+<p>学习Android到现在已经有一段时间了，做了一些小项目。感觉很多都是重复性的代码，开发中遇到的坑过了一段时间往往还会再次遇到，很多时候感觉提高不多，学习的东西学了忘，忘了学。</p>
 
-<p>使用到的工具有：</p>
+<p>之前其实很早以前就决定要开始以写博客的方式记录下来，最早是博客园，后来是CSDN，后来往往是因为自己的惰性没有坚持下来。</p>
 
-<ol>
-  <li>Apktool：获取资源文件和smali 反汇编代码</li>
-  <li>dex2jar：反编译apk，将其中的classes.dex转化成jar文件</li>
-  <li>jd-gui：打开jar文件，查看java源码</li>
-</ol>
+<p>所以折腾了好久，用Github Page + Hexo 搭建了属于自己的博客，记录下自己这一路来自己的学习过程。希望自己可以一直坚持不懈的学习和记录总结。</p>
 
-<p>反编译环境：mac osx</p>
+<p>Do More.</p>
 
-<h2 id="apkjavasmali"><strong>apk反编译获得java代码和smali反汇编代码</strong></h2>
+<p>不要在该拼搏的时光里选择安逸。</p>
 
-<p><strong>1. 从google play下载Wish.apk</strong></p>
-
-<p><img src="https://raw.githubusercontent.com/Shinelw/Android/master/BlogPicture/Wish_analysis/Screen%20Shot%202016-04-18%20at%206.24.54%20PM.png" alt="" /></p>
-
-<p><strong>2. 使用dex2jar把apk解包，将其中的classes.dex转换为jar文件</strong></p>
-
-<p>打开终端，执行命令： <strong>d2j-dex2jar Wish.apk</strong> ，如下图，得到Wish-dex2jar.jar</p>
-
-<p><img src="https://raw.githubusercontent.com/Shinelw/Android/master/BlogPicture/Wish_analysis/Screen%20Shot%202016-04-18%20at%206.33.32%20PM.png" alt="" /></p>
-
-<p><strong>3. 使用jd-gui查看Wish-dex2jar.jar文件，即java源代码</strong></p>
-
-<p>在jd-gui中打开Wish-dex2jar.jar文件，得到Java的源代码，如下图：</p>
-
-<p><img src="https://raw.githubusercontent.com/Shinelw/Android/master/BlogPicture/Wish_analysis/Screen%20Shot%202016-04-18%20at%206.36.44%20PM.png" alt="" /></p>
-
-<p><strong>4. 使用Apktool反编译apk，得到smali反汇编代码</strong></p>
-
-<p>终端执行命令： <strong>apktool d -f Wish.apk -o Wish</strong> , 如下图：</p>
-
-<p><img src="https://raw.githubusercontent.com/Shinelw/Android/master/BlogPicture/Wish_analysis/Screen%20Shot%202016-04-18%20at%206.42.38%20PM.png" alt="" /></p>
-
-<p>此时，得到Wish文件夹，里面包含apk中的xml、切图等资源文件和可供分析的smali反编译代码。</p>
-
-<p><img src="https://raw.githubusercontent.com/Shinelw/Android/master/BlogPicture/Wish_analysis/Screen%20Shot%202016-04-18%20at%206.43.30%20PM.png" alt="" /></p>
-
-<h2 id="appdeviceid"><strong>分析app_device_id字段生成算法</strong></h2>
-
-<p><strong>1. 快速定位app_device_id字段代码位置</strong></p>
-
-<p>jd-gui使用search功能快速定位app_device_id在代码中的位置，如下图：</p>
-
-<p><img src="https://raw.githubusercontent.com/Shinelw/Android/master/BlogPicture/Wish_analysis/Screen%20Shot%202016-04-18%20at%206.46.16%20PM.png" alt="" /></p>
-
-<p>可知，关键代码为：</p>
-
-<blockquote>
-  <p>paramHttpRequestParams.put(“app_device_id”, getDeviceId());</p>
-</blockquote>
-
-<p>应用在每次进行网络请求的时候会上传app_device_id字段，字段对应的值为getDeviceId()方法中返回的值。所以接下来对该方法进行分析。</p>
-
-<p><strong>2. getDeviceId()方法分析</strong></p>
-
-<p>我们来先看getDeviceId()的代码实现：</p>
-
-<p><img src="https://raw.githubusercontent.com/Shinelw/Android/master/BlogPicture/Wish_analysis/Screen%20Shot%202016-04-18%20at%207.00.37%20PM.png" alt="" /></p>
-
-<p>从代码中可以很明显的将整个获取DeviceId的过程分为三部分：</p>
-
-<p>（1）从SharedPreferences存储中取出DeviceUuid。</p>
-
-<p>代码段为：</p>
-
-<p><img src="https://raw.githubusercontent.com/Shinelw/Android/master/BlogPicture/Wish_analysis/Screen%20Shot%202016-04-18%20at%208.35.24%20PM.png" alt="" /></p>
-
-<p>（2）如果SharedPreferences中没有保存DeviceUuid值的话，就从本地的文件夹中取，文件地址具体地址为/Document/Wish/device_data_。若得到值以后，通过SharedPreferences保存起来。</p>
-
-<p>代码段为：</p>
-
-<p><img src="https://raw.githubusercontent.com/Shinelw/Android/master/BlogPicture/Wish_analysis/Screen%20Shot%202016-04-18%20at%208.36.23%20PM.png" alt="" /></p>
-
-<p>（3）如果本地文件中也没有的话，就创建一个（此时的情况跟安装应用后第一次进入的情形一样）。创建的过程使用了随机产生的方式，即java.util.UUID类中提供的randomUUID()方法。格式为：23c2add6-aa30-4442-97c8-81930766f089。 然后将得到的值以SharedPreferences的方式保存起来。</p>
-
-<p>代码段为：</p>
-
-<p><img src="https://raw.githubusercontent.com/Shinelw/Android/master/BlogPicture/Wish_analysis/Screen%20Shot%202016-04-18%20at%208.37.22%20PM.png" alt="" /></p>
-
-<p>当获取到随机值后，新开线程将值保存在本地固定文件夹/Docment/Wish/device_data_下。</p>
-
-<p>代码段为：</p>
-
-<p><img src="https://raw.githubusercontent.com/Shinelw/Android/master/BlogPicture/Wish_analysis/Screen%20Shot%202016-04-18%20at%208.38.05%20PM.png" alt="" /></p>
-
-<p>由于在run方法中出现/<em>Error</em>/，run()方法中的代码无法进行反编译。所以用smali进行验证。</p>
-
-<p><strong>3. smali代码分析新开线程保存DeviceUuid值在本地device_data的过程</strong></p>
-
-<p>smali文件夹中包含一下文件：</p>
-
-<p><img src="https://raw.githubusercontent.com/Shinelw/Android/master/BlogPicture/Wish_analysis/Screen%20Shot%202016-04-18%20at%207.30.11%20PM.png" alt="" /></p>
-
-<p>找到com.contextlogic.wish.api.core中的WishApi.smali，打开该文件定位到getDeviceId方法下，如图：(代码太多，故中间省略。)</p>
-
-<p><img src="https://raw.githubusercontent.com/Shinelw/Android/master/BlogPicture/Wish_analysis/Picture1.png" alt="" /></p>
-
-<p>逐步定位到新开线程的代码处：</p>
-
-<p><img src="https://raw.githubusercontent.com/Shinelw/Android/master/BlogPicture/Wish_analysis/Screen%20Shot%202016-04-18%20at%207.49.17%20PM.png" alt="" /></p>
-
-<p>从代码中可以看到，定义了一个局部变量writeableDeviceId来保存DeviceUuid值，然后开启一个线程，跳转到WishApi$2.smali中去。</p>
-
-<p>打开WishApi$2.smali代码，</p>
-
-<p><img src="https://raw.githubusercontent.com/Shinelw/Android/master/BlogPicture/Wish_analysis/Screen%20Shot%202016-04-18%20at%207.56.22%20PM.png" alt="" /></p>
-
-<p>代码中就只有一个run()方法。</p>
-
-<p>在run()方法中，一共就干了两件事，</p>
-
-<p>（1）定位到/Document/Wish/device_data_。如果存在，就直接定位到该文件下；如果不存在，就新建Wish文件夹，新建device_data。</p>
-
-<p><img src="https://raw.githubusercontent.com/Shinelw/Android/master/BlogPicture/Wish_analysis/Screen%20Shot%202016-04-18%20at%208.06.22%20PM.png" alt="" /></p>
-
-<p>（2）打开FileOutputStream将值写入到device_data_文件中去。</p>
-
-<p><img src="https://raw.githubusercontent.com/Shinelw/Android/master/BlogPicture/Wish_analysis/Picture2.png" alt="" /></p>
-
-<h2 id="section-1"><strong>总体流程</strong></h2>
-
-<p>大致流程图如下：</p>
-
-<p><img src="https://raw.githubusercontent.com/Shinelw/Android/master/BlogPicture/Wish_analysis/Screen%20Shot%202016-04-18%20at%208.33.22%20PM.png" alt="" /></p>
-
-<p>在手机中路径/Docment/Wish/devicedata保存下来的值：</p>
-
-<p><img src="https://raw.githubusercontent.com/Shinelw/Android/master/BlogPicture/Wish_analysis/Screen%20Shot%202016-04-21%20at%202.10.55%20PM.png" alt="" /></p>
-
-<p>与抓包得到的数值吻合：</p>
-
-<p><img src="https://raw.githubusercontent.com/Shinelw/Android/master/BlogPicture/Wish_analysis/Screen%20Shot%202016-04-21%20at%202.09.41%20PM.png" alt="" /></p>
-
-<h2 id="section-2"><strong>总结：</strong></h2>
-
-<p>由于app_device_id字段对应的值是随机产生的，但是由上述代码分析可知，每一次访问网络的时候都要发送app_device_id字段，这就要求对应值要是唯一的，以确保进行操作的设备是安全的。而这里对实现唯一的方法就是永远只随机产生一次，通过SharedPreferences和File方式分别把值分别保存下来。只有当应用卸载重新安装并且删除本地文件device_data的时候才会重新随机产生一个app_device_id值，然后一般用户是不可以在删除应用的时候同时找到它所保存的文件路径并删除，这就达到了设备ID的唯一性。</p>
-
+<p>加油~</p>
 
                 <a id="article-end-anchor"></a>
                 <hr>
@@ -357,18 +228,11 @@
 
 
                 <ul class="pager">
-                    
-                    <li class="previous">
-                        <a href="/2016/04/21/about-charles/" data-toggle="tooltip" data-placement="top" title="Charles:移动端设备网络抓包">
-                        Previous<br>
-                        <span>Charles:移动端设备网络抓包</span>
-                        </a>
-                    </li>
                      
                     <li class="next">
-                        <a href="/2016/04/27/android-make-apk/" data-toggle="tooltip" data-placement="top" title="Android APK打包流程">
+                        <a href="/2015/09/10/design-pattern-learning/" data-toggle="tooltip" data-placement="top" title="设计模式学习">
                         Next<br>
-                        <span>Android APK打包流程</span>
+                        <span>设计模式学习</span>
                         </a>
                     </li>
                     
@@ -433,14 +297,14 @@
                         <a href="/tags/#Ubuntu" title="Ubuntu" rel="1">
                                     Ubuntu
                                 </a>   
+                        <a href="/tags/#Android逆向分析" title="Android逆向分析" rel="1">
+                                    Android逆向分析
+                                </a>   
                         <a href="/tags/#工具" title="工具" rel="1">
                                     工具
                                 </a>   
                         <a href="/tags/#抓包" title="抓包" rel="1">
                                     抓包
-                                </a>   
-                        <a href="/tags/#Android逆向分析" title="Android逆向分析" rel="1">
-                                    Android逆向分析
                                 </a>   
                         <a href="/tags/#Android" title="Android" rel="1">
                                     Android
@@ -476,9 +340,9 @@
 <script type="text/javascript">
     /* * * CONFIGURATION VARIABLES * * */
     var disqus_shortname = "shinelw";
-    var disqus_identifier = "/2016/04/22/wish-app-analysis-app-device-id";
-    var disqus_title = "Wish App逆向分析app_device_id字段生成算法"
-    var disqus_url = "http://shinelw.com/2016/04/22/wish-app-analysis-app-device-id/";
+    var disqus_identifier = "/2015/09/03/hello-world";
+    var disqus_title = "你好，世界。"
+    var disqus_url = "http://shinelw.com/2015/09/03/hello-world/";
 
     (function() {
         var dsq = document.createElement('script');
