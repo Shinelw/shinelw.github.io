@@ -1,0 +1,1109 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="google-site-verification" content="xBT4GhYoi5qRD5tr338pgPM5OWHHIDR6mNg1a3euekI" />
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="好好学习天天向上。">
+    <meta name="keyword"  content="Shinelw, @Shinelw Shinelw's Blog, Android Developer, 沛轩, PASSION, 沈良炜, Shinelw Blog">
+    <link rel="shortcut icon" href="/img/favicon.ico">
+
+    <title>Kotlin属性引发的方法数问题 - Passion | Shinelw Blog</title>
+
+    <link rel="canonical" href="http://shinelw.com/2017/03/21/kotlin-method-count-improve/">
+
+    <!-- Bootstrap Core CSS -->
+    <link rel="stylesheet" href="/css/bootstrap.min.css">
+
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="/css/shinelw-blog.min.css">
+
+    <!-- Pygments Github CSS -->
+    <link rel="stylesheet" href="/css/syntax.css">
+
+    <!-- Custom Fonts -->
+    <!-- <link href="http://maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css" rel="stylesheet" type="text/css"> -->
+    <!-- Hux change font-awesome CDN to qiniu -->
+    <link href="http://cdn.staticfile.org/font-awesome/4.2.0/css/font-awesome.min.css" rel="stylesheet" type="text/css">
+
+    <!-- add highlight
+    <link rel="stylesheet" href="/css/androidstudio.css">
+		<script type="text/javascript" src="/js/highlight.pack.js"></script>
+		<script>hljs.initHighlightingOnLoad();</script>
+    -->
+</head>
+
+
+<!-- hack iOS CSS :active style -->
+<body ontouchstart="">
+
+    <!-- Navigation -->
+<nav class="navbar navbar-default navbar-custom navbar-fixed-top">
+    <div class="container-fluid">
+        <!-- Brand and toggle get grouped for better mobile display -->
+        <div class="navbar-header page-scroll">
+            <button type="button" class="navbar-toggle">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand" href="/">Shinelw Blog</a>
+        </div>
+
+        <!-- Collect the nav links, forms, and other content for toggling -->
+        <div id="huxblog_navbar">
+            <div class="navbar-collapse">
+                <ul class="nav navbar-nav navbar-right">
+                    <li>
+                        <a href="/">Home</a>
+                    </li>
+                    
+                    <li>
+                        <a href="/about/">About</a>
+                    </li>
+                    
+                    <li>
+                        <a href="/pages/archives/">Archives</a>
+                    </li>
+                    
+                    <li>
+                        <a href="/tags/">Tags</a>
+                    </li>
+                    
+                </ul>
+            </div>
+        </div>
+        <!-- /.navbar-collapse -->
+    </div>
+    <!-- /.container -->
+</nav>
+<script>
+    // Drop Bootstarp low-performance Navbar
+    // Use customize navbar with high-quality material design animation
+    // in high-perf jank-free CSS3 implementation
+    var $body   = document.body;
+    var $toggle = document.querySelector('.navbar-toggle');
+    var $navbar = document.querySelector('#huxblog_navbar');
+    var $collapse = document.querySelector('.navbar-collapse');
+
+    var __HuxNav__ = {
+        close: function(){
+            $navbar.className = " ";
+            // wait until animation end.
+            setTimeout(function(){
+                // prevent frequently toggle
+                if($navbar.className.indexOf('in') < 0) {
+                    $collapse.style.height = "0px"
+                }
+            },400)
+        },
+        open: function(){
+            $collapse.style.height = "auto"
+            $navbar.className += " in";
+        }
+    }
+
+    // Bind Event
+    $toggle.addEventListener('click', function(e){
+        if ($navbar.className.indexOf('in') > 0) {
+            __HuxNav__.close()
+        }else{
+            __HuxNav__.open()
+        }
+    })
+
+    /**
+     * Since Fastclick is used to delegate 'touchstart' globally
+     * to hack 300ms delay in iOS by performing a fake 'click',
+     * Using 'e.stopPropagation' to stop 'touchstart' event from
+     * $toggle/$collapse will break global delegation.
+     *
+     * Instead, we use a 'e.target' filter to prevent handler
+     * added to document close HuxNav.
+     *
+     * Also, we use 'click' instead of 'touchstart' as compromise
+     */
+    document.addEventListener('click', function(e){
+        if(e.target == $toggle) return;
+        if(e.target.className == 'icon-bar') return;
+        __HuxNav__.close();
+    })
+</script>
+
+
+    <!-- Image to hack wechat -->
+<!-- <img src="/img/icon_wechat.png" width="0" height="0"> -->
+<!-- <img src="/img/post-bg-2015.jpg" width="0" height="0"> -->
+
+<!-- Post Header -->
+<style type="text/css">
+    header.intro-header {
+        position: relative;
+        background-image: url('/img/post-bg-2015.jpg')
+    }
+
+    {
+        % if page.header-mask %
+    }
+
+    header.intro-header .header-mask {
+        width: 100%;
+        height: 100%;
+        position: absolute;
+        background: rgba(0,
+        0,
+        0,
+        {
+            {
+                page.header-mask
+            }
+        }
+        );
+    }
+
+    {
+        % endif %
+    }
+</style>
+<header class="intro-header">
+    <div class="header-mask"></div>
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                <div class="post-heading">
+                    <div class="tags">
+                        
+                        <a class="tag" href="/tags/#Kotlin" title="Kotlin">Kotlin</a> 
+                    </div>
+                    <h1>Kotlin属性引发的方法数问题</h1>  
+                    <h2 class="subheading">Methods several problems induced by Kotlin property</h2> 
+                    <span class="meta">Posted by Shinelw on March 21, 2017.   Viewed <span id="busuanzi_value_page_pv"></span> times.
+                    </span>
+                </div>
+            </div>
+        </div>
+    </div>
+</header>
+
+<!-- Post Content -->
+<article>
+    <div class="container">
+        <div class="row">
+
+            <!-- Post Container -->
+            <div class="
+                col-lg-8 col-lg-offset-2
+                col-md-10 col-md-offset-1
+                post-container">
+
+                <h1 id="kotlin">Kotlin属性引发的方法数问题</h1>
+<p>Kotlin最重要的一个优势就是简洁。说白了就是写的代码比Java来的少，所以很大程度上使用Kotlin开发会减少项目中的代码行数。然而，如果你觉得方法数肯定也减少的话，那就too young too simple了！首先，撇开引入Kotlin标准库的7000个方法数不谈，接下来我们来谈谈Kotlin属性带来的方法数问题。</p>
+
+<h2 id="section">方法数问题</h2>
+
+<p>我们知道，与Java不同的是，Kotlin语言中不提供任何方法来定义裸字段。所有的var和var声明都创建的是一个属性。乍一看来，这是一个伟大的优点，它会自动为你生成getter/setter方法。当然，当你在定义属性变量的同时，
+它也允许你自行添加一个get或者set方法。</p>
+
+<p>看上去就是下面这样子的：</p>
+
+<div class="language-java highlighter-rouge"><pre class="highlight"><code><span class="c1">//Kotlin</span>
+<span class="kd">class</span> <span class="nc">Hello</span> <span class="o">{</span>
+    <span class="n">var</span> <span class="nl">a:</span> <span class="n">Int</span> <span class="o">=</span> <span class="mi">1</span>
+
+    <span class="n">var</span> <span class="nl">b:</span> <span class="n">Int</span> <span class="o">=</span> <span class="mi">1</span>
+        <span class="n">set</span><span class="o">(</span><span class="n">value</span><span class="o">)</span> <span class="o">{</span><span class="n">value</span> <span class="o">*</span> <span class="mi">3</span><span class="o">}</span>
+
+<span class="o">}</span>
+</code></pre>
+</div>
+<p>等价于Java中：</p>
+
+<div class="language-java highlighter-rouge"><pre class="highlight"><code><span class="kd">public</span> <span class="kd">final</span> <span class="kd">class</span> <span class="nc">Hello</span> <span class="o">{</span>
+   <span class="kd">private</span> <span class="kt">int</span> <span class="n">a</span> <span class="o">=</span> <span class="mi">1</span><span class="o">;</span>
+   <span class="kd">private</span> <span class="kt">int</span> <span class="n">b</span> <span class="o">=</span> <span class="mi">1</span><span class="o">;</span>
+
+   <span class="kd">public</span> <span class="kd">final</span> <span class="kt">int</span> <span class="nf">getA</span><span class="o">()</span> <span class="o">{</span>
+      <span class="k">return</span> <span class="k">this</span><span class="o">.</span><span class="na">a</span><span class="o">;</span>
+   <span class="o">}</span>
+
+   <span class="kd">public</span> <span class="kd">final</span> <span class="kt">void</span> <span class="nf">setA</span><span class="o">(</span><span class="kt">int</span> <span class="n">var1</span><span class="o">)</span> <span class="o">{</span>
+      <span class="k">this</span><span class="o">.</span><span class="na">a</span> <span class="o">=</span> <span class="n">var1</span><span class="o">;</span>
+   <span class="o">}</span>
+
+   <span class="kd">public</span> <span class="kd">final</span> <span class="kt">int</span> <span class="nf">getB</span><span class="o">()</span> <span class="o">{</span>
+      <span class="k">return</span> <span class="k">this</span><span class="o">.</span><span class="na">b</span><span class="o">;</span>
+   <span class="o">}</span>
+
+   <span class="kd">public</span> <span class="kd">final</span> <span class="kt">void</span> <span class="nf">setB</span><span class="o">(</span><span class="kt">int</span> <span class="n">value</span><span class="o">)</span> <span class="o">{</span>
+      <span class="kt">int</span> <span class="n">var10000</span> <span class="o">=</span> <span class="k">this</span><span class="o">.</span><span class="na">b</span> <span class="o">*</span> <span class="mi">3</span><span class="o">;</span>
+   <span class="o">}</span>
+<span class="o">}</span>
+</code></pre>
+</div>
+
+<p>看上去是不是很简洁，在Kotlin中我们不需要写防御性的getter和setter方法以保证字段private不可见。显然，这让我们在开发过程中少写了很多代码。但这往往需要有代价的，如果你是个Java开发者，对于暴露出来的公开字段，比如常量的处理，代码是长这样的：</p>
+
+<div class="language-java highlighter-rouge"><pre class="highlight"><code><span class="c1">//Kotlin</span>
+
+<span class="kd">class</span> <span class="nc">Constants</span> <span class="o">{</span>
+    <span class="n">companion</span> <span class="n">object</span> <span class="o">{</span>
+        <span class="n">val</span> <span class="n">CONTENT_TYPE</span> <span class="o">=</span> <span class="s">"Content-Type"</span>
+        <span class="n">val</span> <span class="n">CONTENT_LENGTH</span> <span class="o">=</span> <span class="s">"Content-Length"</span>
+        <span class="n">val</span> <span class="n">CONTENT_ENCODING</span> <span class="o">=</span> <span class="s">"Content-Encoding"</span>
+        <span class="n">val</span> <span class="n">POST</span> <span class="o">=</span> <span class="s">"POST"</span>
+        <span class="n">val</span> <span class="n">GZIP</span> <span class="o">=</span> <span class="s">"gzip"</span>
+        <span class="n">val</span> <span class="n">UNKNOWN_HOST_EXCEPTION</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span>
+        <span class="n">val</span> <span class="n">SOCKET_TIMEOUT_EXCEPTION</span> <span class="o">=</span> <span class="o">-</span><span class="mi">2</span>
+        <span class="n">val</span> <span class="n">CONNECT_TIMEOUT_EXCEPTION</span> <span class="o">=</span> <span class="o">-</span><span class="mi">3</span>
+        <span class="n">val</span> <span class="n">SSL_HANDSHAKE_EXCEPTION</span> <span class="o">=</span> <span class="o">-</span><span class="mi">4</span>
+        <span class="n">val</span> <span class="n">SSL_EXCEPTION_EXCEPTION</span> <span class="o">=</span> <span class="o">-</span><span class="mi">5</span>
+        <span class="n">val</span> <span class="n">CONNECT_EXCEPTION</span> <span class="o">=</span> <span class="o">-</span><span class="mi">6</span>
+        <span class="n">val</span> <span class="n">NETWORK_EXCEPTION</span> <span class="o">=</span> <span class="o">-</span><span class="mi">7</span>
+        <span class="n">val</span> <span class="n">REQUEST_CANCEL</span> <span class="o">=</span> <span class="o">-</span><span class="mi">8</span>
+        <span class="o">...</span>
+        <span class="o">...</span>
+        <span class="o">...</span>
+    <span class="o">}</span>
+<span class="o">}</span>
+</code></pre>
+</div>
+
+<p>在Java代码中等价于：</p>
+
+<div class="language-java highlighter-rouge"><pre class="highlight"><code><span class="kd">public</span> <span class="kd">final</span> <span class="kd">class</span> <span class="nc">Constants</span> <span class="o">{</span>
+   <span class="nd">@NotNull</span>
+   <span class="kd">private</span> <span class="kd">static</span> <span class="kd">final</span> <span class="n">String</span> <span class="n">CONTENT_TYPE</span> <span class="o">=</span> <span class="s">"Content-Type"</span><span class="o">;</span>
+   <span class="nd">@NotNull</span>
+   <span class="kd">private</span> <span class="kd">static</span> <span class="kd">final</span> <span class="n">String</span> <span class="n">CONTENT_LENGTH</span> <span class="o">=</span> <span class="s">"Content-Length"</span><span class="o">;</span>
+   <span class="nd">@NotNull</span>
+   <span class="kd">private</span> <span class="kd">static</span> <span class="kd">final</span> <span class="n">String</span> <span class="n">CONTENT_ENCODING</span> <span class="o">=</span> <span class="s">"Content-Encoding"</span><span class="o">;</span>
+   <span class="nd">@NotNull</span>
+   <span class="kd">private</span> <span class="kd">static</span> <span class="kd">final</span> <span class="n">String</span> <span class="n">POST</span> <span class="o">=</span> <span class="s">"POST"</span><span class="o">;</span>
+   <span class="nd">@NotNull</span>
+   <span class="kd">private</span> <span class="kd">static</span> <span class="kd">final</span> <span class="n">String</span> <span class="n">GZIP</span> <span class="o">=</span> <span class="s">"gzip"</span><span class="o">;</span>
+   <span class="kd">private</span> <span class="kd">static</span> <span class="kd">final</span> <span class="kt">int</span> <span class="n">UNKNOWN_HOST_EXCEPTION</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span><span class="o">;</span>
+   <span class="kd">private</span> <span class="kd">static</span> <span class="kd">final</span> <span class="kt">int</span> <span class="n">SOCKET_TIMEOUT_EXCEPTION</span> <span class="o">=</span> <span class="o">-</span><span class="mi">2</span><span class="o">;</span>
+   <span class="kd">private</span> <span class="kd">static</span> <span class="kd">final</span> <span class="kt">int</span> <span class="n">CONNECT_TIMEOUT_EXCEPTION</span> <span class="o">=</span> <span class="o">-</span><span class="mi">3</span><span class="o">;</span>
+   <span class="kd">private</span> <span class="kd">static</span> <span class="kd">final</span> <span class="kt">int</span> <span class="n">SSL_HANDSHAKE_EXCEPTION</span> <span class="o">=</span> <span class="o">-</span><span class="mi">4</span><span class="o">;</span>
+   <span class="kd">private</span> <span class="kd">static</span> <span class="kd">final</span> <span class="kt">int</span> <span class="n">SSL_EXCEPTION_EXCEPTION</span> <span class="o">=</span> <span class="o">-</span><span class="mi">5</span><span class="o">;</span>
+   <span class="kd">private</span> <span class="kd">static</span> <span class="kd">final</span> <span class="kt">int</span> <span class="n">CONNECT_EXCEPTION</span> <span class="o">=</span> <span class="o">-</span><span class="mi">6</span><span class="o">;</span>
+   <span class="kd">private</span> <span class="kd">static</span> <span class="kd">final</span> <span class="kt">int</span> <span class="n">NETWORK_EXCEPTION</span> <span class="o">=</span> <span class="o">-</span><span class="mi">7</span><span class="o">;</span>
+   <span class="kd">private</span> <span class="kd">static</span> <span class="kd">final</span> <span class="kt">int</span> <span class="n">REQUEST_CANCEL</span> <span class="o">=</span> <span class="o">-</span><span class="mi">8</span><span class="o">;</span>
+   <span class="kd">public</span> <span class="kd">static</span> <span class="kd">final</span> <span class="n">Constants</span><span class="o">.</span><span class="na">Companion</span> <span class="n">Companion</span> <span class="o">=</span> <span class="k">new</span>  <span class="n">Constants</span><span class="o">.</span><span class="na">Companion</span><span class="o">((</span><span class="n">DefaultConstructorMarker</span><span class="o">)</span><span class="kc">null</span><span class="o">);</span>
+
+    <span class="kd">public</span> <span class="kd">static</span> <span class="kd">final</span> <span class="kd">class</span> <span class="nc">Companion</span> <span class="o">{</span>
+      <span class="nd">@NotNull</span>
+      <span class="kd">public</span> <span class="kd">final</span> <span class="n">String</span> <span class="nf">getCONTENT_TYPE</span><span class="o">()</span> <span class="o">{</span>
+         <span class="k">return</span> <span class="n">Constants</span><span class="o">.</span><span class="na">CONTENT_TYPE</span><span class="o">;</span>
+      <span class="o">}</span>
+
+      <span class="nd">@NotNull</span>
+      <span class="kd">public</span> <span class="kd">final</span> <span class="n">String</span> <span class="nf">getCONTENT_LENGTH</span><span class="o">()</span> <span class="o">{</span>
+         <span class="k">return</span> <span class="n">Constants</span><span class="o">.</span><span class="na">CONTENT_LENGTH</span><span class="o">;</span>
+      <span class="o">}</span>
+
+      <span class="nd">@NotNull</span>
+      <span class="kd">public</span> <span class="kd">final</span> <span class="n">String</span> <span class="nf">getCONTENT_ENCODING</span><span class="o">()</span> <span class="o">{</span>
+         <span class="k">return</span> <span class="n">Constants</span><span class="o">.</span><span class="na">CONTENT_ENCODING</span><span class="o">;</span>
+      <span class="o">}</span>
+
+      <span class="nd">@NotNull</span>
+      <span class="kd">public</span> <span class="kd">final</span> <span class="n">String</span> <span class="nf">getPOST</span><span class="o">()</span> <span class="o">{</span>
+         <span class="k">return</span> <span class="n">Constants</span><span class="o">.</span><span class="na">POST</span><span class="o">;</span>
+      <span class="o">}</span>
+
+      <span class="nd">@NotNull</span>
+      <span class="kd">public</span> <span class="kd">final</span> <span class="n">String</span> <span class="nf">getGZIP</span><span class="o">()</span> <span class="o">{</span>
+         <span class="k">return</span> <span class="n">Constants</span><span class="o">.</span><span class="na">GZIP</span><span class="o">;</span>
+      <span class="o">}</span>
+
+      <span class="kd">public</span> <span class="kd">final</span> <span class="kt">int</span> <span class="nf">getUNKNOWN_HOST_EXCEPTION</span><span class="o">()</span> <span class="o">{</span>
+         <span class="k">return</span> <span class="n">Constants</span><span class="o">.</span><span class="na">UNKNOWN_HOST_EXCEPTION</span><span class="o">;</span>
+      <span class="o">}</span>
+
+      <span class="kd">public</span> <span class="kd">final</span> <span class="kt">int</span> <span class="nf">getSOCKET_TIMEOUT_EXCEPTION</span><span class="o">()</span> <span class="o">{</span>
+         <span class="k">return</span> <span class="n">Constants</span><span class="o">.</span><span class="na">SOCKET_TIMEOUT_EXCEPTION</span><span class="o">;</span>
+      <span class="o">}</span>
+
+      <span class="kd">public</span> <span class="kd">final</span> <span class="kt">int</span> <span class="nf">getCONNECT_TIMEOUT_EXCEPTION</span><span class="o">()</span> <span class="o">{</span>
+         <span class="k">return</span> <span class="n">Constants</span><span class="o">.</span><span class="na">CONNECT_TIMEOUT_EXCEPTION</span><span class="o">;</span>
+      <span class="o">}</span>
+
+      <span class="kd">public</span> <span class="kd">final</span> <span class="kt">int</span> <span class="nf">getSSL_HANDSHAKE_EXCEPTION</span><span class="o">()</span> <span class="o">{</span>
+         <span class="k">return</span> <span class="n">Constants</span><span class="o">.</span><span class="na">SSL_HANDSHAKE_EXCEPTION</span><span class="o">;</span>
+      <span class="o">}</span>
+
+      <span class="kd">public</span> <span class="kd">final</span> <span class="kt">int</span> <span class="nf">getSSL_EXCEPTION_EXCEPTION</span><span class="o">()</span> <span class="o">{</span>
+         <span class="k">return</span> <span class="n">Constants</span><span class="o">.</span><span class="na">SSL_EXCEPTION_EXCEPTION</span><span class="o">;</span>
+      <span class="o">}</span>
+
+      <span class="kd">public</span> <span class="kd">final</span> <span class="kt">int</span> <span class="nf">getCONNECT_EXCEPTION</span><span class="o">()</span> <span class="o">{</span>
+         <span class="k">return</span> <span class="n">Constants</span><span class="o">.</span><span class="na">CONNECT_EXCEPTION</span><span class="o">;</span>
+      <span class="o">}</span>
+
+      <span class="kd">public</span> <span class="kd">final</span> <span class="kt">int</span> <span class="nf">getNETWORK_EXCEPTION</span><span class="o">()</span> <span class="o">{</span>
+         <span class="k">return</span> <span class="n">Constants</span><span class="o">.</span><span class="na">NETWORK_EXCEPTION</span><span class="o">;</span>
+      <span class="o">}</span>
+
+      <span class="kd">public</span> <span class="kd">final</span> <span class="kt">int</span> <span class="nf">getREQUEST_CANCEL</span><span class="o">()</span> <span class="o">{</span>
+         <span class="k">return</span> <span class="n">Constants</span><span class="o">.</span><span class="na">REQUEST_CANCEL</span><span class="o">;</span>
+      <span class="o">}</span>
+
+      <span class="kd">private</span> <span class="nf">Companion</span><span class="o">()</span> <span class="o">{</span>
+      <span class="o">}</span>
+
+      <span class="c1">// $FF: synthetic method</span>
+      <span class="kd">public</span> <span class="nf">Companion</span><span class="o">(</span><span class="n">DefaultConstructorMarker</span> <span class="n">$constructor_marker</span><span class="o">)</span> <span class="o">{</span>
+         <span class="k">this</span><span class="o">();</span>
+      <span class="o">}</span>
+   <span class="o">}</span>
+<span class="o">}</span>
+</code></pre>
+</div>
+
+<p>发现问题了没有？我只想添加公开字段直接暴露给其他类调用，当然我并不是说防御型调用getter方式不好，但是代价太大！</p>
+
+<p>这里我只是随便列举了十几个字段，就相应的增加了同样数量的方法。</p>
+
+<p>那么，试想一下，我的项目中有1000个公开常量字段，那么我的项目就要相应的增加1000个方法，并且更加糟糕的是，这些方法并不是必要的！</p>
+
+<p>那么，这时候我只想要完成和Java代码中一样的事并且不增加多余的方法数，该怎么办？</p>
+
+<h2 id="section-1">解决过程</h2>
+
+<p>我们到Kotlin编译过程的最后阶段—目标代码生成，定位到PropertyCodegen类，如果生成属性相关代码。</p>
+
+<div class="language-java highlighter-rouge"><pre class="highlight"><code><span class="kd">public</span> <span class="kd">class</span> <span class="nc">PropertyCodegen</span> <span class="o">{</span>
+
+    <span class="kd">private</span> <span class="kt">void</span> <span class="nf">gen</span><span class="o">(</span>
+            <span class="nd">@Nullable</span> <span class="n">KtProperty</span> <span class="n">declaration</span><span class="o">,</span> <span class="c1">// 属性声明</span>
+            <span class="nd">@NotNull</span> <span class="n">PropertyDescriptor</span> <span class="n">descriptor</span><span class="o">,</span>  <span class="c1">//描述，包括权限修饰符、注解、类型等。</span>
+            <span class="nd">@Nullable</span> <span class="n">KtPropertyAccessor</span> <span class="n">getter</span><span class="o">,</span> <span class="c1">// 决定是否生成getter</span>
+            <span class="nd">@Nullable</span> <span class="n">KtPropertyAccessor</span> <span class="n">setter</span>  <span class="c1">//决定是否生成setter</span>
+    <span class="o">)</span> <span class="o">{</span>
+        <span class="k">assert</span> <span class="n">kind</span> <span class="o">==</span> <span class="n">OwnerKind</span><span class="o">.</span><span class="na">PACKAGE</span> <span class="o">||</span> <span class="n">kind</span> <span class="o">==</span> <span class="n">OwnerKind</span><span class="o">.</span><span class="na">IMPLEMENTATION</span> <span class="o">||</span> <span class="n">kind</span> <span class="o">==</span> <span class="n">OwnerKind</span><span class="o">.</span><span class="na">DEFAULT_IMPLS</span>
+                <span class="o">:</span> <span class="s">"Generating property with a wrong kind ("</span> <span class="o">+</span> <span class="n">kind</span> <span class="o">+</span> <span class="s">"): "</span> <span class="o">+</span> <span class="n">descriptor</span><span class="o">;</span>
+		  <span class="c1">//生成注解信息</span>
+        <span class="n">genBackingFieldAndAnnotations</span><span class="o">(</span><span class="n">declaration</span><span class="o">,</span> <span class="n">descriptor</span><span class="o">,</span> <span class="kc">false</span><span class="o">);</span>
+
+		  <span class="c1">//根据注解和权限修饰符等信息判断是否自动生成Getter代码</span>
+        <span class="k">if</span> <span class="o">(</span><span class="n">isAccessorNeeded</span><span class="o">(</span><span class="n">declaration</span><span class="o">,</span> <span class="n">descriptor</span><span class="o">,</span> <span class="n">getter</span><span class="o">))</span> <span class="o">{</span>
+            <span class="n">generateGetter</span><span class="o">(</span><span class="n">declaration</span><span class="o">,</span> <span class="n">descriptor</span><span class="o">,</span> <span class="n">getter</span><span class="o">);</span>
+        <span class="o">}</span>
+        <span class="c1">//根据注解和权限修饰符等信息判断是否自动生成Setter代码</span>
+        <span class="k">if</span> <span class="o">(</span><span class="n">isAccessorNeeded</span><span class="o">(</span><span class="n">declaration</span><span class="o">,</span> <span class="n">descriptor</span><span class="o">,</span> <span class="n">setter</span><span class="o">))</span> <span class="o">{</span>
+            <span class="n">generateSetter</span><span class="o">(</span><span class="n">declaration</span><span class="o">,</span> <span class="n">descriptor</span><span class="o">,</span> <span class="n">setter</span><span class="o">);</span>
+        <span class="o">}</span>
+    <span class="o">}</span>
+<span class="o">}</span>
+</code></pre>
+</div>
+
+<p>看代码，我们需要做的是，让 <strong>isAccessorNeeded(declaration, descriptor, getter)</strong> 和 <strong>isAccessorNeeded(declaration, descriptor, setter</strong> )的判断都返回false，不让其执行到** generateGetter(declaration, descriptor, getter)** 和 <strong>generateSetter(declaration, descriptor, setter)</strong> 代码，阻止生成属性的setter/getter方法。</p>
+
+<p>我们看看<strong>isAccessorNeeded</strong>里做了什么事。</p>
+
+<div class="language-java highlighter-rouge"><pre class="highlight"><code>  <span class="kd">private</span> <span class="kt">boolean</span> <span class="nf">isAccessorNeeded</span><span class="o">(</span>
+            <span class="nd">@Nullable</span> <span class="n">KtProperty</span> <span class="n">declaration</span><span class="o">,</span>
+            <span class="nd">@NotNull</span> <span class="n">PropertyDescriptor</span> <span class="n">descriptor</span><span class="o">,</span>
+            <span class="nd">@Nullable</span> <span class="n">KtPropertyAccessor</span> <span class="n">accessor</span>
+    <span class="o">)</span> <span class="o">{</span>
+    	<span class="c1">//如果是Const修饰或者使用@JvmFiled注解的，直接返回false</span>
+        <span class="k">if</span> <span class="o">(</span><span class="n">isConstOrHasJvmFieldAnnotation</span><span class="o">(</span><span class="n">descriptor</span><span class="o">))</span> <span class="k">return</span> <span class="kc">false</span><span class="o">;</span>
+
+        <span class="kt">boolean</span> <span class="n">isDefaultAccessor</span> <span class="o">=</span> <span class="n">accessor</span> <span class="o">==</span> <span class="kc">null</span> <span class="o">||</span> <span class="o">!</span><span class="n">accessor</span><span class="o">.</span><span class="na">hasBody</span><span class="o">();</span>
+
+        <span class="c1">//不要为DefaultImpls中的默认访问器生成接口属性的访问器</span>
+        <span class="k">if</span> <span class="o">(</span><span class="n">kind</span> <span class="o">==</span> <span class="n">OwnerKind</span><span class="o">.</span><span class="na">DEFAULT_IMPLS</span> <span class="o">&amp;&amp;</span> <span class="n">isDefaultAccessor</span><span class="o">)</span> <span class="k">return</span> <span class="kc">false</span><span class="o">;</span>
+
+        <span class="k">if</span> <span class="o">(</span><span class="n">declaration</span> <span class="o">==</span> <span class="kc">null</span><span class="o">)</span> <span class="k">return</span> <span class="kc">true</span><span class="o">;</span>
+
+        <span class="c1">//委托或扩展属性只能通过访问器引用</span>
+        <span class="k">if</span> <span class="o">(</span><span class="n">declaration</span><span class="o">.</span><span class="na">hasDelegate</span><span class="o">()</span> <span class="o">||</span> <span class="n">declaration</span><span class="o">.</span><span class="na">getReceiverTypeReference</span><span class="o">()</span> <span class="o">!=</span> <span class="kc">null</span><span class="o">)</span> <span class="k">return</span> <span class="kc">true</span><span class="o">;</span>
+
+        <span class="c1">//伴随对象属性始终应具有访问器，因为它们的后备字段被移动/复制到外部类</span>
+        <span class="k">if</span> <span class="o">(</span><span class="n">isCompanionObject</span><span class="o">(</span><span class="n">descriptor</span><span class="o">.</span><span class="na">getContainingDeclaration</span><span class="o">()))</span> <span class="k">return</span> <span class="kc">true</span><span class="o">;</span>
+
+        <span class="c1">//来自多个类的非常量属性具有访问者，而不管可见性</span>
+        <span class="k">if</span> <span class="o">(</span><span class="n">isNonConstTopLevelPropertyInMultifileClass</span><span class="o">(</span><span class="n">declaration</span><span class="o">,</span> <span class="n">descriptor</span><span class="o">))</span> <span class="k">return</span> <span class="kc">true</span><span class="o">;</span>
+
+        <span class="c1">//私有类属性仅在这些访问者不平凡的情况下才具有访问者</span>
+        <span class="k">if</span> <span class="o">(</span><span class="n">Visibilities</span><span class="o">.</span><span class="na">isPrivate</span><span class="o">(</span><span class="n">descriptor</span><span class="o">.</span><span class="na">getVisibility</span><span class="o">()))</span> <span class="o">{</span>
+            <span class="k">return</span> <span class="o">!</span><span class="n">isDefaultAccessor</span><span class="o">;</span>
+        <span class="o">}</span>
+
+        <span class="k">return</span> <span class="kc">true</span><span class="o">;</span>
+    <span class="o">}</span>
+</code></pre>
+</div>
+
+<p>从代码我们可以看出，有三种情况会返回false，从而不生成getter/setter代码。我们来看这三种情况的实现以及功能验证。</p>
+
+<h3 id="constjvmfiled">情况一：const修饰或者@JvmFiled注解</h3>
+
+<div class="language-java highlighter-rouge"><pre class="highlight"><code><span class="kd">public</span> <span class="kd">static</span> <span class="kt">boolean</span> <span class="nf">isConstOrHasJvmFieldAnnotation</span><span class="o">(</span><span class="nd">@NotNull</span> <span class="n">PropertyDescriptor</span> <span class="n">propertyDescriptor</span><span class="o">)</span> <span class="o">{</span>
+        <span class="k">return</span> <span class="n">propertyDescriptor</span><span class="o">.</span><span class="na">isConst</span><span class="o">()</span> <span class="o">||</span> <span class="n">hasJvmFieldAnnotation</span><span class="o">(</span><span class="n">propertyDescriptor</span><span class="o">);</span>
+    <span class="o">}</span>
+</code></pre>
+</div>
+
+<p>可以看到，当属性描述的_isConst()_ 为TRUE时，即对应以下情况：</p>
+
+<pre><code class="language-jav">const val a = 1。
+</code></pre>
+
+<p>再看看注解，</p>
+
+<div class="language-java highlighter-rouge"><pre class="highlight"><code><span class="n">fun</span> <span class="n">DeclarationDescriptor</span><span class="o">.</span><span class="na">hasJvmFieldAnnotation</span><span class="o">():</span> <span class="n">Boolean</span> <span class="o">{</span>
+    <span class="k">return</span> <span class="nf">findJvmFieldAnnotation</span><span class="o">()</span> <span class="o">!=</span> <span class="kc">null</span>
+<span class="o">}</span>
+
+<span class="n">fun</span> <span class="n">DeclarationDescriptor</span><span class="o">.</span><span class="na">findJvmFieldAnnotation</span><span class="o">()</span> <span class="o">=</span>
+	<span class="n">DescriptorUtils</span><span class="o">.</span><span class="na">getAnnotationByFqName</span><span class="o">(</span><span class="n">annotations</span><span class="o">,</span> <span class="n">FqName</span><span class="o">(</span><span class="s">"kotlin.jvm.JvmField"</span><span class="o">))</span>
+</code></pre>
+</div>
+
+<p>当定义的属性找到了@JvmField时，返回TRUE,即对应以下情况：</p>
+
+<div class="language-java highlighter-rouge"><pre class="highlight"><code><span class="nd">@JvmField</span> <span class="n">var</span> <span class="n">a</span>
+</code></pre>
+</div>
+
+<p>接下来，我们来验证我们的想法。</p>
+
+<div class="language-java highlighter-rouge"><pre class="highlight"><code><span class="kd">class</span> <span class="nc">Hello</span> <span class="o">{</span>
+    <span class="n">companion</span> <span class="n">object</span> <span class="o">{</span>
+        <span class="kd">const</span> <span class="n">val</span> <span class="n">A</span> <span class="o">=</span> <span class="mi">1</span>
+        <span class="nd">@JvmField</span> <span class="n">val</span> <span class="n">B</span> <span class="o">=</span> <span class="mi">2</span>
+    <span class="o">}</span>
+
+<span class="o">}</span>
+</code></pre>
+</div>
+
+<p>转换为Java代码，</p>
+
+<div class="language-java highlighter-rouge"><pre class="highlight"><code><span class="kd">public</span> <span class="kd">final</span> <span class="kd">class</span> <span class="nc">Hello</span> <span class="o">{</span>
+   <span class="kd">public</span> <span class="kd">static</span> <span class="kd">final</span> <span class="kt">int</span> <span class="n">A</span> <span class="o">=</span> <span class="mi">1</span><span class="o">;</span>
+   <span class="nd">@JvmField</span>
+   <span class="kd">public</span> <span class="kd">static</span> <span class="kd">final</span> <span class="kt">int</span> <span class="n">B</span> <span class="o">=</span> <span class="mi">2</span><span class="o">;</span>
+   <span class="kd">public</span> <span class="kd">static</span> <span class="kd">final</span> <span class="n">Hello</span><span class="o">.</span><span class="na">Companion</span> <span class="n">Companion</span> <span class="o">=</span> <span class="k">new</span> <span class="n">Hello</span><span class="o">.</span><span class="na">Companion</span><span class="o">((</span><span class="n">DefaultConstructorMarker</span><span class="o">)</span><span class="kc">null</span><span class="o">);</span>
+
+   <span class="kd">public</span> <span class="kd">static</span> <span class="kd">final</span> <span class="kd">class</span> <span class="nc">Companion</span> <span class="o">{</span>
+      <span class="kd">private</span> <span class="nf">Companion</span><span class="o">()</span> <span class="o">{</span>
+      <span class="o">}</span>
+
+      <span class="c1">// $FF: synthetic method</span>
+      <span class="kd">public</span> <span class="nf">Companion</span><span class="o">(</span><span class="n">DefaultConstructorMarker</span> <span class="n">$constructor_marker</span><span class="o">)</span> <span class="o">{</span>
+         <span class="k">this</span><span class="o">();</span>
+      <span class="o">}</span>
+   <span class="o">}</span>
+<span class="o">}</span>
+</code></pre>
+</div>
+
+<p>果然，A和B均没有生成响应的getter/setter方法。</p>
+
+<h3 id="val">情况二：当属性类型为Val</h3>
+
+<p>可想而知，当属性类型为val时，属性值则不可改变，所以只会生成getter访问方法，而不会生成setter方法。</p>
+
+<div class="language-java highlighter-rouge"><pre class="highlight"><code><span class="kt">boolean</span> <span class="n">isDefaultAccessor</span> <span class="o">=</span> <span class="n">accessor</span> <span class="o">==</span> <span class="kc">null</span> <span class="o">||</span> <span class="o">!</span><span class="n">accessor</span><span class="o">.</span><span class="na">hasBody</span><span class="o">();</span>
+
+<span class="k">if</span> <span class="o">(</span><span class="n">kind</span> <span class="o">==</span> <span class="n">OwnerKind</span><span class="o">.</span><span class="na">DEFAULT_IMPLS</span> <span class="o">&amp;&amp;</span> <span class="n">isDefaultAccessor</span><span class="o">)</span> <span class="o">{</span>
+	<span class="k">return</span> <span class="kc">false</span><span class="o">;</span>
+<span class="o">}</span>
+</code></pre>
+</div>
+
+<p>当属性声明为val时，访问器accessor，也就是 <strong>property.getSetter()</strong> 返回null。</p>
+
+<div class="language-java highlighter-rouge"><pre class="highlight"><code> <span class="kd">public</span> <span class="n">KtPropertyAccessor</span> <span class="nf">getSetter</span><span class="o">()</span> <span class="o">{</span>
+     <span class="k">for</span> <span class="o">(</span><span class="n">KtPropertyAccessor</span> <span class="n">accessor</span> <span class="o">:</span> <span class="n">getAccessors</span><span class="o">())</span> <span class="o">{</span>
+         <span class="k">if</span> <span class="o">(</span><span class="n">accessor</span><span class="o">.</span><span class="na">isSetter</span><span class="o">())</span> <span class="k">return</span> <span class="n">accessor</span><span class="o">;</span>
+     <span class="o">}</span>
+
+     <span class="k">return</span> <span class="kc">null</span><span class="o">;</span>
+ <span class="o">}</span>
+
+ <span class="kd">public</span> <span class="kt">boolean</span> <span class="nf">isSetter</span><span class="o">()</span> <span class="o">{</span>
+        <span class="n">KotlinPropertyAccessorStub</span> <span class="n">stub</span> <span class="o">=</span> <span class="n">getStub</span><span class="o">();</span>
+        <span class="k">if</span> <span class="o">(</span><span class="n">stub</span> <span class="o">!=</span> <span class="kc">null</span><span class="o">)</span> <span class="o">{</span>
+            <span class="k">return</span> <span class="o">!</span><span class="n">stub</span><span class="o">.</span><span class="na">isGetter</span><span class="o">();</span>
+        <span class="o">}</span>
+        <span class="k">return</span> <span class="nf">findChildByType</span><span class="o">(</span><span class="n">KtTokens</span><span class="o">.</span><span class="na">SET_KEYWORD</span><span class="o">)</span> <span class="o">!=</span> <span class="kc">null</span><span class="o">;</span>
+    <span class="o">}</span>
+</code></pre>
+</div>
+
+<p>以下验证此种情况。</p>
+
+<div class="language-java highlighter-rouge"><pre class="highlight"><code><span class="c1">//Kotlin</span>
+<span class="kd">class</span> <span class="nc">Hello</span> <span class="o">{</span>
+	<span class="n">val</span> <span class="nl">a:</span> <span class="n">Int</span> <span class="o">=</span> <span class="mi">1</span>
+<span class="o">}</span>
+</code></pre>
+</div>
+
+<p>在Java中等价转换为：</p>
+
+<div class="language-java highlighter-rouge"><pre class="highlight"><code><span class="kd">public</span> <span class="kd">final</span> <span class="kd">class</span> <span class="nc">Hello</span> <span class="o">{</span>
+   <span class="kd">private</span> <span class="kd">final</span> <span class="kt">int</span> <span class="n">a</span> <span class="o">=</span> <span class="mi">1</span><span class="o">;</span>
+
+   <span class="kd">public</span> <span class="kd">final</span> <span class="kt">int</span> <span class="nf">getA</span><span class="o">()</span> <span class="o">{</span>
+      <span class="k">return</span> <span class="k">this</span><span class="o">.</span><span class="na">a</span><span class="o">;</span>
+   <span class="o">}</span>
+<span class="o">}</span>
+</code></pre>
+</div>
+
+<h3 id="private">情况三： 权限访问设置为private</h3>
+
+<div class="language-java highlighter-rouge"><pre class="highlight"><code> <span class="kt">boolean</span> <span class="n">isDefaultAccessor</span> <span class="o">=</span> <span class="n">accessor</span> <span class="o">==</span> <span class="kc">null</span> <span class="o">||</span> <span class="o">!</span><span class="n">accessor</span><span class="o">.</span><span class="na">hasBody</span><span class="o">();</span>
+ <span class="k">if</span> <span class="o">(</span><span class="n">Visibilities</span><span class="o">.</span><span class="na">isPrivate</span><span class="o">(</span><span class="n">descriptor</span><span class="o">.</span><span class="na">getVisibility</span><span class="o">()))</span> <span class="o">{</span>
+            <span class="k">return</span> <span class="o">!</span><span class="n">isDefaultAccessor</span><span class="o">;</span>
+        <span class="o">}</span>
+</code></pre>
+</div>
+<p>从代码可以看出，具体分为两种情形：
+1. 当属性的访问权限为<strong>Visibilities.isPrivate</strong>时，并且是默认访问器时，不自动生成访问器。</p>
+
+<p>以下验证此种情况。</p>
+
+<div class="language-java highlighter-rouge"><pre class="highlight"><code><span class="c1">//Kotlin</span>
+
+<span class="kd">class</span> <span class="nc">Hello</span> <span class="o">{</span>
+   <span class="kd">private</span> <span class="n">var</span> <span class="n">a</span> <span class="o">:</span> <span class="n">Int</span> <span class="o">=</span> <span class="mi">1</span>
+<span class="o">}</span>
+</code></pre>
+</div>
+
+<p>在Java中转换为：</p>
+
+<div class="language-java highlighter-rouge"><pre class="highlight"><code><span class="kd">public</span> <span class="kd">final</span> <span class="kd">class</span> <span class="nc">Hello</span> <span class="o">{</span>
+   <span class="kd">private</span> <span class="kt">int</span> <span class="n">a</span> <span class="o">=</span> <span class="mi">1</span><span class="o">;</span>
+<span class="o">}</span>
+</code></pre>
+</div>
+
+<ol>
+  <li>当属性的访问权限为<strong>Visibilities.isPrivate</strong>时，但不是默认访问器时，同样会自动生成访问器。</li>
+</ol>
+
+<p>以下验证此种情况。</p>
+
+<div class="language-java highlighter-rouge"><pre class="highlight"><code><span class="kd">class</span> <span class="nc">Hello</span> <span class="o">{</span>
+
+    <span class="kd">private</span> <span class="n">var</span> <span class="nl">a:</span> <span class="n">Int</span>
+        <span class="nf">get</span><span class="o">()</span> <span class="o">=</span> <span class="n">a</span>
+        <span class="nf">set</span><span class="o">(</span><span class="n">value</span><span class="o">)</span> <span class="o">{</span><span class="n">value</span><span class="o">+</span><span class="mi">1</span><span class="o">}</span>
+<span class="o">}</span>
+</code></pre>
+</div>
+
+<p>在Java中等价转换为：</p>
+
+<div class="language-java highlighter-rouge"><pre class="highlight"><code><span class="kd">public</span> <span class="kd">final</span> <span class="kd">class</span> <span class="nc">Hello</span> <span class="o">{</span>
+   <span class="kd">private</span> <span class="kd">final</span> <span class="kt">int</span> <span class="nf">getA</span><span class="o">()</span> <span class="o">{</span>
+      <span class="k">return</span> <span class="k">this</span><span class="o">.</span><span class="na">getA</span><span class="o">();</span>
+   <span class="o">}</span>
+
+   <span class="kd">private</span> <span class="kd">final</span> <span class="kt">void</span> <span class="nf">setA</span><span class="o">(</span><span class="kt">int</span> <span class="n">value</span><span class="o">)</span> <span class="o">{</span>
+      <span class="kt">int</span> <span class="n">var10000</span> <span class="o">=</span> <span class="n">value</span> <span class="o">+</span> <span class="mi">1</span><span class="o">;</span>
+   <span class="o">}</span>
+<span class="o">}</span>
+</code></pre>
+</div>
+<p>我们会发现很神奇的现象，等价成Java代码后，a字段不见了，但是生成了private访问权限的getter/setter。</p>
+
+<h2 id="section-2">总结</h2>
+
+<p>通过分析Kotlin编译过程中目标代码生成的阶段，我们发现了几种不自动生成getter/setter访问器代码的情形。但是，对于一开始应用的场景，只有情况一最为合适。即：</p>
+
+<p>当有大量公共字段需要暴露给外界调用时，我们可以通过添加const修饰符或者@JvmField注解的方式进行。</p>
+
+<p>所以，一开始的代码就可以转变成一下两种情形：</p>
+
+<div class="language-java highlighter-rouge"><pre class="highlight"><code><span class="c1">//Kotlin</span>
+
+<span class="kd">class</span> <span class="nc">Constants</span> <span class="o">{</span>
+    <span class="n">companion</span> <span class="n">object</span> <span class="o">{</span>
+        <span class="kd">const</span> <span class="n">val</span> <span class="n">CONTENT_TYPE</span> <span class="o">=</span> <span class="s">"Content-Type"</span>
+        <span class="kd">const</span> <span class="n">val</span> <span class="n">CONTENT_LENGTH</span> <span class="o">=</span> <span class="s">"Content-Length"</span>
+        <span class="kd">const</span> <span class="n">val</span> <span class="n">CONTENT_ENCODING</span> <span class="o">=</span> <span class="s">"Content-Encoding"</span>
+        <span class="kd">const</span> <span class="n">val</span> <span class="n">POST</span> <span class="o">=</span> <span class="s">"POST"</span>
+        <span class="kd">const</span> <span class="n">val</span> <span class="n">GZIP</span> <span class="o">=</span> <span class="s">"gzip"</span>
+        <span class="kd">const</span> <span class="n">val</span> <span class="n">UNKNOWN_HOST_EXCEPTION</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span>
+        <span class="kd">const</span> <span class="n">val</span> <span class="n">SOCKET_TIMEOUT_EXCEPTION</span> <span class="o">=</span> <span class="o">-</span><span class="mi">2</span>
+        <span class="kd">const</span> <span class="n">val</span> <span class="n">CONNECT_TIMEOUT_EXCEPTION</span> <span class="o">=</span> <span class="o">-</span><span class="mi">3</span>
+        <span class="kd">const</span> <span class="n">val</span> <span class="n">SSL_HANDSHAKE_EXCEPTION</span> <span class="o">=</span> <span class="o">-</span><span class="mi">4</span>
+        <span class="kd">const</span> <span class="n">val</span> <span class="n">SSL_EXCEPTION_EXCEPTION</span> <span class="o">=</span> <span class="o">-</span><span class="mi">5</span>
+        <span class="kd">const</span> <span class="n">val</span> <span class="n">CONNECT_EXCEPTION</span> <span class="o">=</span> <span class="o">-</span><span class="mi">6</span>
+        <span class="kd">const</span> <span class="n">val</span> <span class="n">NETWORK_EXCEPTION</span> <span class="o">=</span> <span class="o">-</span><span class="mi">7</span>
+        <span class="kd">const</span> <span class="n">val</span> <span class="n">REQUEST_CANCEL</span> <span class="o">=</span> <span class="o">-</span><span class="mi">8</span>
+        <span class="o">...</span>
+        <span class="o">...</span>
+        <span class="o">...</span>
+    <span class="o">}</span>
+<span class="o">}</span>
+</code></pre>
+</div>
+
+<p>或者是：</p>
+
+<div class="language-java highlighter-rouge"><pre class="highlight"><code><span class="kd">class</span> <span class="nc">Constants</span> <span class="o">{</span>
+    <span class="n">companion</span> <span class="n">object</span> <span class="o">{</span>
+        <span class="nd">@JvmField</span> <span class="n">val</span> <span class="n">CONTENT_TYPE</span> <span class="o">=</span> <span class="s">"Content-Type"</span>
+        <span class="nd">@JvmField</span> <span class="n">val</span> <span class="n">CONTENT_LENGTH</span> <span class="o">=</span> <span class="s">"Content-Length"</span>
+        <span class="nd">@JvmField</span> <span class="n">val</span> <span class="n">CONTENT_ENCODING</span> <span class="o">=</span> <span class="s">"Content-Encoding"</span>
+        <span class="nd">@JvmField</span> <span class="n">val</span> <span class="n">POST</span> <span class="o">=</span> <span class="s">"POST"</span>
+        <span class="nd">@JvmField</span> <span class="n">val</span> <span class="n">GZIP</span> <span class="o">=</span> <span class="s">"gzip"</span>
+        <span class="nd">@JvmField</span> <span class="n">val</span> <span class="n">UNKNOWN_HOST_EXCEPTION</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span>
+        <span class="nd">@JvmField</span> <span class="n">val</span> <span class="n">SOCKET_TIMEOUT_EXCEPTION</span> <span class="o">=</span> <span class="o">-</span><span class="mi">2</span>
+        <span class="nd">@JvmField</span> <span class="n">val</span> <span class="n">CONNECT_TIMEOUT_EXCEPTION</span> <span class="o">=</span> <span class="o">-</span><span class="mi">3</span>
+        <span class="nd">@JvmField</span> <span class="n">val</span> <span class="n">SSL_HANDSHAKE_EXCEPTION</span> <span class="o">=</span> <span class="o">-</span><span class="mi">4</span>
+        <span class="nd">@JvmField</span> <span class="n">val</span> <span class="n">SSL_EXCEPTION_EXCEPTION</span> <span class="o">=</span> <span class="o">-</span><span class="mi">5</span>
+        <span class="nd">@JvmField</span> <span class="n">val</span> <span class="n">CONNECT_EXCEPTION</span> <span class="o">=</span> <span class="o">-</span><span class="mi">6</span>
+        <span class="nd">@JvmField</span> <span class="n">val</span> <span class="n">NETWORK_EXCEPTION</span> <span class="o">=</span> <span class="o">-</span><span class="mi">7</span>
+        <span class="nd">@JvmField</span> <span class="n">val</span> <span class="n">REQUEST_CANCEL</span> <span class="o">=</span> <span class="o">-</span><span class="mi">8</span>
+        <span class="o">...</span>
+        <span class="o">...</span>
+        <span class="o">...</span>
+    <span class="o">}</span>
+<span class="o">}</span>
+
+</code></pre>
+</div>
+
+<p>在暴露给外界调用的同时，不会新增多余的方法数。</p>
+
+                <a id="article-end-anchor"></a>
+                <hr>
+                <!-- clear float -->
+                <div style="float:left">
+                    <a rel="license" href="http://creativecommons.org/licenses/by-nc-nd/4.0/">
+                        <img alt="知识共享许可协议" style="border-width:0, " src="https://i.creativecommons.org/l/by-nc-nd/4.0/88x31.png" />
+                    </a>
+                </div>
+                <div style="clear:both">
+                    本文采用<a rel="license" href="http://creativecommons.org/licenses/by-nc-nd/4.0/">知识共享署名-非商业性使用-禁止演绎 4.0 国际许可协议</a>进行许可，转载请务必注明作者以及原文出处链接。
+                </div>
+                <hr> 
+
+
+                <ul class="pager">
+                    
+                    <li class="previous">
+                        <a href="/2017/03/20/kotlin-compiler-process-analysis/" data-toggle="tooltip" data-placement="top" title="Kotlin编译过程分析">
+                        Previous<br>
+                        <span>Kotlin编译过程分析</span>
+                        </a>
+                    </li>
+                     
+                    <li class="next">
+                        <a href="/2017/03/31/kotlin-new-features-for-javascript-support/" data-toggle="tooltip" data-placement="top" title="Kotlin新特性之JavaScript支持">
+                        Next<br>
+                        <span>Kotlin新特性之JavaScript支持</span>
+                        </a>
+                    </li>
+                    
+                </ul>
+
+
+                 
+                <!-- disqus 评论框 start -->
+                <div class="comment">
+                    <div id="disqus_thread" class="disqus-thread"></div>
+                </div>
+                <!-- disqus 评论框 end -->
+                
+
+            </div>
+
+            <!-- Side Catalog Container -->
+            
+            <div class="
+                col-lg-2 col-lg-offset-0
+                visible-lg-block
+                sidebar-container
+                catalog-container">
+                <div class="side-catalog">
+                    <hr class="hidden-sm hidden-xs">
+                    <h5>
+                        <a class="catalog-toggle" href="#">CATALOG</a>
+                    </h5>
+                    <ul class="catalog-body"></ul>
+                </div>
+            </div>
+            
+
+            <!-- Sidebar Container -->
+            <div class="
+                col-lg-8 col-lg-offset-2
+                col-md-10 col-md-offset-1
+                sidebar-container">
+
+                <!-- Featured Tags -->
+                
+                <section>
+                    <hr class="hidden-sm hidden-xs">
+                    <h5><a href="/tags/">FEATURED TAGS</a></h5>
+                    <div class="tags">
+                         
+                        <a href="/tags/#随笔" title="随笔" rel="1">
+                                    随笔
+                                </a>   
+                        <a href="/tags/#设计模式" title="设计模式" rel="3">
+                                    设计模式
+                                </a>   
+                        <a href="/tags/#Android组件" title="Android组件" rel="1">
+                                    Android组件
+                                </a>   
+                        <a href="/tags/#读书笔记" title="读书笔记" rel="1">
+                                    读书笔记
+                                </a>   
+                        <a href="/tags/#AndroidStudio" title="AndroidStudio" rel="2">
+                                    AndroidStudio
+                                </a>   
+                        <a href="/tags/#Ubuntu" title="Ubuntu" rel="1">
+                                    Ubuntu
+                                </a>   
+                        <a href="/tags/#工具" title="工具" rel="1">
+                                    工具
+                                </a>   
+                        <a href="/tags/#抓包" title="抓包" rel="1">
+                                    抓包
+                                </a>   
+                        <a href="/tags/#Android逆向分析" title="Android逆向分析" rel="1">
+                                    Android逆向分析
+                                </a>   
+                        <a href="/tags/#Android" title="Android" rel="1">
+                                    Android
+                                </a>   
+                        <a href="/tags/#HotFix" title="HotFix" rel="1">
+                                    HotFix
+                                </a>   
+                        <a href="/tags/#Kotlin" title="Kotlin" rel="4">
+                                    Kotlin
+                                </a>  
+                    </div>
+                </section>
+                
+
+                <!-- Friends Blog -->
+                
+                <hr>
+                <h5>FRIENDS</h5>
+                <ul class="list-inline">
+                    
+                        <li><a href="http://shinelw.com">Shinelw Blog</a></li>
+                    
+                </ul>
+                
+            </div>
+        </div>
+    </div>
+</article>
+
+
+ 
+<!-- disqus 公共JS代码 start (一个网页只需插入一次) -->
+<script type="text/javascript">
+    /* * * CONFIGURATION VARIABLES * * */
+    var disqus_shortname = "shinelw";
+    var disqus_identifier = "/2017/03/21/kotlin-method-count-improve";
+    var disqus_title = "Kotlin属性引发的方法数问题"
+    var disqus_url = "http://shinelw.com/2017/03/21/kotlin-method-count-improve/";
+
+    (function() {
+        var dsq = document.createElement('script');
+        dsq.type = 'text/javascript';
+        dsq.async = true;
+        dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+        (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    })();
+</script>
+<!-- disqus 公共JS代码 end -->
+ 
+<!-- async load function -->
+<script>
+    function async(u, c) {
+        var d = document,
+            t = 'script',
+            o = d.createElement(t),
+            s = d.getElementsByTagName(t)[0];
+        o.src = u;
+        if (c) {
+            o.addEventListener('load', function(e) {
+                c(null, e);
+            }, false);
+        }
+        s.parentNode.insertBefore(o, s);
+    }
+</script>
+<!-- anchor-js, Doc:http://bryanbraun.github.io/anchorjs/ -->
+<script>
+    async("http://cdn.bootcss.com/anchor-js/1.1.1/anchor.min.js", function() {
+        anchors.options = {
+            visible: 'always',
+            placement: 'right',
+            icon: '#'
+        };
+        anchors.add().remove('.intro-header h1').remove('.subheading').remove('.sidebar-container h5');
+    })
+</script>
+<style>
+    /* place left on bigger screen */
+
+    @media all and (min-width: 800px) {
+        .anchorjs-link {
+            position: absolute;
+            left: -0.75em;
+            font-size: 1.1em;
+            margin-top: -0.1em;
+        }
+    }
+</style>
+
+
+
+    
+<!-- busuanzi -->
+<script async src="//dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+<!-- Footer -->
+<footer>
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                <ul class="list-inline text-center">
+                    
+                    <li>
+                        <a href="/feed.xml">
+                            <span class="fa-stack fa-lg">
+                                <i class="fa fa-circle fa-stack-2x"></i>
+                                <i class="fa fa-rss fa-stack-1x fa-inverse"></i>
+                            </span>
+                        </a>
+                    </li>
+                    
+                    
+
+                    <!-- add Weibo, Zhihu by Hux, add target = "_blank" to <a> by Hux -->
+                    
+                    <li>
+                        <a target="_blank" href="https://www.zhihu.com/people/shinelw">
+                            <span class="fa-stack fa-lg">
+                                <i class="fa fa-circle fa-stack-2x"></i>
+                                <i class="fa  fa-stack-1x fa-inverse">知</i>
+                            </span>
+                        </a>
+                    </li>
+                    
+                    
+                    <li>
+                        <a target="_blank" href="http://weibo.com/shenliangwei">
+                            <span class="fa-stack fa-lg">
+                                <i class="fa fa-circle fa-stack-2x"></i>
+                                <i class="fa fa-weibo fa-stack-1x fa-inverse"></i>
+                            </span>
+                        </a>
+                    </li>
+                    
+
+
+                    
+                    
+                    <li>
+                        <a target="_blank" href="https://github.com/Shinelw">
+                            <span class="fa-stack fa-lg">
+                                <i class="fa fa-circle fa-stack-2x"></i>
+                                <i class="fa fa-github fa-stack-1x fa-inverse"></i>
+                            </span>
+                        </a>
+                    </li>
+                    
+                </ul>
+                <p class="copyright text-muted">
+                    Copyright &copy; Shinelw Blog 2017
+                    <br>
+                     Theme by <a href="http://huangxuan.me">Hux</a>
+                    <span style="display: inline-block; margin: 0 5px;">
+                        <i class="fa fa-heart"></i>
+                    </span>
+                    <span id="busuanzi_container_site_pv">
+                        PV: <span id="busuanzi_value_site_pv"></span>
+                    </span>
+                    <span id="busuanzi_container_site_uv">
+                        UV: <span id="busuanzi_value_site_uv"></span>
+                    </span>
+                    <br>
+                    Blog is licensed under <a rel="license" href="http://creativecommons.org/licenses/by-nc-nd/4.0/">CC BY-NC-ND 4.0</a>
+                </p>
+            </div>
+        </div>
+    </div>
+</footer>
+
+<!-- jQuery -->
+<script src="/js/jquery.min.js "></script>
+
+<!-- Bootstrap Core JavaScript -->
+<script src="/js/bootstrap.min.js "></script>
+
+<!-- Custom Theme JavaScript -->
+<script src="/js/shinelw-blog.min.js "></script>
+
+
+<!-- async load function -->
+<script>
+    function async(u, c) {
+      var d = document, t = 'script',
+          o = d.createElement(t),
+          s = d.getElementsByTagName(t)[0];
+      o.src = u;
+      if (c) { o.addEventListener('load', function (e) { c(null, e); }, false); }
+      s.parentNode.insertBefore(o, s);
+    }
+</script>
+
+<!--
+     Because of the native support for backtick-style fenced code blocks
+     right within the Markdown is landed in Github Pages,
+     From V1.6, There is no need for Highlight.js,
+     so Huxblog drops it officially.
+
+     - https://github.com/blog/2100-github-pages-now-faster-and-simpler-with-jekyll-3-0
+     - https://help.github.com/articles/creating-and-highlighting-code-blocks/
+     - https://github.com/jneen/rouge/wiki/list-of-supported-languages-and-lexers
+-->
+<!--
+    <script>
+        async("http://cdn.bootcss.com/highlight.js/8.6/highlight.min.js", function(){
+            hljs.initHighlightingOnLoad();
+        })
+    </script>
+    <link href="http://cdn.bootcss.com/highlight.js/8.6/styles/github.min.css" rel="stylesheet">
+-->
+
+
+<!-- jquery.tagcloud.js -->
+<script>
+    // only load tagcloud.js in tag.html
+    if($('#tag_cloud').length !== 0){
+        async("/js/jquery.tagcloud.js",function(){
+            $.fn.tagcloud.defaults = {
+                //size: {start: 1, end: 1, unit: 'em'},
+                color: {start: '#bbbbee', end: '#0085a1'},
+            };
+            $('#tag_cloud a').tagcloud();
+        })
+    }
+</script>
+
+<!--fastClick.js -->
+<script>
+    async("http://cdn.bootcss.com/fastclick/1.0.6/fastclick.min.js", function(){
+        var $nav = document.querySelector("nav");
+        if($nav) FastClick.attach($nav);
+    })
+</script>
+
+
+<!-- Google Analytics -->
+
+<script>
+    // dynamic User by Hux
+    var _gaId = 'UA-76180718-1';
+    var _gaDomain = 'shinelw.com';
+
+    // Originial
+    (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+    (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+    m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+    })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+    ga('create', _gaId, _gaDomain);
+    ga('send', 'pageview');
+</script>
+
+
+
+<!-- Baidu Tongji -->
+
+<script>
+    // dynamic User by Hux
+    var _baId = 'fdssdfafadsfadsf';
+
+    // Originial
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "//hm.baidu.com/hm.js?" + _baId;
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+</script>
+
+
+
+
+<!-- Side Catalog -->
+
+<script type="text/javascript">
+    function generateCatalog (selector) {
+        var P = $('div.post-container'),a,n,t,l,i,c;
+        a = P.find('h1,h2,h3,h4,h5,h6');
+        a.each(function () {
+            n = $(this).prop('tagName').toLowerCase();
+            i = "#"+$(this).prop('id');
+            t = $(this).text();
+            c = $('<a href="'+i+'" rel="nofollow">'+t+'</a>');
+            l = $('<li class="'+n+'_nav"></li>').append(c);
+            $(selector).append(l);
+        });
+        return true;
+    }
+
+    generateCatalog(".catalog-body");
+
+    // toggle side catalog
+    $(".catalog-toggle").click((function(e){
+        e.preventDefault();
+        $('.side-catalog').toggleClass("fold")
+    }))
+
+    /*
+     * Doc: https://github.com/davist11/jQuery-One-Page-Nav
+     * Fork by Hux to support padding
+     */
+    async("/js/jquery.nav.js", function () {
+        $('.catalog-body').onePageNav({
+            currentClass: "active",
+            changeHash: !1,
+            easing: "swing",
+            filter: "",
+            scrollSpeed: 700,
+            scrollOffset: 100,
+            scrollThreshold: 0,
+            begin: null,
+            end: null,
+            scrollChange: null,
+            endSelector: '#article-end-anchor',
+            unbindSelector: null
+        });
+    });
+</script>
+
+
+
+
+<!-- Image to hack wechat -->
+<img src="/img/icon_wechat.png" width="0" height="0" />
+<!-- Migrate from head to bottom, no longer block render and still work -->
+
+</body>
+
+</html>

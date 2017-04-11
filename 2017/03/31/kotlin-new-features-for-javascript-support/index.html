@@ -1,0 +1,999 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="google-site-verification" content="xBT4GhYoi5qRD5tr338pgPM5OWHHIDR6mNg1a3euekI" />
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="好好学习天天向上。">
+    <meta name="keyword"  content="Shinelw, @Shinelw Shinelw's Blog, Android Developer, 沛轩, PASSION, 沈良炜, Shinelw Blog">
+    <link rel="shortcut icon" href="/img/favicon.ico">
+
+    <title>Kotlin新特性之JavaScript支持 - Passion | Shinelw Blog</title>
+
+    <link rel="canonical" href="http://shinelw.com/2017/03/31/kotlin-new-features-for-javascript-support/">
+
+    <!-- Bootstrap Core CSS -->
+    <link rel="stylesheet" href="/css/bootstrap.min.css">
+
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="/css/shinelw-blog.min.css">
+
+    <!-- Pygments Github CSS -->
+    <link rel="stylesheet" href="/css/syntax.css">
+
+    <!-- Custom Fonts -->
+    <!-- <link href="http://maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css" rel="stylesheet" type="text/css"> -->
+    <!-- Hux change font-awesome CDN to qiniu -->
+    <link href="http://cdn.staticfile.org/font-awesome/4.2.0/css/font-awesome.min.css" rel="stylesheet" type="text/css">
+
+    <!-- add highlight
+    <link rel="stylesheet" href="/css/androidstudio.css">
+		<script type="text/javascript" src="/js/highlight.pack.js"></script>
+		<script>hljs.initHighlightingOnLoad();</script>
+    -->
+</head>
+
+
+<!-- hack iOS CSS :active style -->
+<body ontouchstart="">
+
+    <!-- Navigation -->
+<nav class="navbar navbar-default navbar-custom navbar-fixed-top">
+    <div class="container-fluid">
+        <!-- Brand and toggle get grouped for better mobile display -->
+        <div class="navbar-header page-scroll">
+            <button type="button" class="navbar-toggle">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand" href="/">Shinelw Blog</a>
+        </div>
+
+        <!-- Collect the nav links, forms, and other content for toggling -->
+        <div id="huxblog_navbar">
+            <div class="navbar-collapse">
+                <ul class="nav navbar-nav navbar-right">
+                    <li>
+                        <a href="/">Home</a>
+                    </li>
+                    
+                    <li>
+                        <a href="/about/">About</a>
+                    </li>
+                    
+                    <li>
+                        <a href="/pages/archives/">Archives</a>
+                    </li>
+                    
+                    <li>
+                        <a href="/tags/">Tags</a>
+                    </li>
+                    
+                </ul>
+            </div>
+        </div>
+        <!-- /.navbar-collapse -->
+    </div>
+    <!-- /.container -->
+</nav>
+<script>
+    // Drop Bootstarp low-performance Navbar
+    // Use customize navbar with high-quality material design animation
+    // in high-perf jank-free CSS3 implementation
+    var $body   = document.body;
+    var $toggle = document.querySelector('.navbar-toggle');
+    var $navbar = document.querySelector('#huxblog_navbar');
+    var $collapse = document.querySelector('.navbar-collapse');
+
+    var __HuxNav__ = {
+        close: function(){
+            $navbar.className = " ";
+            // wait until animation end.
+            setTimeout(function(){
+                // prevent frequently toggle
+                if($navbar.className.indexOf('in') < 0) {
+                    $collapse.style.height = "0px"
+                }
+            },400)
+        },
+        open: function(){
+            $collapse.style.height = "auto"
+            $navbar.className += " in";
+        }
+    }
+
+    // Bind Event
+    $toggle.addEventListener('click', function(e){
+        if ($navbar.className.indexOf('in') > 0) {
+            __HuxNav__.close()
+        }else{
+            __HuxNav__.open()
+        }
+    })
+
+    /**
+     * Since Fastclick is used to delegate 'touchstart' globally
+     * to hack 300ms delay in iOS by performing a fake 'click',
+     * Using 'e.stopPropagation' to stop 'touchstart' event from
+     * $toggle/$collapse will break global delegation.
+     *
+     * Instead, we use a 'e.target' filter to prevent handler
+     * added to document close HuxNav.
+     *
+     * Also, we use 'click' instead of 'touchstart' as compromise
+     */
+    document.addEventListener('click', function(e){
+        if(e.target == $toggle) return;
+        if(e.target.className == 'icon-bar') return;
+        __HuxNav__.close();
+    })
+</script>
+
+
+    <!-- Image to hack wechat -->
+<!-- <img src="/img/icon_wechat.png" width="0" height="0"> -->
+<!-- <img src="/img/post-bg-2015.jpg" width="0" height="0"> -->
+
+<!-- Post Header -->
+<style type="text/css">
+    header.intro-header {
+        position: relative;
+        background-image: url('/img/post-bg-2015.jpg')
+    }
+
+    {
+        % if page.header-mask %
+    }
+
+    header.intro-header .header-mask {
+        width: 100%;
+        height: 100%;
+        position: absolute;
+        background: rgba(0,
+        0,
+        0,
+        {
+            {
+                page.header-mask
+            }
+        }
+        );
+    }
+
+    {
+        % endif %
+    }
+</style>
+<header class="intro-header">
+    <div class="header-mask"></div>
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                <div class="post-heading">
+                    <div class="tags">
+                        
+                        <a class="tag" href="/tags/#Kotlin" title="Kotlin">Kotlin</a> 
+                    </div>
+                    <h1>Kotlin新特性之JavaScript支持</h1>  
+                    <h2 class="subheading">Kotin new features for JavaScript support</h2> 
+                    <span class="meta">Posted by Shinelw on March 31, 2017.   Viewed <span id="busuanzi_value_page_pv"></span> times.
+                    </span>
+                </div>
+            </div>
+        </div>
+    </div>
+</header>
+
+<!-- Post Content -->
+<article>
+    <div class="container">
+        <div class="row">
+
+            <!-- Post Container -->
+            <div class="
+                col-lg-8 col-lg-offset-2
+                col-md-10 col-md-offset-1
+                post-container">
+
+                <h1 id="kotlinjavascript">Kotlin新特性之JavaScript支持</h1>
+<p>Kotlin1.1版本正式加入了对JavaScript的支持，也就是说我们可以Kotlin进行网页开发，并且Kotlin也支持了与JavaScript的相互操作。众所周知，JavaScript是动态类型的语言，而相对来说，Kotlin和Java都是静态类型的。同时，两者在编译运行也很不一样，Java更偏向与编译型语言，而JavaScript更偏向于解释型语言。所以，在Kotlin完美兼容Java的同时，增加了JavaScript的支持，让人好奇不已。接下来，我们就来谈谈Kotlin是如何支持JavaScript，以及它是怎么实现的。</p>
+
+<h2 id="kotlinjavascript-1">Kotlin转JavaScript</h2>
+<p>我们先通过一个简单的例子说明Kotlin如何支持JavaScript。
+定义以下Kotlin代码：</p>
+
+<div class="language-kotlin highlighter-rouge"><pre class="highlight"><code><span class="c1">//Main.kt
+</span><span class="k">fun</span> <span class="nf">main</span><span class="p">(</span><span class="n">args</span><span class="p">:</span> <span class="n">Arrays</span><span class="p">&lt;</span><span class="n">String</span><span class="p">&gt;)</span> <span class="p">{</span>
+  <span class="n">println</span><span class="p">(</span><span class="s">"Hello JavaScript"</span><span class="p">)</span>
+<span class="p">}</span>
+</code></pre>
+</div>
+
+<p>然后Kotlin编译器进行编译，会生成以下输出结果：</p>
+
+<p><img src="https://github.com/Shinelw/shinelw.github.io/blob/master/assets/1.png?raw=true" alt="1.png" /></p>
+
+<p>从图中可以看出，当Kotlin编译器进行编译转换成了JavaScript，主要输出了两个文件:</p>
+
+<ul>
+  <li>kotlin.js: Kotlin支持JavaScript运行时的标准库。它在应用程序之间都是一样的，可想而知，这是为了让Kotlin支持JavaScript而做的封装库。</li>
+  <li>KotlinJsSample.js： Kotlin代码转成JavaScript的等价代码。KotlinJsSample是模块名，也就是说在同一个模块下的所有Kotlin文件都会被编译在同一个JavaScript文件下，以模块名称为名。</li>
+</ul>
+
+<p>接下来，我们来看看上述Kotlin代码转成JavaScript的等价代码，即KotlinJaSample.js。</p>
+
+<div class="language-kotlin highlighter-rouge"><pre class="highlight"><code><span class="k">if</span> <span class="p">(</span><span class="k">typeof</span> <span class="n">kotlin</span> <span class="p">===</span> <span class="err">'</span><span class="n">undefined</span><span class="err">'</span><span class="p">)</span> <span class="p">{</span>
+  <span class="k">throw</span> <span class="n">new</span> <span class="n">Error</span><span class="p">(</span><span class="s">"Error loading module 'KotlinJsSample'. Its dependency 'kotlin' was not found. Please, check whether 'kotlin' is loaded prior to 'KotlinJsSample'."</span><span class="p">);</span>
+<span class="p">}</span>
+<span class="kd">var</span> <span class="py">KotlinJsSample</span> <span class="p">=</span> <span class="n">function</span> <span class="p">(</span><span class="n">_</span><span class="p">,</span> <span class="n">Kotlin</span><span class="p">)</span> <span class="p">{</span>
+  <span class="err">'</span><span class="n">use</span> <span class="n">strict</span><span class="err">'</span><span class="p">;</span>
+  <span class="kd">var</span> <span class="py">println</span> <span class="p">=</span> <span class="n">Kotlin</span><span class="p">.</span><span class="n">kotlin</span><span class="p">.</span><span class="n">io</span><span class="p">.</span><span class="n">println_s8jyv4</span><span class="err">$</span><span class="p">;</span>
+  <span class="n">function</span> <span class="n">main</span><span class="p">(</span><span class="n">args</span><span class="p">)</span> <span class="p">{</span>
+    <span class="n">println</span><span class="p">(</span><span class="err">'</span><span class="n">Hello</span> <span class="n">JavaScript</span><span class="err">'</span><span class="p">);</span>
+  <span class="p">}</span>
+  <span class="n">_</span><span class="p">.</span><span class="n">main_kand9s</span><span class="err">$</span> <span class="p">=</span> <span class="n">main</span><span class="p">;</span>
+  <span class="n">Kotlin</span><span class="p">.</span><span class="n">defineModule</span><span class="p">(</span><span class="err">'</span><span class="n">KotlinJsSample</span><span class="err">'</span><span class="p">,</span> <span class="n">_</span><span class="p">);</span>
+  <span class="n">main</span><span class="p">([]);</span>
+  <span class="k">return</span> <span class="n">_</span><span class="p">;</span>
+<span class="p">}(</span><span class="k">typeof</span> <span class="n">KotlinJsSample</span> <span class="p">===</span> <span class="err">'</span><span class="n">undefined</span><span class="err">'</span> <span class="p">?</span> <span class="p">{}</span> <span class="p">:</span> <span class="n">KotlinJsSample</span><span class="p">,</span> <span class="n">kotlin</span><span class="p">);</span>
+</code></pre>
+</div>
+
+<p>首先，我们可以看到，运行该代码的前提是依赖引入<code class="highlighter-rouge">kotlin.js</code>标准库，并且在HTML内部加载该JS代码时，必须优先加载<code class="highlighter-rouge">kotlin.js</code>运行时标准库，然后再加载我们的应用程序代码JS。</p>
+
+<p>也就是下面这样子的，</p>
+
+<div class="language-html highlighter-rouge"><pre class="highlight"><code><span class="cp">&lt;!DOCTYPE html&gt;</span>
+<span class="nt">&lt;html</span> <span class="na">lang=</span><span class="s">"en"</span><span class="nt">&gt;</span>
+<span class="nt">&lt;head&gt;</span>
+    <span class="nt">&lt;meta</span> <span class="na">charset=</span><span class="s">"UTF-8"</span><span class="nt">&gt;</span>
+    <span class="nt">&lt;title&gt;</span>Kotlin JavaScript Sample<span class="nt">&lt;/title&gt;</span>
+<span class="nt">&lt;/head&gt;</span>
+<span class="nt">&lt;body&gt;</span>
+<span class="c">&lt;!-- 优先加载kotlin.js，再加载应用程序代码KotlinJsSample.js--&gt;</span>
+<span class="nt">&lt;script </span><span class="na">type=</span><span class="s">"text/javascript"</span> <span class="na">src=</span><span class="s">"out/production/KotlinJsSample/lib/kotlin.js"</span><span class="nt">&gt;&lt;/script&gt;</span>
+<span class="nt">&lt;script </span><span class="na">type=</span><span class="s">"text/javascript"</span> <span class="na">src=</span><span class="s">"out/production/KotlinJsSample/KotlinJsSample.js"</span><span class="nt">&gt;&lt;/script&gt;</span>
+
+<span class="nt">&lt;/body&gt;</span>
+<span class="nt">&lt;/html&gt;</span>
+</code></pre>
+</div>
+
+<p>回到<code class="highlighter-rouge">KotlinJsSample.js</code>代码，我们可以看到，它声明了一个KotlinJsSample的函数，同样的也与模块名一致。接下来，它定义了与Kotlin中对应的main函数，并进行了<code class="highlighter-rouge">println</code>的输出操作。</p>
+
+<p>那么，<code class="highlighter-rouge">kotlin.js</code>在这其中充当了什么作用呢？我们来看一下。</p>
+
+<div class="language-js highlighter-rouge"><pre class="highlight"><code><span class="c1">//KotlinJsSample.js</span>
+<span class="kd">var</span> <span class="nx">println</span> <span class="o">=</span> <span class="nx">Kotlin</span><span class="p">.</span><span class="nx">kotlin</span><span class="p">.</span><span class="nx">io</span><span class="p">.</span><span class="nx">println_s8jyv4</span>
+</code></pre>
+</div>
+
+<p>然后调用<code class="highlighter-rouge">kotlin.js</code>中的<code class="highlighter-rouge">println_s8jyv4</code>函数。</p>
+
+<div class="language-js highlighter-rouge"><pre class="highlight"><code><span class="c1">//kotlin.js</span>
+<span class="kr">package</span><span class="nx">$io</span><span class="p">.</span><span class="nx">println_s8jyv4$</span> <span class="o">=</span> <span class="nx">println_0</span><span class="p">;</span>
+<span class="p">...</span>
+
+<span class="kd">function</span> <span class="nx">println_0</span><span class="p">(</span><span class="nx">message</span><span class="p">)</span> <span class="p">{</span>
+  <span class="nx">output</span><span class="p">.</span><span class="nx">println_s8jyv4$</span><span class="p">(</span><span class="nx">message</span><span class="p">);</span>
+<span class="p">}</span>
+<span class="p">...</span>
+
+<span class="nx">BaseOutput</span><span class="p">.</span><span class="nx">prototype</span><span class="p">.</span><span class="nx">println_s8jyv4$</span> <span class="o">=</span> <span class="kd">function</span><span class="p">(</span><span class="nx">message</span><span class="p">)</span> <span class="p">{</span>
+  <span class="c1">//打印字符串</span>
+  <span class="k">this</span><span class="p">.</span><span class="nx">print_s8jyv4$</span><span class="p">(</span><span class="nx">message</span><span class="p">);</span>
+  <span class="c1">//打印换行符</span>
+  <span class="k">this</span><span class="p">.</span><span class="nx">println</span><span class="p">();</span>
+<span class="p">};</span>
+<span class="p">...</span>
+
+</code></pre>
+</div>
+
+<p>我们可以看到，对于Kotlin中的<code class="highlighter-rouge">println</code>函数，js中进行了两步操作，输出字符串和换行符。先来看，如果输出字符串。</p>
+
+<div class="language-js highlighter-rouge"><pre class="highlight"><code><span class="nx">BufferedOutputToConsoleLog</span><span class="p">.</span><span class="nx">prototype</span><span class="p">.</span><span class="nx">print_s8jyv4$</span> <span class="o">=</span> <span class="kd">function</span><span class="p">(</span><span class="nx">message</span><span class="p">)</span> <span class="p">{</span>
+  <span class="kd">var</span> <span class="nx">s</span> <span class="o">=</span> <span class="nb">String</span><span class="p">(</span><span class="nx">message</span><span class="p">);</span>
+  <span class="kd">var</span> <span class="nx">i</span> <span class="o">=</span> <span class="nx">lastIndexOf_0</span><span class="p">(</span><span class="nx">s</span><span class="p">,</span> <span class="mi">10</span><span class="p">);</span>
+  <span class="k">if</span> <span class="p">(</span><span class="nx">i</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">this</span><span class="p">.</span><span class="nx">buffer</span> <span class="o">=</span> <span class="k">this</span><span class="p">.</span><span class="nx">buffer</span> <span class="o">+</span> <span class="nx">s</span><span class="p">.</span><span class="nx">substring</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="nx">i</span><span class="p">);</span>
+    <span class="k">this</span><span class="p">.</span><span class="nx">flush</span><span class="p">();</span>
+    <span class="nx">s</span> <span class="o">=</span> <span class="nx">s</span><span class="p">.</span><span class="nx">substring</span><span class="p">(</span><span class="nx">i</span> <span class="o">+</span> <span class="mi">1</span> <span class="o">|</span> <span class="mi">0</span><span class="p">);</span>
+  <span class="p">}</span>
+  <span class="k">this</span><span class="p">.</span><span class="nx">buffer</span> <span class="o">=</span> <span class="k">this</span><span class="p">.</span><span class="nx">buffer</span> <span class="o">+</span> <span class="nx">s</span><span class="p">;</span>
+<span class="p">};</span>
+<span class="c1">//console.log输出</span>
+<span class="nx">BufferedOutputToConsoleLog</span><span class="p">.</span><span class="nx">prototype</span><span class="p">.</span><span class="nx">flush</span> <span class="o">=</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+  <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="k">this</span><span class="p">.</span><span class="nx">buffer</span><span class="p">);</span>
+  <span class="k">this</span><span class="p">.</span><span class="nx">buffer</span> <span class="o">=</span> <span class="s2">""</span><span class="p">;</span>
+<span class="p">};</span>
+
+</code></pre>
+</div>
+<p>在<code class="highlighter-rouge">kotlin.js</code>中对目标字符串进行了处理，以<code class="highlighter-rouge">buffer</code>的形式通过js的<code class="highlighter-rouge">console.log()</code>进行了输出。</p>
+
+<p>接下来，进行换行操作符的输出。<code class="highlighter-rouge">this.println()</code></p>
+
+<div class="language-js highlighter-rouge"><pre class="highlight"><code><span class="c1">//打印换行符</span>
+<span class="nx">BaseOutput</span><span class="p">.</span><span class="nx">prototype</span><span class="p">.</span><span class="nx">println</span> <span class="o">=</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+  <span class="k">this</span><span class="p">.</span><span class="nx">print_s8jyv4$</span><span class="p">(</span><span class="s2">"\n"</span><span class="p">);</span>
+<span class="p">};</span>
+
+</code></pre>
+</div>
+<p>输出换行符<code class="highlighter-rouge">\n</code>，输出过程和上述一致。</p>
+
+<p>通过以上的分析，我们知道了从Kotlin的<code class="highlighter-rouge">println</code>等价到JavaScript的功能，Kotlin的标准库<code class="highlighter-rouge">kotlin.js</code>充当了一个中间人的角色，封装了大量函数方法，这些函数与Kotlin语法更为接近。一方面让Kotlin编译器将Kotlin代码转成JavaScript时，工作量更少，只需与<code class="highlighter-rouge">kotlin.js</code>中进行对应；另一方面，减少产生重复多余的代码，<code class="highlighter-rouge">kotlin.js</code>标准库封装了大量公共方法，让转换后的代码更加简洁可读。</p>
+
+<h2 id="kotlinjavascript-2">Kotlin与JavaScript互操作</h2>
+<p>在谈Kotlin和JavaScript互操作之前，先吐槽一句，跟Java互操作相比，真心不方便，并且局限性挺大的。原因在于，Kotlin-Java模式中它将Java类视为Kotlin类，并且Java类也将Kotlin类进行Java类，所以在两者进行互操作的时候，是基本不要额外的改变的。然而，我们知道JavaScript是一种动态类型语言，而Kotlin是静态类型语言，可以说它们两者是区别挺大的，也就不能跟Java一样，自由的进行互操作。</p>
+
+<h3 id="kotlinjavascript-3">Kotlin中调用JavaScript</h3>
+<p>在Kotlin代码中，如果想要调用JavaScript代码，基本上有两种方式：<code class="highlighter-rouge">js()</code>内联模式和头文件模式。</p>
+
+<h4 id="jsjavascript">js()内联JavaScript</h4>
+<p>我们可以使用<code class="highlighter-rouge">js("...")</code>函数将一些JavaScript代码直接嵌入到Kotlin代码中。但是，有一点要求，js函数的参数必须是字符串常量。</p>
+
+<p>举个例子：</p>
+
+<div class="language-java highlighter-rouge"><pre class="highlight"><code><span class="c1">//Main.kt</span>
+<span class="n">fun</span> <span class="nf">main</span><span class="o">(</span><span class="nl">args:</span> <span class="n">Array</span><span class="o">&lt;</span><span class="n">String</span><span class="o">&gt;)</span> <span class="o">{</span>
+    <span class="n">val</span> <span class="n">message</span> <span class="o">=</span> <span class="s">"Hello JavaScript"</span>
+    <span class="n">js</span><span class="o">(</span><span class="s">"console.log(message)"</span><span class="o">)</span>
+
+<span class="o">}</span>
+</code></pre>
+</div>
+
+<p>编译转换成JavaScript代码，</p>
+
+<div class="language-js highlighter-rouge"><pre class="highlight"><code><span class="k">if</span> <span class="p">(</span><span class="k">typeof</span> <span class="nx">kotlin</span> <span class="o">===</span> <span class="s1">'undefined'</span><span class="p">)</span> <span class="p">{</span>
+  <span class="k">throw</span> <span class="k">new</span> <span class="nb">Error</span><span class="p">(</span><span class="s2">"Error loading module 'KotlinJsSample'. Its dependency 'kotlin' was not found. Please, check whether 'kotlin' is loaded prior to 'KotlinJsSample'."</span><span class="p">);</span>
+<span class="p">}</span>
+<span class="kd">var</span> <span class="nx">KotlinJsSample</span> <span class="o">=</span> <span class="kd">function</span> <span class="p">(</span><span class="nx">_</span><span class="p">,</span> <span class="nx">Kotlin</span><span class="p">)</span> <span class="p">{</span>
+  <span class="s1">'use strict'</span><span class="p">;</span>
+  <span class="kd">function</span> <span class="nx">main</span><span class="p">(</span><span class="nx">args</span><span class="p">)</span> <span class="p">{</span>
+    <span class="kd">var</span> <span class="nx">message</span> <span class="o">=</span> <span class="s1">'Hello JavaScript'</span><span class="p">;</span>
+    <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">message</span><span class="p">);</span>
+  <span class="p">}</span>
+  <span class="nx">_</span><span class="p">.</span><span class="nx">main_kand9s$</span> <span class="o">=</span> <span class="nx">main</span><span class="p">;</span>
+  <span class="nx">Kotlin</span><span class="p">.</span><span class="nx">defineModule</span><span class="p">(</span><span class="s1">'KotlinJsSample'</span><span class="p">,</span> <span class="nx">_</span><span class="p">);</span>
+  <span class="nx">main</span><span class="p">([]);</span>
+  <span class="k">return</span> <span class="nx">_</span><span class="p">;</span>
+<span class="p">}(</span><span class="k">typeof</span> <span class="nx">KotlinJsSample</span> <span class="o">===</span> <span class="s1">'undefined'</span> <span class="p">?</span> <span class="p">{}</span> <span class="p">:</span> <span class="nx">KotlinJsSample</span><span class="p">,</span> <span class="nx">kotlin</span><span class="p">);</span>
+
+</code></pre>
+</div>
+
+<p>我们可以看到，对于js()函数里的参数，Kotlin编译器选择了不处理，直接输出。这也就说明了为什么js()参数必须是要常量了。</p>
+
+<p>不信？我们可以试试。</p>
+
+<div class="language-kotlin highlighter-rouge"><pre class="highlight"><code><span class="k">fun</span> <span class="nf">main</span><span class="p">(</span><span class="n">args</span><span class="p">:</span> <span class="n">Array</span><span class="p">&lt;</span><span class="n">String</span><span class="p">&gt;)</span> <span class="p">{</span>
+    <span class="kd">val</span> <span class="py">message</span> <span class="p">=</span> <span class="s">"Hello JavaScript"</span>
+    <span class="kd">val</span> <span class="py">console</span> <span class="p">=</span> <span class="s">"console."</span>
+    <span class="n">js</span><span class="p">(</span><span class="n">console</span> <span class="p">+</span> <span class="s">"log(message)"</span><span class="p">)</span>
+
+<span class="p">}</span>
+</code></pre>
+</div>
+
+<p>编译转换成JavaScript代码，</p>
+
+<div class="language-js highlighter-rouge"><pre class="highlight"><code><span class="p">...</span>
+
+<span class="kd">function</span> <span class="nx">main</span><span class="p">(</span><span class="nx">args</span><span class="p">)</span> <span class="p">{</span>
+  <span class="kd">var</span> <span class="nx">message</span> <span class="o">=</span> <span class="s1">'Hello JavaScript'</span><span class="p">;</span>
+  <span class="kd">var</span> <span class="nx">console</span> <span class="o">=</span> <span class="s1">'console.'</span><span class="p">;</span>
+  <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">message</span><span class="p">);</span>
+<span class="p">}</span>
+
+<span class="p">...</span>
+</code></pre>
+</div>
+
+<p>运行结果：</p>
+
+<div class="language-kotlin highlighter-rouge"><pre class="highlight"><code><span class="n">KotlinJsSample</span><span class="p">.</span><span class="n">js</span><span class="p">:</span><span class="m">9</span> <span class="n">Uncaught</span> <span class="n">TypeError</span><span class="p">:</span> <span class="n">console</span><span class="p">.</span><span class="n">log</span> <span class="k">is</span> <span class="n">not</span> <span class="n">a</span> <span class="n">function</span>
+    <span class="n">at</span> <span class="n">main</span> <span class="p">(</span><span class="n">KotlinJsSample</span><span class="p">.</span><span class="n">js</span><span class="p">:</span><span class="m">9</span><span class="p">)</span>
+    <span class="n">at</span> <span class="n">KotlinJsSample</span><span class="p">.</span><span class="n">js</span><span class="p">:</span><span class="m">13</span>
+    <span class="n">at</span> <span class="n">KotlinJsSample</span><span class="p">.</span><span class="n">js</span><span class="p">:</span><span class="m">15</span>
+</code></pre>
+</div>
+
+<p>可以看到，若参数不是字符串常量，比如以上例子，Kotlin编译器会对<code class="highlighter-rouge">console</code>进行处理，默认<code class="highlighter-rouge">console</code>是一个用户自定义的变量，那么再执行<code class="highlighter-rouge">console.log()</code>就会报错找不到该函数了。</p>
+
+<h4 id="external">external修饰符定义头文件</h4>
+<p>如果你用过内联JavaScript的方式，你就会知道，真的很鸡肋！做点log的工作，还能干嘛？？？</p>
+
+<p>所以，Kotlin又搞了一个强大一些的方式，通过<code class="highlighter-rouge">external</code>修饰符定义JavaScript文件头的方式进行引入调用。</p>
+
+<p>大概就是下面这样子的，</p>
+
+<div class="language-kotlin highlighter-rouge"><pre class="highlight"><code><span class="c1">//Mian.kt
+</span><span class="k">external</span> <span class="k">fun</span> <span class="nf">hello</span><span class="p">(</span><span class="n">message</span><span class="p">:</span> <span class="n">String</span><span class="p">)</span>
+
+<span class="k">fun</span> <span class="nf">main</span><span class="p">(</span><span class="n">args</span><span class="p">:</span> <span class="n">Array</span><span class="p">&lt;</span><span class="n">String</span><span class="p">&gt;)</span> <span class="p">{</span>
+    <span class="kd">val</span> <span class="py">message</span> <span class="p">=</span> <span class="s">"Hello JavaScript"</span>
+    <span class="n">hello</span><span class="p">(</span><span class="n">message</span><span class="p">)</span>
+
+<span class="p">}</span>
+</code></pre>
+</div>
+
+<div class="language-js highlighter-rouge"><pre class="highlight"><code><span class="c1">//hello.js</span>
+<span class="kd">function</span> <span class="nx">hello</span><span class="p">(</span><span class="nx">message</span><span class="p">)</span> <span class="p">{</span>
+    <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">message</span><span class="p">)</span>
+<span class="p">}</span>
+</code></pre>
+</div>
+
+<p>这种方式下，当你在Kotlin中要使用JavaScript代码之前，必须加上相关的JavaScript头文件声明。这么做的目的，就是为了让Kotlin知道相关JavaScript函数的存在，以保证可以正常的调用到，然后在Kotlin编译器环节，直接使用到JavaScript代码。看上去挺麻烦的，但是总的来说，比内联来的强大。</p>
+
+<h3 id="javascriptkotlin">JavaScript中调用Kotlin</h3>
+<p>我们知道，Kotlin编译器会将原生的Kotlin代码转换成相应的JavaScript代码，并且对于原先Kotlin中定义的函数名和变量都不会改变，这意味着在JavaScript中我们可以自由的使用相关的函数和属性。</p>
+
+<p>说白了，我们就是在JavaScript代码中调用经过Kotlin编译器转换后的JavaScript代码。</p>
+
+<p>所以，能够自由调用是显而易见的，唯一的问题出在<code class="highlighter-rouge">Kotlin编译器转换</code>的这个过程。</p>
+
+<p>为什么这么说呢？</p>
+
+<p>JavaScript中有以下几种数据类型：</p>
+
+<ul>
+  <li>number</li>
+  <li>boolean</li>
+  <li>string</li>
+  <li>object</li>
+  <li>array</li>
+  <li>undefined</li>
+  <li>null</li>
+</ul>
+
+<p>而Kotlin中，有以下类型：</p>
+
+<ul>
+  <li>Int</li>
+  <li>Byte</li>
+  <li>Short</li>
+  <li>Long</li>
+  <li>Double</li>
+  <li>Float</li>
+  <li>Boolean</li>
+  <li>Char</li>
+  <li>String</li>
+  <li>Any</li>
+  <li>Array</li>
+  <li>List</li>
+  <li>Set</li>
+  <li>Map</li>
+  <li>…</li>
+</ul>
+
+<p>显然，Kotlin拥有更复杂的数据类型。Kotlin编译器如何将Kotlin类型映射到JavaScript类型呢？如下：</p>
+
+<ul>
+  <li>Kotlin中Int/Byte/Short/Float/Double 映射JavaScript的number</li>
+  <li>Kotlin中String映射JavaScript中string</li>
+  <li>Kotlin中Any映射Javas中Object</li>
+  <li>Kotlin中Array映射JavaScript中Array</li>
+  <li>Kotlin中Long不映射JavaScript中任何类型</li>
+  <li>Kotlin集合（List/Set/Map等）不映射JavaScript中类型类型</li>
+</ul>
+
+<p>看到问题了没有，由于JavaScript中没有64位整数，导致Kotlin中的Long类型没有映射到任何JavaScript对象，同理，Kotlin中的集合也没有映射到JavaScript任何特定的类型。Kotlin为了不对语言做任何的改变，仅仅是将Long和集合当成了一个模拟。</p>
+
+<p>那么，如此一来，转换出了问题，在JavaScript中使用必然也会导致问题。举个例子：</p>
+
+<div class="language-kotlin highlighter-rouge"><pre class="highlight"><code><span class="c1">//Hello.kt
+</span><span class="kd">class</span> <span class="nc">Hello</span> <span class="p">{</span>
+    <span class="c1">//定义输入返回均为Long类型的函数
+</span>    <span class="k">fun</span> <span class="nf">longTest</span><span class="p">(</span><span class="n">a</span><span class="p">:</span> <span class="n">Long</span><span class="p">,</span> <span class="n">b</span><span class="p">:</span> <span class="n">Long</span><span class="p">):</span> <span class="n">Long</span> <span class="p">{</span>
+        <span class="k">return</span> <span class="n">a</span> <span class="p">+</span> <span class="n">b</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</code></pre>
+</div>
+
+<p>经过Kotlin编译转换成JavaScript，如下：</p>
+
+<div class="language-js highlighter-rouge"><pre class="highlight"><code><span class="c1">//KotlinJsSample.js</span>
+<span class="nx">Hello</span><span class="p">.</span><span class="nx">prototype</span><span class="p">.</span><span class="nx">longTest_3pjtqy$</span> <span class="o">=</span> <span class="kd">function</span> <span class="p">(</span><span class="nx">a</span><span class="p">,</span> <span class="nx">b</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">return</span> <span class="nx">a</span><span class="p">.</span><span class="nx">add</span><span class="p">(</span><span class="nx">b</span><span class="p">);</span>
+  <span class="p">};</span>
+</code></pre>
+</div>
+
+<p>然后我们尝试在JavaScript中调用该函数,</p>
+
+<div class="language-js highlighter-rouge"><pre class="highlight"><code><span class="c1">//A.js</span>
+<span class="kd">var</span> <span class="nx">t</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">KotlinJsSample</span><span class="p">.</span><span class="nx">Hello</span><span class="p">()</span>
+<span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">t</span><span class="p">.</span><span class="nx">longTest</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">))</span>
+</code></pre>
+</div>
+
+<p>运行，理想状态下，输出结果3。然而，报错了。。。</p>
+
+<div class="language-kotlin highlighter-rouge"><pre class="highlight"><code><span class="n">Hello</span><span class="p">.</span><span class="n">kt</span><span class="p">:</span><span class="m">8</span> <span class="n">Uncaught</span> <span class="n">TypeError</span><span class="p">:</span> <span class="n">a</span><span class="p">.</span><span class="n">add</span> <span class="k">is</span> <span class="n">not</span> <span class="n">a</span> <span class="n">function</span>
+    <span class="n">at</span> <span class="n">Hello</span><span class="p">.</span><span class="n">longTest</span> <span class="p">(</span><span class="n">Hello</span><span class="p">.</span><span class="n">kt</span><span class="p">:</span><span class="m">8</span><span class="p">)</span>
+    <span class="n">at</span> <span class="n">A</span><span class="p">.</span><span class="n">js</span><span class="p">:</span><span class="m">5</span>
+</code></pre>
+</div>
+
+<p>因为<code class="highlighter-rouge">a</code>为Long类型，而JavaScript无法对应，在Kotlin编译器转换的过程中无法正确映射到JS中，导致JS中找不到该函数。</p>
+
+<p><strong>那么，不惊大呼一声，Kotlin.Long要它有何用？！！</strong></p>
+
+<p>我们试试在Kotlin中调用它，</p>
+
+<div class="language-kotlin highlighter-rouge"><pre class="highlight"><code><span class="k">fun</span> <span class="nf">main</span><span class="p">(</span><span class="n">args</span><span class="p">:</span> <span class="n">Array</span><span class="p">&lt;</span><span class="n">String</span><span class="p">&gt;)</span> <span class="p">{</span>
+    <span class="n">Hello</span><span class="p">().</span><span class="n">longTest</span><span class="p">(</span><span class="m">1L</span><span class="p">,</span> <span class="m">2L</span><span class="p">)</span>
+<span class="p">}</span>
+</code></pre>
+</div>
+
+<p>等价到JavaScript中，如下：</p>
+
+<div class="language-js highlighter-rouge"><pre class="highlight"><code><span class="kd">function</span> <span class="nx">main</span><span class="p">(</span><span class="nx">args</span><span class="p">)</span> <span class="p">{</span>
+    <span class="p">(</span><span class="k">new</span> <span class="nx">Hello</span><span class="p">()).</span><span class="nx">longTest</span><span class="p">(</span><span class="nx">Kotlin</span><span class="p">.</span><span class="nx">Long</span><span class="p">.</span><span class="nx">ONE</span><span class="p">,</span> <span class="nx">Kotlin</span><span class="p">.</span><span class="nx">Long</span><span class="p">.</span><span class="nx">fromInt</span><span class="p">(</span><span class="mi">2</span><span class="p">));</span>
+  <span class="p">}</span>
+</code></pre>
+</div>
+
+<p>好吧，当成了Int类型来处理。 = =</p>
+
+<p>总的来说，基本上Kotlin和JavaScript是能够互操作的，但是对比Kotlin-Java，略显麻烦&amp;鸡肋。</p>
+
+<h2 id="kotlin-java-vs-kotlin-javascript">Kotlin-Java VS Kotlin-JavaScript</h2>
+
+<p>最后，我们来对比一下Kotlin-Java和Kotlin-JavaScript各自做了什么工作。</p>
+
+<h3 id="kotlin-java">Kotlin-Java</h3>
+
+<p><img src="https://github.com/Shinelw/shinelw.github.io/blob/master/assets/kt-java.png?raw=true" alt="kt-java" /></p>
+
+<p>我们可以看到，Kotlin-Java模式中，Kotlinc（编译器）将<code class="highlighter-rouge">*.kt</code>文件编译成了<code class="highlighter-rouge">*.class</code>字节码文件，同时<code class="highlighter-rouge">*.java</code>文件可通过Kotlinc或者Javac编译成<code class="highlighter-rouge">*.class</code>字节码文件，然后通过JVM虚拟机执行。</p>
+
+<h3 id="kotlin-javascript">Kotlin-JavaScript</h3>
+
+<p><img src="https://github.com/Shinelw/shinelw.github.io/blob/master/assets/kt-js.png?raw=true" alt="kt-js" /></p>
+
+<p>然而，Kotlin-JavaScript模式中，Kotlinc(编译器)只是进行了转换JS的操作，然后与标准库<code class="highlighter-rouge">kotlin.js</code>、项目中JS文件一起再通过<code class="highlighter-rouge">JavaScript引擎</code>执行。</p>
+
+<p>通过两者的比较，我们可以很明显看出两者在工作原理上很不一样。Kotlin对于JavaScript的支持，更多的只是将Kotlin等价转换成JavaScript以达到支持的功能，然后做一些函数的封装工作。kotlinc-js编译器做的工作大致是：词法分析、语法分析、语义分析、转成JS代码，然后通过JavaScript引擎执行。</p>
+
+<h2 id="section">总结</h2>
+
+<p>Kotlin能够同时支持Java和JavaScript，听上去是很让人感到兴奋的。但是就目前来说，Kotlin对于JavaScript的支持很明显的不如Java，局限性和互操作上都相差甚多。对于反射等功能，目前也尚不支持。</p>
+
+<p>当然，我们仍然可以试一试~ ：D</p>
+
+<p>相关资料：</p>
+
+<p>官方文档：<a href="https://kotlinlang.org/docs/reference/js-overview.html">https://kotlinlang.org/docs/reference/js-overview.html</a></p>
+
+                <a id="article-end-anchor"></a>
+                <hr>
+                <!-- clear float -->
+                <div style="float:left">
+                    <a rel="license" href="http://creativecommons.org/licenses/by-nc-nd/4.0/">
+                        <img alt="知识共享许可协议" style="border-width:0, " src="https://i.creativecommons.org/l/by-nc-nd/4.0/88x31.png" />
+                    </a>
+                </div>
+                <div style="clear:both">
+                    本文采用<a rel="license" href="http://creativecommons.org/licenses/by-nc-nd/4.0/">知识共享署名-非商业性使用-禁止演绎 4.0 国际许可协议</a>进行许可，转载请务必注明作者以及原文出处链接。
+                </div>
+                <hr> 
+
+
+                <ul class="pager">
+                    
+                    <li class="previous">
+                        <a href="/2017/03/21/kotlin-method-count-improve/" data-toggle="tooltip" data-placement="top" title="Kotlin属性引发的方法数问题">
+                        Previous<br>
+                        <span>Kotlin属性引发的方法数问题</span>
+                        </a>
+                    </li>
+                     
+                </ul>
+
+
+                 
+                <!-- disqus 评论框 start -->
+                <div class="comment">
+                    <div id="disqus_thread" class="disqus-thread"></div>
+                </div>
+                <!-- disqus 评论框 end -->
+                
+
+            </div>
+
+            <!-- Side Catalog Container -->
+            
+            <div class="
+                col-lg-2 col-lg-offset-0
+                visible-lg-block
+                sidebar-container
+                catalog-container">
+                <div class="side-catalog">
+                    <hr class="hidden-sm hidden-xs">
+                    <h5>
+                        <a class="catalog-toggle" href="#">CATALOG</a>
+                    </h5>
+                    <ul class="catalog-body"></ul>
+                </div>
+            </div>
+            
+
+            <!-- Sidebar Container -->
+            <div class="
+                col-lg-8 col-lg-offset-2
+                col-md-10 col-md-offset-1
+                sidebar-container">
+
+                <!-- Featured Tags -->
+                
+                <section>
+                    <hr class="hidden-sm hidden-xs">
+                    <h5><a href="/tags/">FEATURED TAGS</a></h5>
+                    <div class="tags">
+                         
+                        <a href="/tags/#随笔" title="随笔" rel="1">
+                                    随笔
+                                </a>   
+                        <a href="/tags/#设计模式" title="设计模式" rel="3">
+                                    设计模式
+                                </a>   
+                        <a href="/tags/#Android组件" title="Android组件" rel="1">
+                                    Android组件
+                                </a>   
+                        <a href="/tags/#读书笔记" title="读书笔记" rel="1">
+                                    读书笔记
+                                </a>   
+                        <a href="/tags/#AndroidStudio" title="AndroidStudio" rel="2">
+                                    AndroidStudio
+                                </a>   
+                        <a href="/tags/#Ubuntu" title="Ubuntu" rel="1">
+                                    Ubuntu
+                                </a>   
+                        <a href="/tags/#工具" title="工具" rel="1">
+                                    工具
+                                </a>   
+                        <a href="/tags/#抓包" title="抓包" rel="1">
+                                    抓包
+                                </a>   
+                        <a href="/tags/#Android逆向分析" title="Android逆向分析" rel="1">
+                                    Android逆向分析
+                                </a>   
+                        <a href="/tags/#Android" title="Android" rel="1">
+                                    Android
+                                </a>   
+                        <a href="/tags/#HotFix" title="HotFix" rel="1">
+                                    HotFix
+                                </a>   
+                        <a href="/tags/#Kotlin" title="Kotlin" rel="4">
+                                    Kotlin
+                                </a>  
+                    </div>
+                </section>
+                
+
+                <!-- Friends Blog -->
+                
+                <hr>
+                <h5>FRIENDS</h5>
+                <ul class="list-inline">
+                    
+                        <li><a href="http://shinelw.com">Shinelw Blog</a></li>
+                    
+                </ul>
+                
+            </div>
+        </div>
+    </div>
+</article>
+
+
+ 
+<!-- disqus 公共JS代码 start (一个网页只需插入一次) -->
+<script type="text/javascript">
+    /* * * CONFIGURATION VARIABLES * * */
+    var disqus_shortname = "shinelw";
+    var disqus_identifier = "/2017/03/31/kotlin-new-features-for-javascript-support";
+    var disqus_title = "Kotlin新特性之JavaScript支持"
+    var disqus_url = "http://shinelw.com/2017/03/31/kotlin-new-features-for-javascript-support/";
+
+    (function() {
+        var dsq = document.createElement('script');
+        dsq.type = 'text/javascript';
+        dsq.async = true;
+        dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+        (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    })();
+</script>
+<!-- disqus 公共JS代码 end -->
+ 
+<!-- async load function -->
+<script>
+    function async(u, c) {
+        var d = document,
+            t = 'script',
+            o = d.createElement(t),
+            s = d.getElementsByTagName(t)[0];
+        o.src = u;
+        if (c) {
+            o.addEventListener('load', function(e) {
+                c(null, e);
+            }, false);
+        }
+        s.parentNode.insertBefore(o, s);
+    }
+</script>
+<!-- anchor-js, Doc:http://bryanbraun.github.io/anchorjs/ -->
+<script>
+    async("http://cdn.bootcss.com/anchor-js/1.1.1/anchor.min.js", function() {
+        anchors.options = {
+            visible: 'always',
+            placement: 'right',
+            icon: '#'
+        };
+        anchors.add().remove('.intro-header h1').remove('.subheading').remove('.sidebar-container h5');
+    })
+</script>
+<style>
+    /* place left on bigger screen */
+
+    @media all and (min-width: 800px) {
+        .anchorjs-link {
+            position: absolute;
+            left: -0.75em;
+            font-size: 1.1em;
+            margin-top: -0.1em;
+        }
+    }
+</style>
+
+
+
+    
+<!-- busuanzi -->
+<script async src="//dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+<!-- Footer -->
+<footer>
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                <ul class="list-inline text-center">
+                    
+                    <li>
+                        <a href="/feed.xml">
+                            <span class="fa-stack fa-lg">
+                                <i class="fa fa-circle fa-stack-2x"></i>
+                                <i class="fa fa-rss fa-stack-1x fa-inverse"></i>
+                            </span>
+                        </a>
+                    </li>
+                    
+                    
+
+                    <!-- add Weibo, Zhihu by Hux, add target = "_blank" to <a> by Hux -->
+                    
+                    <li>
+                        <a target="_blank" href="https://www.zhihu.com/people/shinelw">
+                            <span class="fa-stack fa-lg">
+                                <i class="fa fa-circle fa-stack-2x"></i>
+                                <i class="fa  fa-stack-1x fa-inverse">知</i>
+                            </span>
+                        </a>
+                    </li>
+                    
+                    
+                    <li>
+                        <a target="_blank" href="http://weibo.com/shenliangwei">
+                            <span class="fa-stack fa-lg">
+                                <i class="fa fa-circle fa-stack-2x"></i>
+                                <i class="fa fa-weibo fa-stack-1x fa-inverse"></i>
+                            </span>
+                        </a>
+                    </li>
+                    
+
+
+                    
+                    
+                    <li>
+                        <a target="_blank" href="https://github.com/Shinelw">
+                            <span class="fa-stack fa-lg">
+                                <i class="fa fa-circle fa-stack-2x"></i>
+                                <i class="fa fa-github fa-stack-1x fa-inverse"></i>
+                            </span>
+                        </a>
+                    </li>
+                    
+                </ul>
+                <p class="copyright text-muted">
+                    Copyright &copy; Shinelw Blog 2017
+                    <br>
+                     Theme by <a href="http://huangxuan.me">Hux</a>
+                    <span style="display: inline-block; margin: 0 5px;">
+                        <i class="fa fa-heart"></i>
+                    </span>
+                    <span id="busuanzi_container_site_pv">
+                        PV: <span id="busuanzi_value_site_pv"></span>
+                    </span>
+                    <span id="busuanzi_container_site_uv">
+                        UV: <span id="busuanzi_value_site_uv"></span>
+                    </span>
+                    <br>
+                    Blog is licensed under <a rel="license" href="http://creativecommons.org/licenses/by-nc-nd/4.0/">CC BY-NC-ND 4.0</a>
+                </p>
+            </div>
+        </div>
+    </div>
+</footer>
+
+<!-- jQuery -->
+<script src="/js/jquery.min.js "></script>
+
+<!-- Bootstrap Core JavaScript -->
+<script src="/js/bootstrap.min.js "></script>
+
+<!-- Custom Theme JavaScript -->
+<script src="/js/shinelw-blog.min.js "></script>
+
+
+<!-- async load function -->
+<script>
+    function async(u, c) {
+      var d = document, t = 'script',
+          o = d.createElement(t),
+          s = d.getElementsByTagName(t)[0];
+      o.src = u;
+      if (c) { o.addEventListener('load', function (e) { c(null, e); }, false); }
+      s.parentNode.insertBefore(o, s);
+    }
+</script>
+
+<!--
+     Because of the native support for backtick-style fenced code blocks
+     right within the Markdown is landed in Github Pages,
+     From V1.6, There is no need for Highlight.js,
+     so Huxblog drops it officially.
+
+     - https://github.com/blog/2100-github-pages-now-faster-and-simpler-with-jekyll-3-0
+     - https://help.github.com/articles/creating-and-highlighting-code-blocks/
+     - https://github.com/jneen/rouge/wiki/list-of-supported-languages-and-lexers
+-->
+<!--
+    <script>
+        async("http://cdn.bootcss.com/highlight.js/8.6/highlight.min.js", function(){
+            hljs.initHighlightingOnLoad();
+        })
+    </script>
+    <link href="http://cdn.bootcss.com/highlight.js/8.6/styles/github.min.css" rel="stylesheet">
+-->
+
+
+<!-- jquery.tagcloud.js -->
+<script>
+    // only load tagcloud.js in tag.html
+    if($('#tag_cloud').length !== 0){
+        async("/js/jquery.tagcloud.js",function(){
+            $.fn.tagcloud.defaults = {
+                //size: {start: 1, end: 1, unit: 'em'},
+                color: {start: '#bbbbee', end: '#0085a1'},
+            };
+            $('#tag_cloud a').tagcloud();
+        })
+    }
+</script>
+
+<!--fastClick.js -->
+<script>
+    async("http://cdn.bootcss.com/fastclick/1.0.6/fastclick.min.js", function(){
+        var $nav = document.querySelector("nav");
+        if($nav) FastClick.attach($nav);
+    })
+</script>
+
+
+<!-- Google Analytics -->
+
+<script>
+    // dynamic User by Hux
+    var _gaId = 'UA-76180718-1';
+    var _gaDomain = 'shinelw.com';
+
+    // Originial
+    (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+    (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+    m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+    })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+    ga('create', _gaId, _gaDomain);
+    ga('send', 'pageview');
+</script>
+
+
+
+<!-- Baidu Tongji -->
+
+<script>
+    // dynamic User by Hux
+    var _baId = 'fdssdfafadsfadsf';
+
+    // Originial
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "//hm.baidu.com/hm.js?" + _baId;
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+</script>
+
+
+
+
+<!-- Side Catalog -->
+
+<script type="text/javascript">
+    function generateCatalog (selector) {
+        var P = $('div.post-container'),a,n,t,l,i,c;
+        a = P.find('h1,h2,h3,h4,h5,h6');
+        a.each(function () {
+            n = $(this).prop('tagName').toLowerCase();
+            i = "#"+$(this).prop('id');
+            t = $(this).text();
+            c = $('<a href="'+i+'" rel="nofollow">'+t+'</a>');
+            l = $('<li class="'+n+'_nav"></li>').append(c);
+            $(selector).append(l);
+        });
+        return true;
+    }
+
+    generateCatalog(".catalog-body");
+
+    // toggle side catalog
+    $(".catalog-toggle").click((function(e){
+        e.preventDefault();
+        $('.side-catalog').toggleClass("fold")
+    }))
+
+    /*
+     * Doc: https://github.com/davist11/jQuery-One-Page-Nav
+     * Fork by Hux to support padding
+     */
+    async("/js/jquery.nav.js", function () {
+        $('.catalog-body').onePageNav({
+            currentClass: "active",
+            changeHash: !1,
+            easing: "swing",
+            filter: "",
+            scrollSpeed: 700,
+            scrollOffset: 100,
+            scrollThreshold: 0,
+            begin: null,
+            end: null,
+            scrollChange: null,
+            endSelector: '#article-end-anchor',
+            unbindSelector: null
+        });
+    });
+</script>
+
+
+
+
+<!-- Image to hack wechat -->
+<img src="/img/icon_wechat.png" width="0" height="0" />
+<!-- Migrate from head to bottom, no longer block render and still work -->
+
+</body>
+
+</html>

@@ -1,0 +1,1201 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="google-site-verification" content="xBT4GhYoi5qRD5tr338pgPM5OWHHIDR6mNg1a3euekI" />
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="好好学习天天向上。">
+    <meta name="keyword"  content="Shinelw, @Shinelw Shinelw's Blog, Android Developer, 沛轩, PASSION, 沈良炜, Shinelw Blog">
+    <link rel="shortcut icon" href="/img/favicon.ico">
+
+    <title>Kotlin编译过程分析 - Passion | Shinelw Blog</title>
+
+    <link rel="canonical" href="http://shinelw.com/2017/03/20/kotlin-compiler-process-analysis/">
+
+    <!-- Bootstrap Core CSS -->
+    <link rel="stylesheet" href="/css/bootstrap.min.css">
+
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="/css/shinelw-blog.min.css">
+
+    <!-- Pygments Github CSS -->
+    <link rel="stylesheet" href="/css/syntax.css">
+
+    <!-- Custom Fonts -->
+    <!-- <link href="http://maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css" rel="stylesheet" type="text/css"> -->
+    <!-- Hux change font-awesome CDN to qiniu -->
+    <link href="http://cdn.staticfile.org/font-awesome/4.2.0/css/font-awesome.min.css" rel="stylesheet" type="text/css">
+
+    <!-- add highlight
+    <link rel="stylesheet" href="/css/androidstudio.css">
+		<script type="text/javascript" src="/js/highlight.pack.js"></script>
+		<script>hljs.initHighlightingOnLoad();</script>
+    -->
+</head>
+
+
+<!-- hack iOS CSS :active style -->
+<body ontouchstart="">
+
+    <!-- Navigation -->
+<nav class="navbar navbar-default navbar-custom navbar-fixed-top">
+    <div class="container-fluid">
+        <!-- Brand and toggle get grouped for better mobile display -->
+        <div class="navbar-header page-scroll">
+            <button type="button" class="navbar-toggle">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand" href="/">Shinelw Blog</a>
+        </div>
+
+        <!-- Collect the nav links, forms, and other content for toggling -->
+        <div id="huxblog_navbar">
+            <div class="navbar-collapse">
+                <ul class="nav navbar-nav navbar-right">
+                    <li>
+                        <a href="/">Home</a>
+                    </li>
+                    
+                    <li>
+                        <a href="/about/">About</a>
+                    </li>
+                    
+                    <li>
+                        <a href="/pages/archives/">Archives</a>
+                    </li>
+                    
+                    <li>
+                        <a href="/tags/">Tags</a>
+                    </li>
+                    
+                </ul>
+            </div>
+        </div>
+        <!-- /.navbar-collapse -->
+    </div>
+    <!-- /.container -->
+</nav>
+<script>
+    // Drop Bootstarp low-performance Navbar
+    // Use customize navbar with high-quality material design animation
+    // in high-perf jank-free CSS3 implementation
+    var $body   = document.body;
+    var $toggle = document.querySelector('.navbar-toggle');
+    var $navbar = document.querySelector('#huxblog_navbar');
+    var $collapse = document.querySelector('.navbar-collapse');
+
+    var __HuxNav__ = {
+        close: function(){
+            $navbar.className = " ";
+            // wait until animation end.
+            setTimeout(function(){
+                // prevent frequently toggle
+                if($navbar.className.indexOf('in') < 0) {
+                    $collapse.style.height = "0px"
+                }
+            },400)
+        },
+        open: function(){
+            $collapse.style.height = "auto"
+            $navbar.className += " in";
+        }
+    }
+
+    // Bind Event
+    $toggle.addEventListener('click', function(e){
+        if ($navbar.className.indexOf('in') > 0) {
+            __HuxNav__.close()
+        }else{
+            __HuxNav__.open()
+        }
+    })
+
+    /**
+     * Since Fastclick is used to delegate 'touchstart' globally
+     * to hack 300ms delay in iOS by performing a fake 'click',
+     * Using 'e.stopPropagation' to stop 'touchstart' event from
+     * $toggle/$collapse will break global delegation.
+     *
+     * Instead, we use a 'e.target' filter to prevent handler
+     * added to document close HuxNav.
+     *
+     * Also, we use 'click' instead of 'touchstart' as compromise
+     */
+    document.addEventListener('click', function(e){
+        if(e.target == $toggle) return;
+        if(e.target.className == 'icon-bar') return;
+        __HuxNav__.close();
+    })
+</script>
+
+
+    <!-- Image to hack wechat -->
+<!-- <img src="/img/icon_wechat.png" width="0" height="0"> -->
+<!-- <img src="/img/post-bg-2015.jpg" width="0" height="0"> -->
+
+<!-- Post Header -->
+<style type="text/css">
+    header.intro-header {
+        position: relative;
+        background-image: url('/img/post-bg-2015.jpg')
+    }
+
+    {
+        % if page.header-mask %
+    }
+
+    header.intro-header .header-mask {
+        width: 100%;
+        height: 100%;
+        position: absolute;
+        background: rgba(0,
+        0,
+        0,
+        {
+            {
+                page.header-mask
+            }
+        }
+        );
+    }
+
+    {
+        % endif %
+    }
+</style>
+<header class="intro-header">
+    <div class="header-mask"></div>
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                <div class="post-heading">
+                    <div class="tags">
+                        
+                        <a class="tag" href="/tags/#Kotlin" title="Kotlin">Kotlin</a> 
+                    </div>
+                    <h1>Kotlin编译过程分析</h1>  
+                    <h2 class="subheading">Kotlin compiler process analysis</h2> 
+                    <span class="meta">Posted by Shinelw on March 20, 2017.   Viewed <span id="busuanzi_value_page_pv"></span> times.
+                    </span>
+                </div>
+            </div>
+        </div>
+    </div>
+</header>
+
+<!-- Post Content -->
+<article>
+    <div class="container">
+        <div class="row">
+
+            <!-- Post Container -->
+            <div class="
+                col-lg-8 col-lg-offset-2
+                col-md-10 col-md-offset-1
+                post-container">
+
+                <h1 id="kotlin">Kotlin编译过程分析</h1>
+
+<p>我们知道，Kotlin基于Java虚拟机（JVM），通过Kotlin编译器生成的JVM字节码与Java编译的字节码基本相同，也因此与Java可以完全兼容，并且语法更加简洁，让我对Kotlin的编译过程甚是好奇。一通Google之后，毫无收获，Kotlin作为一门新语言，绝大多数的资料都局限于它的用法和特性相关。幸好Kotlin所有源码都已开源，遂决定生啃之。</p>
+
+<p>Kotlin源码传送门：<a href="https://github.com/JetBrains/kotlin">https://github.com/JetBrains/kotlin</a></p>
+
+<p>在具体讲Kotlin编译过程之前，我们先来看一张图。</p>
+
+<p><img src="https://github.com/Shinelw/shinelw.github.io/blob/draft/assets/Java%E7%BC%96%E8%AF%91%E8%BF%87%E7%A8%8B.jpg?raw=true" alt="Java编译过程" /></p>
+
+<p>上图是Java编译器的编译过程，正如它们俩完全兼容的特性一样，等分析完Kotlin的编译过程，你会发现，Kotlin和Java的编译过程也是很相似的。</p>
+
+<h2 id="section">1. 编译入口</h2>
+
+<p>整个Kotlin工程代码达到200多MB，面对如此巨大的项目，我们需要找一个入口来进行逐步深入。所以，我们从最简单直观的入手，来看一下Kotlin的编译命令：</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>kotlinc Hello.kt
+</code></pre>
+</div>
+
+<p>打开<code class="highlighter-rouge">kotlinc</code>脚本文件看执行了什么，代码如下：</p>
+
+<div class="language-shell highlighter-rouge"><pre class="highlight"><code><span class="nv">cygwin</span><span class="o">=</span><span class="nb">false</span>;
+<span class="k">case</span> <span class="s2">"</span><span class="sb">`</span>uname<span class="sb">`</span><span class="s2">"</span> <span class="k">in
+    </span>CYGWIN<span class="k">*</span><span class="p">)</span> <span class="nv">cygwin</span><span class="o">=</span><span class="nb">true</span> <span class="p">;;</span>
+<span class="k">esac</span>
+
+...
+
+<span class="nb">declare</span> -a kotlin_app
+
+//运行入口
+<span class="k">if</span> <span class="o">[</span> -n <span class="s2">"</span><span class="nv">$KOTLIN_RUNNER</span><span class="s2">"</span> <span class="o">]</span>;
+<span class="k">then
+    </span><span class="nv">java_args</span><span class="o">=(</span><span class="s2">"</span><span class="k">${</span><span class="nv">java_args</span><span class="p">[@]</span><span class="k">}</span><span class="s2">"</span> <span class="s2">"-Dkotlin.home=</span><span class="k">${</span><span class="nv">KOTLIN_HOME</span><span class="k">}</span><span class="s2">"</span><span class="o">)</span>
+    <span class="nv">kotlin_app</span><span class="o">=(</span><span class="s2">"</span><span class="k">${</span><span class="nv">KOTLIN_HOME</span><span class="k">}</span><span class="s2">/lib/kotlin-runner.jar"</span> <span class="s2">"org.jetbrains.kotlin.runner.Main"</span><span class="o">)</span>
+<span class="k">else</span>
+//编译入口
+    <span class="o">[</span> -n <span class="s2">"</span><span class="nv">$KOTLIN_COMPILER</span><span class="s2">"</span> <span class="o">]</span> <span class="o">||</span> <span class="nv">KOTLIN_COMPILER</span><span class="o">=</span>org.jetbrains.kotlin.cli.jvm.K2JVMCompiler
+    <span class="nv">java_args</span><span class="o">=(</span><span class="s2">"</span><span class="k">${</span><span class="nv">java_args</span><span class="p">[@]</span><span class="k">}</span><span class="s2">"</span> <span class="s2">"-noverify"</span><span class="o">)</span>
+    <span class="nv">kotlin_app</span><span class="o">=(</span><span class="s2">"</span><span class="k">${</span><span class="nv">KOTLIN_HOME</span><span class="k">}</span><span class="s2">/lib/kotlin-preloader.jar"</span> <span class="s2">"org.jetbrains.kotlin.preloading.Preloader"</span> <span class="s2">"-cp"</span> <span class="s2">"</span><span class="k">${</span><span class="nv">KOTLIN_HOME</span><span class="k">}</span><span class="s2">/lib/kotlin-compiler.jar"</span> <span class="nv">$KOTLIN_COMPILER</span><span class="o">)</span>
+<span class="k">fi</span>
+
+<span class="s2">"</span><span class="k">${</span><span class="nv">JAVACMD</span>:<span class="p">=java</span><span class="k">}</span><span class="s2">"</span> <span class="nv">$JAVA_OPTS</span> <span class="s2">"</span><span class="k">${</span><span class="nv">java_args</span><span class="p">[@]</span><span class="k">}</span><span class="s2">"</span> -cp <span class="s2">"</span><span class="k">${</span><span class="nv">kotlin_app</span><span class="p">[@]</span><span class="k">}</span><span class="s2">"</span> <span class="s2">"</span><span class="k">${</span><span class="nv">kotlin_args</span><span class="p">[@]</span><span class="k">}</span><span class="s2">"</span>
+</code></pre>
+</div>
+
+<p>从代码中找到了疑似编译部分的入口代码 <strong>org.jetbrains.kotlin.cli.jvm.K2JVMCompiler</strong>，</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>//org.jetbrains.kotlin.cli.jvm.K2JVMCompiler
+
+ @JvmStatic fun main(args: Array&lt;String&gt;) {
+            CLICompiler.doMain(K2JVMCompiler(), args)
+        }
+
+</code></pre>
+</div>
+
+<p>紧跟跳转，到CLICompiler.doMain()方法中。</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>//org.jetbrains.kotlin.cli.common.CLICompiler
+
+public static void doMain(@NotNull CLICompiler compiler, @NotNull String[] args) {
+        System.setProperty("java.awt.headless", "true");
+        //执行编译
+        ExitCode exitCode = doMainNoExit(compiler, args);
+        if (exitCode != OK) {
+            System.exit(exitCode.getCode());
+        }
+    }
+
+ @SuppressWarnings("UseOfSystemOutOrSystemErr")
+ @NotNull
+ public static ExitCode doMainNoExit(@NotNull CLICompiler compiler, @NotNull String[] args) {
+        try {
+        	  //执行编译过程，返回退出码
+            return compiler.exec(System.err, args);
+        }
+        catch (CompileEnvironmentException e) {
+            System.err.println(e.getMessage());
+            return INTERNAL_ERROR;
+        }
+    }
+</code></pre>
+</div>
+<p>我们可以看到，编译器执行完编译过程以后，会返回一个退出码，返回OK即为编译成功，否则直接退出编译过程。好，知道了这些，我们继续往下看。跟着代码的跳转，跳转，又跳转，看到了关键的编译入口代码，泪流满面。</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>//org.jetbrains.kotlin.cli.jvm.K2JVMCompiler
+
+KotlinToJVMBytecodeCompiler.compileBunchOfSources(environment)
+</code></pre>
+</div>
+
+<p>跳转进入看看发生了什么。</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>
+    fun compileBunchOfSources(environment: KotlinCoreEnvironment): Boolean {
+        val moduleVisibilityManager = ModuleVisibilityManager.SERVICE.getInstance(environment.project)
+
+        val friendPaths = environment.configuration.getList(JVMConfigurationKeys.FRIEND_PATHS)
+        for (path in friendPaths) {
+            moduleVisibilityManager.addFriendPath(path)
+        }
+
+        if (!checkKotlinPackageUsage(environment, environment.getSourceFiles())) return false
+
+        //词法、语法分析、语义分析、目标代码生成等过程
+        val generationState = analyzeAndGenerate(environment) ?: return false
+
+        // 找到运行主类
+        val mainClass = findMainClass(generationState, environment.getSourceFiles())
+
+        try {
+            //写入文件
+            writeOutput(environment.configuration, generationState.factory, mainClass)
+            return true
+        }
+        finally {
+            generationState.destroy()
+        }
+    }
+
+</code></pre>
+</div>
+
+<h2 id="section-1">2. 编译过程</h2>
+
+<p>Kotlin的整个编译过程大致有以下环节：</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>1. 词法分析
+2. 语法分析
+3. 语义分析及中间代码生成
+4. 目标代码生成
+</code></pre>
+</div>
+
+<p>其中，我们把词法分析、语法分析、语义分析及中间代码生成称之为编译器前段，将源程序翻译成中间代码；目标代码生成称之为编译器后端，负责将中间代码转换生成目标代码，与目标语言有关的细节尽可能放在了后端。</p>
+
+<h3 id="section-2">2.1 词法分析</h3>
+<p>词法分析是将源程序读入的字符序列，按照一定的规则转换成词法单元（Token）序列的过程。词法单元是语言中具有独立意义的最小单元，包括关键字、标识符、常数、运算符、界符等等。</p>
+
+<p>来看看Kotlin中划分的Token。</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>//org.jetbrains.kotlin.lexer.KtTokens
+
+public interface KtTokens {
+	//关键字的token
+    KtKeywordToken PACKAGE_KEYWORD          = KtKeywordToken.keyword("package");
+    KtKeywordToken AS_KEYWORD               = KtKeywordToken.keyword("as");
+    KtKeywordToken TYPE_ALIAS_KEYWORD       = KtKeywordToken.keyword("typealias");
+    KtKeywordToken CLASS_KEYWORD            = KtKeywordToken.keyword("class");
+    KtKeywordToken THIS_KEYWORD             = KtKeywordToken.keyword("this");
+    KtKeywordToken SUPER_KEYWORD            = KtKeywordToken.keyword("super");
+    KtKeywordToken VAL_KEYWORD              = KtKeywordToken.keyword("val");
+    KtKeywordToken VAR_KEYWORD              = KtKeywordToken.keyword("var");
+    KtKeywordToken FUN_KEYWORD              = KtKeywordToken.keyword("fun");
+    KtKeywordToken FOR_KEYWORD              = KtKeywordToken.keyword("for");
+    KtKeywordToken NULL_KEYWORD             = KtKeywordToken.keyword("null");
+    ...
+
+    //标识符、运算符token
+    KtSingleValueToken LBRACKET    = new KtSingleValueToken("LBRACKET", "[");
+    KtSingleValueToken RBRACKET    = new KtSingleValueToken("RBRACKET", "]");
+    KtSingleValueToken LBRACE      = new KtSingleValueToken("LBRACE", "{");
+    KtSingleValueToken RBRACE      = new KtSingleValueToken("RBRACE", "}");
+    KtSingleValueToken LPAR        = new KtSingleValueToken("LPAR", "(");
+    KtSingleValueToken RPAR        = new KtSingleValueToken("RPAR", ")");
+    KtSingleValueToken DOT         = new KtSingleValueToken("DOT", ".");
+    ...
+
+    //修饰符token
+    KtModifierKeywordToken ABSTRACT_KEYWORD  = KtModifierKeywordToken.softKeywordModifier("abstract");
+    KtModifierKeywordToken ENUM_KEYWORD      = KtModifierKeywordToken.softKeywordModifier("enum");
+    KtModifierKeywordToken OPEN_KEYWORD      = KtModifierKeywordToken.softKeywordModifier("open");
+    KtModifierKeywordToken INNER_KEYWORD     = KtModifierKeywordToken.softKeywordModifier("inner");
+    KtModifierKeywordToken OVERRIDE_KEYWORD  = KtModifierKeywordToken.softKeywordModifier("override");
+    KtModifierKeywordToken PRIVATE_KEYWORD   = KtModifierKeywordToken.softKeywordModifier("private");
+    KtModifierKeywordToken PUBLIC_KEYWORD    = KtModifierKeywordToken.softKeywordModifier("public");
+    ...
+}
+</code></pre>
+</div>
+
+<p>Kotlin中将所有Token按照进行了分类，同时进行了Token分组。</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>	//关键字
+    KtModifierKeywordToken[] MODIFIER_KEYWORDS_ARRAY =
+            new KtModifierKeywordToken[] {
+                    ABSTRACT_KEYWORD, ENUM_KEYWORD, OPEN_KEYWORD, INNER_KEYWORD, OVERRIDE_KEYWORD, PRIVATE_KEYWORD,
+                    PUBLIC_KEYWORD, INTERNAL_KEYWORD, PROTECTED_KEYWORD, OUT_KEYWORD, IN_KEYWORD, FINAL_KEYWORD, VARARG_KEYWORD,
+                    REIFIED_KEYWORD, COMPANION_KEYWORD, SEALED_KEYWORD, LATEINIT_KEYWORD,
+                    DATA_KEYWORD, INLINE_KEYWORD, NOINLINE_KEYWORD, TAILREC_KEYWORD, EXTERNAL_KEYWORD, ANNOTATION_KEYWORD, CROSSINLINE_KEYWORD,
+                    CONST_KEYWORD, OPERATOR_KEYWORD, INFIX_KEYWORD, SUSPEND_KEYWORD, HEADER_KEYWORD, IMPL_KEYWORD
+            };
+
+    //访问权限修饰符
+    TokenSet VISIBILITY_MODIFIERS = TokenSet.create(PRIVATE_KEYWORD, PUBLIC_KEYWORD, INTERNAL_KEYWORD, PROTECTED_KEYWORD);
+
+   //操作符
+    TokenSet OPERATIONS = TokenSet.create(AS_KEYWORD, AS_SAFE, IS_KEYWORD, IN_KEYWORD, DOT, PLUSPLUS, MINUSMINUS, EXCLEXCL, MUL, PLUS,
+                                          MINUS, EXCL, DIV, PERC, LT, GT, LTEQ, GTEQ, EQEQEQ, EXCLEQEQEQ, EQEQ, EXCLEQ, ANDAND, OROR,
+                                          SAFE_ACCESS, ELVIS,
+                                          RANGE, EQ, MULTEQ, DIVEQ, PERCEQ, PLUSEQ, MINUSEQ,
+                                          NOT_IN, NOT_IS,
+                                          IDENTIFIER);
+...
+
+</code></pre>
+</div>
+
+<p>将所有的Kotlin词法单元一一枚举出来并分组以后，就要进行词法分析了。Kotlin使用了第三方开源的<a href="http://www.jflex.de/">JFlex</a>作为词法分析器，并没有自己实现（当然，重复造轮子就是一件很愚蠢的事情了:)）。</p>
+
+<h4 id="jflexkotlinflex">2.1.1 定义JFlex词法分析配置文件Kotlin.flex</h4>
+<p>配置文件分为三个部分：</p>
+
+ 	- 用户代码：。
+ 	- 选项与声明：用来定制词法分析器，包括类名、父类、权限修饰符等等，以<strong>%</strong>开头作为标记
+ 	- 词法规则：包括一组正则表达式和动作行为，也就是当正则表达式匹配成功后要执行的代码。
+
+<p>整个flex规范配置文件如下格式：</p>
+
+<p><code class="highlighter-rouge">
+用户代码
+%%
+选项与声明
+%%
+词法规则
+</code>
+具体可看<a href="">Kotlin.flex</a>详细配置文件。</p>
+
+<h4 id="jetlexer">2.1.2 词法分析器_JetLexer</h4>
+<p>JFlex会读取配置文件并生成一个词法分析器（扫描器），在Kotlin编译器中对应<strong>_JetLexer</strong></p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>/**
+ * This class is a scanner generated by
+ * &lt;a href="http://www.jflex.de/"&gt;JFlex&lt;/a&gt; 1.7.0-SNAPSHOT
+ * from the specification file &lt;tt&gt;/Users/endermz/projects/kotlin/compiler/frontend/src/org/jetbrains/kotlin/lexer/Kotlin.flex&lt;/tt&gt;
+ */
+class _JetLexer implements FlexLexer {
+
+  //返回当前词法的状态
+  public final int yystate() {
+    return zzLexicalState;
+  }
+
+  //进入下一个词法
+  public final void yybegin(int newState) {
+    zzLexicalState = newState;
+  }
+
+
+   //返回与当前正则表达式匹配的文本
+  public final CharSequence yytext() {
+    return zzBuffer.subSequence(zzStartRead, zzMarkedPos);
+  }
+
+   //返回匹配文本位置的字符
+  public final char yycharat(int pos) {
+    return zzBuffer.charAt(zzStartRead+pos);
+  }
+   //返回匹配文本区域的长度
+  public final int yylength() {
+    return zzMarkedPos-zzStartRead;
+  }
+
+   //当词法扫描时错误上报
+  private void zzScanError(int errorCode) throws KotlinLexerException {
+    String message;
+    try {
+      message = ZZ_ERROR_MSG[errorCode];
+    }
+    catch (ArrayIndexOutOfBoundsException e) {
+      message = ZZ_ERROR_MSG[ZZ_UNKNOWN_ERROR];
+    }
+    throw new KotlinLexerException(message + "\n at '" + yytext() + "'\n" + zzBuffer);
+  }
+
+   //将制定数量的字符推送到输入流
+  public void yypushback(int number)  throws KotlinLexerException {
+    if ( number &gt; yylength() )
+      zzScanError(ZZ_PUSHBACK_2BIG);
+
+    zzMarkedPos -= number;
+  }
+  ...
+}
+</code></pre>
+</div>
+
+<p>上述的方法以“yy”为前缀，表示它们是由JFlex自动生成的，避免与复制到这个类中的用户代码名字有冲突。</p>
+
+<p><strong>关于如法匹配输入流：</strong></p>
+
+<p>当对输入流进行词法分析时，词法分析器依据最长匹配规则来选择输入流的正规式，即所选择的正规式能最长的匹配当前输入流。如果同时有多个满足最长匹配的正规式，则生成的词法分析器将从中选择最先出现在词法规则描述中的正规式。在确定了起作用的正规式之后，将执行贵正规式所关联的动作。如果没有匹配的正规式，词法分析器将终止对输入流的分析并给出错误消息。</p>
+
+<p>最后，KotlinLexer调用_JetLexer进行词法分析。</p>
+
+<div class="language-java highlighter-rouge"><pre class="highlight"><code><span class="kd">public</span> <span class="kd">class</span> <span class="nc">KotlinLexer</span> <span class="kd">extends</span> <span class="n">FlexAdapter</span> <span class="o">{</span>
+    <span class="kd">public</span> <span class="nf">KotlinLexer</span><span class="o">()</span> <span class="o">{</span>
+        <span class="kd">super</span><span class="o">(</span><span class="k">new</span> <span class="n">_JetLexer</span><span class="o">((</span><span class="n">Reader</span><span class="o">)</span> <span class="kc">null</span><span class="o">));</span>
+    <span class="o">}</span>
+<span class="o">}</span>
+</code></pre>
+</div>
+
+<h3 id="section-3">2.2 语法分析</h3>
+<p>语法分析的任务是在词法分析的基础上将单词序列组合成各类语法短语，如“程序”，“语句”，“表达式”等等,语法分析器将判断源程序在结构上是否正确。在语法分析过程中，会生成语法树（ST）/抽象语法树（AST）。</p>
+
+<p>Kotlin中定义了AST的数据结构，</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>//AST抽象语法树节点
+public interface ASTNode extends UserDataHolder {
+	//节点类型
+  IElementType getElementType();
+
+  //节点文本
+  String getText();
+
+  //父节点
+  ASTNode getTreeParent();
+
+  //第一孩子节点
+  ASTNode getFirstChildNode();
+
+  //最后孩子节点
+  ASTNode getLastChildNode();
+
+  //所有孩子
+  ASTNode[] getChildren(@Nullable TokenSet filter);
+
+  //移除孩子
+  void removeChild(@NotNull ASTNode child);
+
+  ...
+
+}
+</code></pre>
+</div>
+
+<p>Kotlin的语法分析使用了InteliJ平台的开发者项目，语法分析器继承使用了PsiParser。</p>
+
+<div class="language-java highlighter-rouge"><pre class="highlight"><code><span class="cm">/**
+ * 自定义语言分析器的插件端，收到语法分析器lexer返回的令牌，并从中建立一个AST数
+ */</span>
+<span class="kd">public</span> <span class="kd">interface</span> <span class="nc">PsiParser</span> <span class="o">{</span>
+  <span class="cm">/**
+   * 解析指定PSI构建器的内容，并返回具有制定类型的根元素的AST树。
+   * @param root AST树中根元素的类型
+   * @param builder 构建用于检索原始文件令牌并构建AST树的构建器
+   * @return 生成的AST树的根节点
+   */</span>
+  <span class="nd">@NotNull</span>
+  <span class="n">ASTNode</span> <span class="nf">parse</span><span class="o">(</span><span class="nd">@NotNull</span> <span class="n">IElementType</span> <span class="n">root</span><span class="o">,</span> <span class="nd">@NotNull</span> <span class="n">PsiBuilder</span> <span class="n">builder</span><span class="o">);</span>
+<span class="o">}</span>
+</code></pre>
+</div>
+
+<p>然后通过提供的PsiParser实现KotlinParser。</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>public class KotlinParser implements PsiParser {
+
+  //语法分析生成AST树
+  public ASTNode parse(IElementType iElementType, PsiBuilder psiBuilder, PsiFile psiFile) {
+        KotlinParsing ktParsing = KotlinParsing.createForTopLevel(new SemanticWhitespaceAwarePsiBuilderImpl(psiBuilder));
+        if (scriptDefinitionProvider != null &amp;&amp; scriptDefinitionProvider.isScript(psiFile)
+            || psiFile.getName().endsWith(KotlinParserDefinition.STD_SCRIPT_EXT)) {
+            ktParsing.parseScript();
+        }
+        else {
+            ktParsing.parseFile();
+        }
+        return psiBuilder.getTreeBuilt();
+    }
+
+	//分析类型
+    public static ASTNode parseTypeCodeFragment(PsiBuilder psiBuilder) {
+    	 KotlinParsing ktParsing = KotlinParsing.createForTopLevel(new SemanticWhitespaceAwarePsiBuilderImpl(psiBuilder));
+        ktParsing.parseTypeCodeFragment();
+        return psiBuilder.getTreeBuilt();
+    }
+
+ 	//分析表达式
+    public static ASTNode parseExpressionCodeFragment(PsiBuilder psiBuilder) {
+    	KotlinParsing ktParsing = KotlinParsing.createForTopLevel(new SemanticWhitespaceAwarePsiBuilderImpl(psiBuilder));
+       ktParsing.parseExpressionCodeFragment();
+       return psiBuilder.getTreeBuilt();
+    }
+
+    //分析块代码
+    public static ASTNode parseBlockCodeFragment(PsiBuilder psiBuilder) {
+    	KotlinParsing ktParsing = KotlinParsing.createForTopLevel(new SemanticWhitespaceAwarePsiBuilderImpl(psiBuilder));
+        ktParsing.parseBlockCodeFragment();
+        return psiBuilder.getTreeBuilt();
+    }
+
+    //分析Lambda表达式
+    public static ASTNode parseLambdaExpression(PsiBuilder psiBuilder) {
+    	 KotlinParsing ktParsing = KotlinParsing.createForTopLevel(new SemanticWhitespaceAwarePsiBuilderImpl(psiBuilder));
+        ktParsing.parseLambdaExpression();
+        return psiBuilder.getTreeBuilt();
+    }
+</code></pre>
+</div>
+<p>PSI，即程序结构接口，定义了程序的结构。</p>
+
+<p>PSI文件（PSI File）则能够将源代码文件内容表示为特定编程语言元素的层次结构。说的通俗一点，PSI文件可以把Java、XML等语言代码表示为层次结构（树）的形式。例如，在IntelliJ开源的项目来看，PsiJavaFile可表示为Java文件，XmlFile表示为XML文件。通过PSI文件，我们能够遍历迭代文件中的元素，从而生成AST,正也正是语法分析中所需要的。</p>
+
+<p>KotlinParser语法分析器调用KotParsing进行语法分析，并生成AST抽象语法树。</p>
+
+<p>关于如何生成一个简单表达式的AST树，可以参考下图：</p>
+
+<p><img src="https://github.com/Shinelw/shinelw.github.io/blob/master/assets/PsiBuilder.gif?raw=true" alt="" /></p>
+
+<h3 id="section-4">2.3 语义分析及中间代码生成</h3>
+<p>语义分析的任务是检查抽象语法树AST的上下文相关属性，即检查源代码是否符合该编程语言的规范，比如变量类型定义是否正确，运算符是否匹配等等。</p>
+
+<p>举个例子：</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>var a: Int = 1
+var b: String = "hello"
+var c: Boolean = false
+
+c = a * b
+println(c)
+</code></pre>
+</div>
+<p>上述代码在语法分析阶段显然是符合语言编程结构的，但是却会出现编译失败的情况，因为a、b、c类型各不相同且不能相互转换，不能进行运算操作。这就是语义分析所要做的事情。</p>
+
+<p>在Kotlin编译器中，语义分析的工作位于<strong>org.jetbrains.kotlin.resolve</strong>模块下。</p>
+
+<p><img src="https://github.com/Shinelw/shinelw.github.io/blob/master/assets/%E8%AF%AD%E4%B9%89%E5%88%86%E6%9E%90.png?raw=true" alt="" /></p>
+
+<p>该模块包含了所有的的上下文相关属性的检查，包括对表达式语句、常量、智能转换等上下文相关属性检查。</p>
+
+<p>语义分析器进行了上下文相关属性的检查之后，会生成中间代码，位于<strong>org.jetbrains.kotlin.ir</strong>模块中。</p>
+
+<p><img src="https://github.com/Shinelw/shinelw.github.io/blob/master/assets/%E4%B8%AD%E9%97%B4%E4%BB%A3%E7%A0%81%E7%94%9F%E6%88%90.png?raw=true" alt="" /></p>
+
+<p>如图所示，Psi2IrTranslator文件将AST抽象语法树转换成了IR中间表示形式（即中间代码）。</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>class Psi2IrTranslator(val configuration: Psi2IrConfiguration = Psi2IrConfiguration()) {
+    interface PostprocessingStep {
+        fun postprocess(context: GeneratorContext, irElement: IrElement)
+    }
+
+    private val postprocessingSteps = SmartList&lt;PostprocessingStep&gt;()
+
+    fun add(step: PostprocessingStep) {
+        postprocessingSteps.add(step)
+    }
+
+    fun generateModule(moduleDescriptor: ModuleDescriptor, ktFiles: Collection&lt;KtFile&gt;, bindingContext: BindingContext): IrModuleFragment {
+        val context = createGeneratorContext(moduleDescriptor, bindingContext)
+        return generateModuleFragment(context, ktFiles)
+    }
+
+    fun createGeneratorContext(moduleDescriptor: ModuleDescriptor, bindingContext: BindingContext) =
+            GeneratorContext(configuration, moduleDescriptor, bindingContext)
+
+    fun generateModuleFragment(context: GeneratorContext, ktFiles: Collection&lt;KtFile&gt;): IrModuleFragment {
+        val irModule = ModuleGenerator(context).generateModuleFragment(ktFiles)
+        postprocess(context, irModule)
+        return irModule
+    }
+
+    private fun postprocess(context: GeneratorContext, irElement: IrElement) {
+        insertImplicitCasts(context.builtIns, irElement)
+
+        postprocessingSteps.forEach { it.postprocess(context, irElement) }
+    }
+}
+</code></pre>
+</div>
+
+<h3 id="section-5">2.4 目标代码生成</h3>
+
+<p>目标代码生成的任务，顾名思义，是将中间代码转换为目标代码，即JVM字节码，位于<strong>org.jetbrains.kotlin.codegen</strong>模块中。</p>
+
+<p>目标代码生成入口：</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>public class KotlinCodegenFacade {
+	 public static void doGenerateFiles(
+            @NotNull Collection&lt;KtFile&gt; files,
+            @NotNull GenerationState state,
+            @NotNull CompilationErrorHandler errorHandler
+    ) {
+		...
+        for (KtFile file : files) {
+         ...
+        Set&lt;FqName&gt; obsoleteMultifileClasses = new HashSet&lt;FqName&gt;(state.getObsoleteMultifileClasses());
+        for (FqName multifileClassFqName : Sets.union(filesInMultifileClasses.keySet(), obsoleteMultifileClasses)) {
+            doCheckCancelled(state);
+            //目标代码类生成
+            generateMultifileClass(state, multifileClassFqName, filesInMultifileClasses.get(multifileClassFqName), errorHandler);
+        }
+
+        Set&lt;FqName&gt; packagesWithObsoleteParts = new HashSet&lt;FqName&gt;(state.getPackagesWithObsoleteParts());
+        for (FqName packageFqName : Sets.union(packagesWithObsoleteParts, filesInPackages.keySet())) {
+            doCheckCancelled(state);
+            //目标代码类包生成
+            generatePackage(state, packageFqName, filesInPackages.get(packageFqName), errorHandler);
+        }
+
+        doCheckCancelled(state);
+        //生成结束
+        state.getFactory().done();
+    }
+}
+</code></pre>
+</div>
+
+<p>在代码类生成的过程中，又包括生成类名、类体、字段、函数方法等环节，相关的生成类有ClassBodyCodegen、ClassFunctionCodegen、MemberCodegen、ExpressionCodegen、PropertyCodegen等。</p>
+
+<p>Kotlin与Java不同的编译过程主要在于目标代码生成环节，Kotlin做了更多的工作。举个例子：</p>
+
+<p>在Kotlin中，如果我们定义如下代码：</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>var a: Int = 1;
+</code></pre>
+</div>
+
+<p>会等价于Java中</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>public Int a = 1;
+
+public Int getA(){
+	return a;
+}
+
+public void setA(int a) {
+	this.a = a;
+}
+</code></pre>
+</div>
+
+<p>那么，在Kotlin中是怎么实现的呢，我们来看PropertyCodegen关于属性的生成部分。</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>public class PropertyCodegen {
+
+    private void gen(
+            @Nullable KtProperty declaration, // 属性声明
+            @NotNull PropertyDescriptor descriptor,  //描述，包括权限修饰符、注解、类型等。
+            @Nullable KtPropertyAccessor getter, // 决定是否生成getter
+            @Nullable KtPropertyAccessor setter  //决定是否生成setter
+    ) {
+        assert kind == OwnerKind.PACKAGE || kind == OwnerKind.IMPLEMENTATION || kind == OwnerKind.DEFAULT_IMPLS
+                : "Generating property with a wrong kind (" + kind + "): " + descriptor;
+		  //生成注解信息
+        genBackingFieldAndAnnotations(declaration, descriptor, false);
+
+		  //根据注解和权限修饰符等信息判断是否自动生成Getter代码
+        if (isAccessorNeeded(declaration, descriptor, getter)) {
+            generateGetter(declaration, descriptor, getter);
+        }
+        //根据注解和权限修饰符等信息判断是否自动生成Setter代码
+        if (isAccessorNeeded(declaration, descriptor, setter)) {
+            generateSetter(declaration, descriptor, setter);
+        }
+    }
+}
+</code></pre>
+</div>
+
+<p>可以看到，Kotlin在目标代码生成环节做了更多的处理，在该环节实现了自动生成Getter、Setter的代码。</p>
+
+<h2 id="section-6">总结</h2>
+
+<p>Kotlin的编译过程分析完了，当然很多细节的东西并没有深入研究，并且内容太大，不是一篇文章可以说的详尽的。</p>
+
+<p>那么，分析了这么多，我们得到了什么有用的信息？</p>
+
+<p>Kotlin编译器在编译前端（即词法分析、语法分析、语义分析、中间代码生成）并没有做让人感到惊讶的事情，和Java是基本一致的。与Java相比，所与众不同，也最重要的细节在编译后端（目标代码生成）环节。Kotlin编译器在目标代码生成环节做了很多类似于Java封装的事情，比如自动生成Getter/Setter代码的生成、Companion转变成静态类、修改类属性为final不可继承等等工作。可以说，大部分Kotlin的特性都在这个环节处理产生。可以这么说，Kotlin将我们本来在代码层做的一些封装工作转移到了编译后端阶段，以使得我们可以更加简洁的使用Kotlin语言。</p>
+
+                <a id="article-end-anchor"></a>
+                <hr>
+                <!-- clear float -->
+                <div style="float:left">
+                    <a rel="license" href="http://creativecommons.org/licenses/by-nc-nd/4.0/">
+                        <img alt="知识共享许可协议" style="border-width:0, " src="https://i.creativecommons.org/l/by-nc-nd/4.0/88x31.png" />
+                    </a>
+                </div>
+                <div style="clear:both">
+                    本文采用<a rel="license" href="http://creativecommons.org/licenses/by-nc-nd/4.0/">知识共享署名-非商业性使用-禁止演绎 4.0 国际许可协议</a>进行许可，转载请务必注明作者以及原文出处链接。
+                </div>
+                <hr> 
+
+
+                <ul class="pager">
+                    
+                    <li class="previous">
+                        <a href="/2017/03/18/kotlin-apply-in-coding/" data-toggle="tooltip" data-placement="top" title="谈谈Kotlin特性在开发中的应用">
+                        Previous<br>
+                        <span>谈谈Kotlin特性在开发中的应用</span>
+                        </a>
+                    </li>
+                     
+                    <li class="next">
+                        <a href="/2017/03/21/kotlin-method-count-improve/" data-toggle="tooltip" data-placement="top" title="Kotlin属性引发的方法数问题">
+                        Next<br>
+                        <span>Kotlin属性引发的方法数问题</span>
+                        </a>
+                    </li>
+                    
+                </ul>
+
+
+                 
+                <!-- disqus 评论框 start -->
+                <div class="comment">
+                    <div id="disqus_thread" class="disqus-thread"></div>
+                </div>
+                <!-- disqus 评论框 end -->
+                
+
+            </div>
+
+            <!-- Side Catalog Container -->
+            
+            <div class="
+                col-lg-2 col-lg-offset-0
+                visible-lg-block
+                sidebar-container
+                catalog-container">
+                <div class="side-catalog">
+                    <hr class="hidden-sm hidden-xs">
+                    <h5>
+                        <a class="catalog-toggle" href="#">CATALOG</a>
+                    </h5>
+                    <ul class="catalog-body"></ul>
+                </div>
+            </div>
+            
+
+            <!-- Sidebar Container -->
+            <div class="
+                col-lg-8 col-lg-offset-2
+                col-md-10 col-md-offset-1
+                sidebar-container">
+
+                <!-- Featured Tags -->
+                
+                <section>
+                    <hr class="hidden-sm hidden-xs">
+                    <h5><a href="/tags/">FEATURED TAGS</a></h5>
+                    <div class="tags">
+                         
+                        <a href="/tags/#随笔" title="随笔" rel="1">
+                                    随笔
+                                </a>   
+                        <a href="/tags/#设计模式" title="设计模式" rel="3">
+                                    设计模式
+                                </a>   
+                        <a href="/tags/#Android组件" title="Android组件" rel="1">
+                                    Android组件
+                                </a>   
+                        <a href="/tags/#读书笔记" title="读书笔记" rel="1">
+                                    读书笔记
+                                </a>   
+                        <a href="/tags/#AndroidStudio" title="AndroidStudio" rel="2">
+                                    AndroidStudio
+                                </a>   
+                        <a href="/tags/#Ubuntu" title="Ubuntu" rel="1">
+                                    Ubuntu
+                                </a>   
+                        <a href="/tags/#工具" title="工具" rel="1">
+                                    工具
+                                </a>   
+                        <a href="/tags/#抓包" title="抓包" rel="1">
+                                    抓包
+                                </a>   
+                        <a href="/tags/#Android逆向分析" title="Android逆向分析" rel="1">
+                                    Android逆向分析
+                                </a>   
+                        <a href="/tags/#Android" title="Android" rel="1">
+                                    Android
+                                </a>   
+                        <a href="/tags/#HotFix" title="HotFix" rel="1">
+                                    HotFix
+                                </a>   
+                        <a href="/tags/#Kotlin" title="Kotlin" rel="4">
+                                    Kotlin
+                                </a>  
+                    </div>
+                </section>
+                
+
+                <!-- Friends Blog -->
+                
+                <hr>
+                <h5>FRIENDS</h5>
+                <ul class="list-inline">
+                    
+                        <li><a href="http://shinelw.com">Shinelw Blog</a></li>
+                    
+                </ul>
+                
+            </div>
+        </div>
+    </div>
+</article>
+
+
+ 
+<!-- disqus 公共JS代码 start (一个网页只需插入一次) -->
+<script type="text/javascript">
+    /* * * CONFIGURATION VARIABLES * * */
+    var disqus_shortname = "shinelw";
+    var disqus_identifier = "/2017/03/20/kotlin-compiler-process-analysis";
+    var disqus_title = "Kotlin编译过程分析"
+    var disqus_url = "http://shinelw.com/2017/03/20/kotlin-compiler-process-analysis/";
+
+    (function() {
+        var dsq = document.createElement('script');
+        dsq.type = 'text/javascript';
+        dsq.async = true;
+        dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+        (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    })();
+</script>
+<!-- disqus 公共JS代码 end -->
+ 
+<!-- async load function -->
+<script>
+    function async(u, c) {
+        var d = document,
+            t = 'script',
+            o = d.createElement(t),
+            s = d.getElementsByTagName(t)[0];
+        o.src = u;
+        if (c) {
+            o.addEventListener('load', function(e) {
+                c(null, e);
+            }, false);
+        }
+        s.parentNode.insertBefore(o, s);
+    }
+</script>
+<!-- anchor-js, Doc:http://bryanbraun.github.io/anchorjs/ -->
+<script>
+    async("http://cdn.bootcss.com/anchor-js/1.1.1/anchor.min.js", function() {
+        anchors.options = {
+            visible: 'always',
+            placement: 'right',
+            icon: '#'
+        };
+        anchors.add().remove('.intro-header h1').remove('.subheading').remove('.sidebar-container h5');
+    })
+</script>
+<style>
+    /* place left on bigger screen */
+
+    @media all and (min-width: 800px) {
+        .anchorjs-link {
+            position: absolute;
+            left: -0.75em;
+            font-size: 1.1em;
+            margin-top: -0.1em;
+        }
+    }
+</style>
+
+
+
+    
+<!-- busuanzi -->
+<script async src="//dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+<!-- Footer -->
+<footer>
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                <ul class="list-inline text-center">
+                    
+                    <li>
+                        <a href="/feed.xml">
+                            <span class="fa-stack fa-lg">
+                                <i class="fa fa-circle fa-stack-2x"></i>
+                                <i class="fa fa-rss fa-stack-1x fa-inverse"></i>
+                            </span>
+                        </a>
+                    </li>
+                    
+                    
+
+                    <!-- add Weibo, Zhihu by Hux, add target = "_blank" to <a> by Hux -->
+                    
+                    <li>
+                        <a target="_blank" href="https://www.zhihu.com/people/shinelw">
+                            <span class="fa-stack fa-lg">
+                                <i class="fa fa-circle fa-stack-2x"></i>
+                                <i class="fa  fa-stack-1x fa-inverse">知</i>
+                            </span>
+                        </a>
+                    </li>
+                    
+                    
+                    <li>
+                        <a target="_blank" href="http://weibo.com/shenliangwei">
+                            <span class="fa-stack fa-lg">
+                                <i class="fa fa-circle fa-stack-2x"></i>
+                                <i class="fa fa-weibo fa-stack-1x fa-inverse"></i>
+                            </span>
+                        </a>
+                    </li>
+                    
+
+
+                    
+                    
+                    <li>
+                        <a target="_blank" href="https://github.com/Shinelw">
+                            <span class="fa-stack fa-lg">
+                                <i class="fa fa-circle fa-stack-2x"></i>
+                                <i class="fa fa-github fa-stack-1x fa-inverse"></i>
+                            </span>
+                        </a>
+                    </li>
+                    
+                </ul>
+                <p class="copyright text-muted">
+                    Copyright &copy; Shinelw Blog 2017
+                    <br>
+                     Theme by <a href="http://huangxuan.me">Hux</a>
+                    <span style="display: inline-block; margin: 0 5px;">
+                        <i class="fa fa-heart"></i>
+                    </span>
+                    <span id="busuanzi_container_site_pv">
+                        PV: <span id="busuanzi_value_site_pv"></span>
+                    </span>
+                    <span id="busuanzi_container_site_uv">
+                        UV: <span id="busuanzi_value_site_uv"></span>
+                    </span>
+                    <br>
+                    Blog is licensed under <a rel="license" href="http://creativecommons.org/licenses/by-nc-nd/4.0/">CC BY-NC-ND 4.0</a>
+                </p>
+            </div>
+        </div>
+    </div>
+</footer>
+
+<!-- jQuery -->
+<script src="/js/jquery.min.js "></script>
+
+<!-- Bootstrap Core JavaScript -->
+<script src="/js/bootstrap.min.js "></script>
+
+<!-- Custom Theme JavaScript -->
+<script src="/js/shinelw-blog.min.js "></script>
+
+
+<!-- async load function -->
+<script>
+    function async(u, c) {
+      var d = document, t = 'script',
+          o = d.createElement(t),
+          s = d.getElementsByTagName(t)[0];
+      o.src = u;
+      if (c) { o.addEventListener('load', function (e) { c(null, e); }, false); }
+      s.parentNode.insertBefore(o, s);
+    }
+</script>
+
+<!--
+     Because of the native support for backtick-style fenced code blocks
+     right within the Markdown is landed in Github Pages,
+     From V1.6, There is no need for Highlight.js,
+     so Huxblog drops it officially.
+
+     - https://github.com/blog/2100-github-pages-now-faster-and-simpler-with-jekyll-3-0
+     - https://help.github.com/articles/creating-and-highlighting-code-blocks/
+     - https://github.com/jneen/rouge/wiki/list-of-supported-languages-and-lexers
+-->
+<!--
+    <script>
+        async("http://cdn.bootcss.com/highlight.js/8.6/highlight.min.js", function(){
+            hljs.initHighlightingOnLoad();
+        })
+    </script>
+    <link href="http://cdn.bootcss.com/highlight.js/8.6/styles/github.min.css" rel="stylesheet">
+-->
+
+
+<!-- jquery.tagcloud.js -->
+<script>
+    // only load tagcloud.js in tag.html
+    if($('#tag_cloud').length !== 0){
+        async("/js/jquery.tagcloud.js",function(){
+            $.fn.tagcloud.defaults = {
+                //size: {start: 1, end: 1, unit: 'em'},
+                color: {start: '#bbbbee', end: '#0085a1'},
+            };
+            $('#tag_cloud a').tagcloud();
+        })
+    }
+</script>
+
+<!--fastClick.js -->
+<script>
+    async("http://cdn.bootcss.com/fastclick/1.0.6/fastclick.min.js", function(){
+        var $nav = document.querySelector("nav");
+        if($nav) FastClick.attach($nav);
+    })
+</script>
+
+
+<!-- Google Analytics -->
+
+<script>
+    // dynamic User by Hux
+    var _gaId = 'UA-76180718-1';
+    var _gaDomain = 'shinelw.com';
+
+    // Originial
+    (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+    (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+    m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+    })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+    ga('create', _gaId, _gaDomain);
+    ga('send', 'pageview');
+</script>
+
+
+
+<!-- Baidu Tongji -->
+
+<script>
+    // dynamic User by Hux
+    var _baId = 'fdssdfafadsfadsf';
+
+    // Originial
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "//hm.baidu.com/hm.js?" + _baId;
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+</script>
+
+
+
+
+<!-- Side Catalog -->
+
+<script type="text/javascript">
+    function generateCatalog (selector) {
+        var P = $('div.post-container'),a,n,t,l,i,c;
+        a = P.find('h1,h2,h3,h4,h5,h6');
+        a.each(function () {
+            n = $(this).prop('tagName').toLowerCase();
+            i = "#"+$(this).prop('id');
+            t = $(this).text();
+            c = $('<a href="'+i+'" rel="nofollow">'+t+'</a>');
+            l = $('<li class="'+n+'_nav"></li>').append(c);
+            $(selector).append(l);
+        });
+        return true;
+    }
+
+    generateCatalog(".catalog-body");
+
+    // toggle side catalog
+    $(".catalog-toggle").click((function(e){
+        e.preventDefault();
+        $('.side-catalog').toggleClass("fold")
+    }))
+
+    /*
+     * Doc: https://github.com/davist11/jQuery-One-Page-Nav
+     * Fork by Hux to support padding
+     */
+    async("/js/jquery.nav.js", function () {
+        $('.catalog-body').onePageNav({
+            currentClass: "active",
+            changeHash: !1,
+            easing: "swing",
+            filter: "",
+            scrollSpeed: 700,
+            scrollOffset: 100,
+            scrollThreshold: 0,
+            begin: null,
+            end: null,
+            scrollChange: null,
+            endSelector: '#article-end-anchor',
+            unbindSelector: null
+        });
+    });
+</script>
+
+
+
+
+<!-- Image to hack wechat -->
+<img src="/img/icon_wechat.png" width="0" height="0" />
+<!-- Migrate from head to bottom, no longer block render and still work -->
+
+</body>
+
+</html>

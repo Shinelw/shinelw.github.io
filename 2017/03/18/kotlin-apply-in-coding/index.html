@@ -1,0 +1,1130 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="google-site-verification" content="xBT4GhYoi5qRD5tr338pgPM5OWHHIDR6mNg1a3euekI" />
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="好好学习天天向上。">
+    <meta name="keyword"  content="Shinelw, @Shinelw Shinelw's Blog, Android Developer, 沛轩, PASSION, 沈良炜, Shinelw Blog">
+    <link rel="shortcut icon" href="/img/favicon.ico">
+
+    <title>谈谈Kotlin特性在开发中的应用 - Passion | Shinelw Blog</title>
+
+    <link rel="canonical" href="http://shinelw.com/2017/03/18/kotlin-apply-in-coding/">
+
+    <!-- Bootstrap Core CSS -->
+    <link rel="stylesheet" href="/css/bootstrap.min.css">
+
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="/css/shinelw-blog.min.css">
+
+    <!-- Pygments Github CSS -->
+    <link rel="stylesheet" href="/css/syntax.css">
+
+    <!-- Custom Fonts -->
+    <!-- <link href="http://maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css" rel="stylesheet" type="text/css"> -->
+    <!-- Hux change font-awesome CDN to qiniu -->
+    <link href="http://cdn.staticfile.org/font-awesome/4.2.0/css/font-awesome.min.css" rel="stylesheet" type="text/css">
+
+    <!-- add highlight
+    <link rel="stylesheet" href="/css/androidstudio.css">
+		<script type="text/javascript" src="/js/highlight.pack.js"></script>
+		<script>hljs.initHighlightingOnLoad();</script>
+    -->
+</head>
+
+
+<!-- hack iOS CSS :active style -->
+<body ontouchstart="">
+
+    <!-- Navigation -->
+<nav class="navbar navbar-default navbar-custom navbar-fixed-top">
+    <div class="container-fluid">
+        <!-- Brand and toggle get grouped for better mobile display -->
+        <div class="navbar-header page-scroll">
+            <button type="button" class="navbar-toggle">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand" href="/">Shinelw Blog</a>
+        </div>
+
+        <!-- Collect the nav links, forms, and other content for toggling -->
+        <div id="huxblog_navbar">
+            <div class="navbar-collapse">
+                <ul class="nav navbar-nav navbar-right">
+                    <li>
+                        <a href="/">Home</a>
+                    </li>
+                    
+                    <li>
+                        <a href="/about/">About</a>
+                    </li>
+                    
+                    <li>
+                        <a href="/pages/archives/">Archives</a>
+                    </li>
+                    
+                    <li>
+                        <a href="/tags/">Tags</a>
+                    </li>
+                    
+                </ul>
+            </div>
+        </div>
+        <!-- /.navbar-collapse -->
+    </div>
+    <!-- /.container -->
+</nav>
+<script>
+    // Drop Bootstarp low-performance Navbar
+    // Use customize navbar with high-quality material design animation
+    // in high-perf jank-free CSS3 implementation
+    var $body   = document.body;
+    var $toggle = document.querySelector('.navbar-toggle');
+    var $navbar = document.querySelector('#huxblog_navbar');
+    var $collapse = document.querySelector('.navbar-collapse');
+
+    var __HuxNav__ = {
+        close: function(){
+            $navbar.className = " ";
+            // wait until animation end.
+            setTimeout(function(){
+                // prevent frequently toggle
+                if($navbar.className.indexOf('in') < 0) {
+                    $collapse.style.height = "0px"
+                }
+            },400)
+        },
+        open: function(){
+            $collapse.style.height = "auto"
+            $navbar.className += " in";
+        }
+    }
+
+    // Bind Event
+    $toggle.addEventListener('click', function(e){
+        if ($navbar.className.indexOf('in') > 0) {
+            __HuxNav__.close()
+        }else{
+            __HuxNav__.open()
+        }
+    })
+
+    /**
+     * Since Fastclick is used to delegate 'touchstart' globally
+     * to hack 300ms delay in iOS by performing a fake 'click',
+     * Using 'e.stopPropagation' to stop 'touchstart' event from
+     * $toggle/$collapse will break global delegation.
+     *
+     * Instead, we use a 'e.target' filter to prevent handler
+     * added to document close HuxNav.
+     *
+     * Also, we use 'click' instead of 'touchstart' as compromise
+     */
+    document.addEventListener('click', function(e){
+        if(e.target == $toggle) return;
+        if(e.target.className == 'icon-bar') return;
+        __HuxNav__.close();
+    })
+</script>
+
+
+    <!-- Image to hack wechat -->
+<!-- <img src="/img/icon_wechat.png" width="0" height="0"> -->
+<!-- <img src="/img/post-bg-2015.jpg" width="0" height="0"> -->
+
+<!-- Post Header -->
+<style type="text/css">
+    header.intro-header {
+        position: relative;
+        background-image: url('/img/post-bg-2015.jpg')
+    }
+
+    {
+        % if page.header-mask %
+    }
+
+    header.intro-header .header-mask {
+        width: 100%;
+        height: 100%;
+        position: absolute;
+        background: rgba(0,
+        0,
+        0,
+        {
+            {
+                page.header-mask
+            }
+        }
+        );
+    }
+
+    {
+        % endif %
+    }
+</style>
+<header class="intro-header">
+    <div class="header-mask"></div>
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                <div class="post-heading">
+                    <div class="tags">
+                        
+                        <a class="tag" href="/tags/#Kotlin" title="Kotlin">Kotlin</a> 
+                    </div>
+                    <h1>谈谈Kotlin特性在开发中的应用</h1>  
+                    <h2 class="subheading">Talking about Kotlin Characteristic in Development</h2> 
+                    <span class="meta">Posted by Shinelw on March 18, 2017.   Viewed <span id="busuanzi_value_page_pv"></span> times.
+                    </span>
+                </div>
+            </div>
+        </div>
+    </div>
+</header>
+
+<!-- Post Content -->
+<article>
+    <div class="container">
+        <div class="row">
+
+            <!-- Post Container -->
+            <div class="
+                col-lg-8 col-lg-offset-2
+                col-md-10 col-md-offset-1
+                post-container">
+
+                <h2 id="section">概述</h2>
+<p>Kotlin是JetBrains团队开发的一种静态类型的函数式编程语言，它基于Java虚拟机（JVM），通过Kotlin的编译器生成的JVM字节码与Java编译的字节码非常相似。事实也的确如此，虽然在语法方面与Java差异很大，但是Kotlin和Java在开发过程中是完全兼容的。所以说，Kotlin很值得一试。本文将重点谈谈Kotlin新特性在实际项目开发中的感受。</p>
+
+<p>关于语法使用及入门可以参见<a href="https://kotlinlang.org/docs/reference/">官方文档</a>或者<a href="https://kotlin-zhcn.github.io/docs/reference/">中文文档</a>。</p>
+
+<h2 id="section-1">简洁，使用更少的代码做更多的事</h2>
+<p>在我看来，Kotlin很关键的一个优点就是简洁。相对于Java，使用Kotlin往往能够用更少的代码获得更多的功能。这有什么好处呢？很简单，写的代码越少，逻辑越清晰，所犯的错误就会越少。
+### 1. 数据类
+数据类大量重复的getter和setter相信会是很多人在开发过程中吐槽的一个点。举一个很经典的例子，我们需要一个Person的数据类。</p>
+
+<p>在Java中，需要这么写：</p>
+
+<div class="language-java highlighter-rouge"><pre class="highlight"><code><span class="kd">public</span> <span class="kd">class</span> <span class="nc">Person</span> <span class="o">{</span>
+    <span class="kd">private</span> <span class="n">String</span> <span class="n">name</span><span class="o">;</span>
+    <span class="kd">private</span> <span class="kt">int</span> <span class="n">age</span><span class="o">;</span>
+    <span class="kd">private</span> <span class="kt">int</span> <span class="n">sex</span><span class="o">;</span>
+    <span class="kd">private</span> <span class="kt">float</span> <span class="n">height</span><span class="o">;</span>
+
+    <span class="kd">public</span> <span class="nf">Person</span><span class="o">(</span><span class="n">String</span> <span class="n">name</span><span class="o">,</span> <span class="kt">int</span> <span class="n">age</span><span class="o">,</span> <span class="kt">int</span> <span class="n">sex</span><span class="o">,</span> <span class="kt">float</span> <span class="n">height</span><span class="o">)</span> <span class="o">{</span>
+        <span class="k">this</span><span class="o">.</span><span class="na">name</span> <span class="o">=</span> <span class="n">name</span><span class="o">;</span>
+        <span class="k">this</span><span class="o">.</span><span class="na">sex</span> <span class="o">=</span> <span class="n">sex</span><span class="o">;</span>
+        <span class="k">this</span><span class="o">.</span><span class="na">age</span> <span class="o">=</span> <span class="n">age</span><span class="o">;</span>
+        <span class="k">this</span><span class="o">.</span><span class="na">height</span> <span class="o">=</span> <span class="n">height</span><span class="o">;</span>
+    <span class="o">}</span>
+
+    <span class="kd">public</span> <span class="n">String</span> <span class="nf">getName</span><span class="o">()</span> <span class="o">{</span>
+        <span class="k">return</span> <span class="n">name</span><span class="o">;</span>
+    <span class="o">}</span>
+
+    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">setName</span><span class="o">(</span><span class="n">String</span> <span class="n">name</span><span class="o">)</span> <span class="o">{</span>
+        <span class="k">this</span><span class="o">.</span><span class="na">name</span> <span class="o">=</span> <span class="n">name</span><span class="o">;</span>
+    <span class="o">}</span>
+
+    <span class="kd">public</span> <span class="kt">int</span> <span class="nf">getAge</span><span class="o">()</span> <span class="o">{</span>
+        <span class="k">return</span> <span class="n">age</span><span class="o">;</span>
+    <span class="o">}</span>
+
+    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">setAge</span><span class="o">(</span><span class="kt">int</span> <span class="n">age</span><span class="o">)</span> <span class="o">{</span>
+        <span class="k">this</span><span class="o">.</span><span class="na">age</span> <span class="o">=</span> <span class="n">age</span><span class="o">;</span>
+    <span class="o">}</span>
+
+    <span class="kd">public</span> <span class="kt">int</span> <span class="nf">getSex</span><span class="o">()</span> <span class="o">{</span>
+    	 <span class="k">return</span> <span class="n">sex</span><span class="o">;</span>
+    <span class="o">}</span>
+
+    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">setSex</span><span class="o">(</span><span class="kt">int</span> <span class="n">sex</span><span class="o">)</span> <span class="o">{</span>
+    	<span class="k">this</span><span class="o">.</span><span class="na">sex</span> <span class="o">=</span> <span class="n">sex</span><span class="o">;</span>
+    <span class="o">}</span>
+
+    <span class="kd">public</span> <span class="kt">float</span> <span class="nf">getHeight</span><span class="o">()</span> <span class="o">{</span>
+        <span class="k">return</span> <span class="n">height</span><span class="o">;</span>
+    <span class="o">}</span>
+
+    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">setHeight</span><span class="o">(</span><span class="kt">float</span> <span class="n">height</span><span class="o">)</span> <span class="o">{</span>
+        <span class="k">this</span><span class="o">.</span><span class="na">height</span> <span class="o">=</span> <span class="n">height</span><span class="o">;</span>
+    <span class="o">}</span>
+
+    <span class="nd">@Override</span>
+    <span class="kd">public</span> <span class="n">String</span> <span class="nf">toString</span><span class="o">()</span> <span class="o">{</span>
+        <span class="k">return</span> <span class="s">"Person{"</span> <span class="o">+</span>
+                <span class="s">"name='"</span> <span class="o">+</span> <span class="n">name</span> <span class="o">+</span> <span class="sc">'\''</span> <span class="o">+</span>
+                <span class="s">", age="</span> <span class="o">+</span> <span class="n">age</span> <span class="o">+</span>
+                <span class="s">", sex="</span> <span class="o">+</span> <span class="o">(</span><span class="n">sex</span> <span class="o">==</span> <span class="mi">0</span> <span class="o">?</span> <span class="s">"男"</span> <span class="o">:</span> <span class="s">"女"</span><span class="o">)</span> <span class="o">+</span>
+                <span class="s">", height="</span> <span class="o">+</span> <span class="n">height</span> <span class="o">+</span>
+                <span class="sc">'}'</span><span class="o">;</span>
+ <span class="o">}</span>
+</code></pre>
+</div>
+
+<p>在Kotlin里，我们只需要一行代码就能完成以上的功能：</p>
+
+<div class="language-kotlin highlighter-rouge"><pre class="highlight"><code><span class="kd">data class</span> <span class="nc">Person</span><span class="p">(</span><span class="kd">var</span> <span class="py">name</span><span class="p">:</span> <span class="n">String</span><span class="p">,</span>
+					 <span class="kd">var</span> <span class="py">age</span><span class="p">:</span> <span class="n">Int</span><span class="p">,</span>
+					 <span class="kd">var</span> <span class="py">sex</span><span class="p">:</span> <span class="n">Int</span><span class="p">,</span>
+					 <span class="kd">var</span> <span class="py">height</span><span class="p">:</span> <span class="n">Float</span><span class="p">)</span>
+</code></pre>
+</div>
+
+<p>Kotlin提供的数据类会让你自动获得所需的getter、setters、toString()，这很大程度上减少了大量重复的工作。当然，我们也可以很轻松的去覆盖这些函数，做自定义的事情，但是在大多数情况下，只需声明类和属性就已经足够了。</p>
+
+<h3 id="section-2">2. 区间表达式</h3>
+<p>在Java中我们经常要写这样的代码，</p>
+
+<div class="language-java highlighter-rouge"><pre class="highlight"><code><span class="k">for</span><span class="o">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="o">;</span> <span class="n">i</span> <span class="o">&lt;=</span> <span class="mi">10</span><span class="o">;</span> <span class="n">i</span><span class="o">++){</span>
+	<span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="n">i</span><span class="o">)</span>
+<span class="o">}</span>
+</code></pre>
+</div>
+
+<p>但是在Kotlin中，支持 <strong>..</strong> 操作符形式的区间表达式，我们转换成Kotlin就变成了这样：</p>
+
+<div class="language-kotlin highlighter-rouge"><pre class="highlight"><code><span class="k">for</span><span class="p">(</span><span class="n">i</span> <span class="k">in</span> <span class="m">0</span><span class="o">..</span><span class="m">10</span><span class="p">){</span>
+	<span class="n">println</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
+<span class="p">}</span>
+</code></pre>
+</div>
+
+<p>是不是简洁优雅很多，不仅如此，还有更多相关的功能。</p>
+
+<div class="language-kotlin highlighter-rouge"><pre class="highlight"><code><span class="c1">//倒序迭代
+</span><span class="k">for</span><span class="p">(</span><span class="n">i</span> <span class="k">in</span> <span class="m">10</span> <span class="n">downTo</span> <span class="m">0</span><span class="p">){</span>
+	<span class="o">..</span><span class="p">.</span>
+<span class="p">}</span>
+
+<span class="c1">//步长为2的迭代
+</span><span class="k">for</span><span class="p">(</span><span class="n">i</span> <span class="k">in</span> <span class="m">0</span><span class="o">..</span><span class="m">10</span> <span class="n">setp</span> <span class="m">2</span><span class="p">){</span>
+	<span class="o">..</span><span class="p">.</span>
+<span class="p">}</span>
+
+<span class="c1">//i在[0,10)区间，排除了10
+</span><span class="k">for</span><span class="p">(</span><span class="n">i</span> <span class="k">in</span> <span class="m">0</span> <span class="n">until</span> <span class="m">10</span><span class="p">){</span>
+	<span class="o">..</span><span class="p">.</span>
+<span class="p">}</span>
+</code></pre>
+</div>
+
+<h3 id="lamda">3. Lamda表达式</h3>
+<p>Java在Java8才支持Lamda语法，在Kotlin里完全支持。有对比才有差距，看例子：</p>
+
+<p>** Java中：**</p>
+
+<div class="language-java highlighter-rouge"><pre class="highlight"><code><span class="n">btn</span><span class="o">.</span><span class="na">setOnClickListener</span><span class="o">(</span><span class="k">new</span> <span class="n">View</span><span class="o">.</span><span class="na">OnClickListener</span><span class="o">()</span> <span class="o">{</span>
+     <span class="nd">@Override</span>
+     <span class="kd">public</span> <span class="kt">void</span> <span class="nf">onClick</span><span class="o">(</span><span class="n">View</span> <span class="n">v</span><span class="o">)</span> <span class="o">{</span>
+         <span class="c1">//dosomething</span>
+<span class="o">}});</span>
+</code></pre>
+</div>
+
+<p>** Kotlin中：**</p>
+
+<div class="language-kotlin highlighter-rouge"><pre class="highlight"><code><span class="n">btn</span><span class="p">.</span><span class="n">setOnClickListener</span> <span class="p">{</span> <span class="c1">//dosomething }
+</span></code></pre>
+</div>
+
+<h3 id="section-3">4. 类扩展</h3>
+<p>类扩展是一个超级强大的功能，我终于可以摆脱大量的Util工具类了。：）</p>
+
+<p>看一个例子：</p>
+
+<div class="language-kotlin highlighter-rouge"><pre class="highlight"><code><span class="k">fun</span> <span class="nf">MutableList</span><span class="p">&lt;</span><span class="n">Int</span><span class="p">&gt;.</span><span class="n">swap</span><span class="p">(</span><span class="n">index1</span><span class="p">:</span> <span class="n">Int</span><span class="p">,</span> <span class="n">index2</span><span class="p">:</span> <span class="n">Int</span><span class="p">)</span> <span class="p">{</span>
+	<span class="kd">val</span> <span class="py">tmp</span> <span class="p">=</span> <span class="k">this</span><span class="p">[</span><span class="n">index1</span><span class="p">]</span> <span class="c1">// 'this' 对应该列表
+</span>	<span class="k">this</span><span class="p">[</span><span class="n">index1</span><span class="p">]</span> <span class="p">=</span> <span class="k">this</span><span class="p">[</span><span class="n">index2</span><span class="p">]</span>
+	<span class="k">this</span><span class="p">[</span><span class="n">index2</span><span class="p">]</span> <span class="p">=</span> <span class="n">tmp</span>
+	<span class="p">}</span>
+<span class="p">}</span>
+
+<span class="c1">//使用
+</span><span class="kd">val</span> <span class="py">l</span> <span class="p">=</span> <span class="n">mutableListOf</span><span class="p">(</span><span class="m">1</span><span class="p">,</span> <span class="m">2</span><span class="p">,</span> <span class="m">3</span><span class="p">)</span>
+<span class="n">l</span><span class="p">.</span><span class="n">swap</span><span class="p">(</span><span class="m">0</span><span class="p">,</span> <span class="m">2</span><span class="p">)</span> <span class="c1">// 'swap()' 内部的 'this' 得到 'l' 的值
+</span></code></pre>
+</div>
+
+<p>是不是功能强大且代码简洁优雅？当然，扩展并不能真正的修改它所扩展的类。通过定义一个扩展，我们并没有在一个类中插入新的方法，仅仅是可以通过该类型的变量用点表达式来调用这个新函数。
+口说无凭，我们来看看Kotlin编译后的字节码：</p>
+
+<p>定义：</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code> public final class ExtensionKt {
+  // access flags 0x19
+  // signature (Ljava/util/List&lt;Ljava/lang/Integer;&gt;;II)V
+  // declaration: void swap(java.util.List&lt;java.lang.Integer&gt;, int, int)
+  public final static swap(Ljava/util/List;II)V
+    @Lorg/jetbrains/annotations/NotNull;() // invisible, parameter 0
+   L0
+    ALOAD 0
+    LDC "$receiver"
+    INVOKESTATIC kotlin/jvm/internal/Intrinsics.checkParameterIsNotNull (Ljava/lang/Object;Ljava/lang/String;)V
+   L1
+    LINENUMBER 6 L1
+    ALOAD 0
+    ILOAD 1
+    INVOKEINTERFACE java/util/List.get (I)Ljava/lang/Object;
+    CHECKCAST java/lang/Number
+    INVOKEVIRTUAL java/lang/Number.intValue ()I
+    ISTORE 3
+   L2
+    LINENUMBER 7 L2
+    ALOAD 0
+    ILOAD 1
+    ALOAD 0
+    ILOAD 2
+    INVOKEINTERFACE java/util/List.get (I)Ljava/lang/Object;
+    INVOKEINTERFACE java/util/List.set (ILjava/lang/Object;)Ljava/lang/Object;
+    POP
+   L3
+    LINENUMBER 8 L3
+    ALOAD 0
+    ILOAD 2
+    ILOAD 3
+    INVOKESTATIC java/lang/Integer.valueOf (I)Ljava/lang/Integer;
+    INVOKEINTERFACE java/util/List.set (ILjava/lang/Object;)Ljava/lang/Object;
+    POP
+   L4
+    LINENUMBER 9 L4
+    RETURN
+   L5
+    LOCALVARIABLE tmp I L2 L5 3
+    LOCALVARIABLE $receiver Ljava/util/List; L0 L5 0
+    LOCALVARIABLE index1 I L0 L5 1
+    LOCALVARIABLE index2 I L0 L5 2
+    MAXSTACK = 4
+    MAXLOCALS = 4
+
+  // compiled from: extension.kt
+}
+
+</code></pre>
+</div>
+
+<p>使用：</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>   L1
+    LINENUMBER 11 L1
+    ALOAD 1
+    ICONST_0
+    ICONST_2
+    INVOKESTATIC ExtensionKt.swap (Ljava/util/List;II)V
+   L2
+</code></pre>
+</div>
+
+<p>可以看出，Kotlin在编译时会以所在文件名extension创建静态类ExtensionKt，并将定义的扩展方法swap编译成静态方法供外部调用。</p>
+
+<p>在Java中形式大致是这样：</p>
+
+<div class="language-java highlighter-rouge"><pre class="highlight"><code><span class="kd">public</span> <span class="kd">final</span> <span class="kd">class</span> <span class="nc">ExtensionKt</span> <span class="o">{</span>
+   <span class="kd">public</span> <span class="kd">static</span> <span class="kd">final</span> <span class="kt">void</span> <span class="nf">swap</span><span class="o">(</span><span class="nd">@NotNull</span> <span class="n">List</span> <span class="n">list</span><span class="o">,</span> <span class="kt">int</span> <span class="n">index1</span><span class="o">,</span> <span class="kt">int</span> <span class="n">index2</span><span class="o">)</span> <span class="o">{</span>
+      <span class="kt">int</span> <span class="n">tmp</span> <span class="o">=</span> <span class="o">((</span><span class="n">Number</span><span class="o">)</span><span class="n">list</span><span class="o">.</span><span class="na">get</span><span class="o">(</span><span class="n">index1</span><span class="o">)).</span><span class="na">intValue</span><span class="o">();</span>
+      <span class="n">list</span><span class="o">.</span><span class="na">set</span><span class="o">(</span><span class="n">index1</span><span class="o">,</span> <span class="n">receiver</span><span class="o">.</span><span class="na">get</span><span class="o">(</span><span class="n">index2</span><span class="o">));</span>
+      <span class="n">list</span><span class="o">.</span><span class="na">set</span><span class="o">(</span><span class="n">index2</span><span class="o">,</span> <span class="n">Integer</span><span class="o">.</span><span class="na">valueOf</span><span class="o">(</span><span class="n">tmp</span><span class="o">));</span>
+   <span class="o">}</span>
+<span class="o">}</span>
+</code></pre>
+</div>
+
+<p>所以在底层，其实就是我们平时所写的Util工具类，但是Kotlin默认帮我们实现了，我们只需更简洁的编写调用就好了。</p>
+
+<h2 id="npe">安全，避免NPE空指针异常</h2>
+
+<h3 id="section-4">1. 空安全</h3>
+<p>这是一个让人又爱又恨的特性。一直以来，NullPointException空指针异常在开发中是最低级也最致命的问题。我们往往需要进行各种null的判断以试图去避免NPE的发生。Kotlin基于这个问题，提出了一个空安全的概念，即每个属性默认不可为null。</p>
+
+<p>举个例子。</p>
+
+<div class="language-kotlin highlighter-rouge"><pre class="highlight"><code><span class="kd">var</span> <span class="py">a</span><span class="p">:</span> <span class="n">String</span> <span class="p">=</span> <span class="s">"abcd"</span>
+<span class="n">a</span> <span class="p">=</span> <span class="k">null</span> <span class="c1">//编译错误
+</span></code></pre>
+</div>
+
+<p>如果要允许为空，我们需要手动声明一个变量为可空字符串类型，写为<strong>String?</strong></p>
+
+<div class="language-kotlin highlighter-rouge"><pre class="highlight"><code><span class="kd">var</span> <span class="py">a</span><span class="p">:</span> <span class="n">String</span><span class="p">?</span> <span class="p">=</span> <span class="s">"abcd"</span>
+<span class="n">a</span> <span class="p">=</span> <span class="k">null</span> <span class="c1">//编译成功
+</span></code></pre>
+</div>
+
+<p>那怎么实现默认不可为Null呢？
+我们来看一下字节码:</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>  @Lorg/jetbrains/annotations/NotNull;() // invisible
+   L0
+    LINENUMBER 10 L0
+    GETSTATIC PersonKt.a : Ljava/lang/String;
+    ARETURN
+   L1
+
+   //init
+   static &lt;clinit&gt;()V
+   L0
+    LINENUMBER 10 L0
+    LDC "abcd"
+    PUTSTATIC PersonKt.a : Ljava/lang/String;
+    RETURN
+    MAXSTACK = 1
+    MAXLOCALS = 0
+</code></pre>
+</div>
+
+<p>可以看到Kotlin对变量进行了NotNull注解。翻译成Java代码：</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>@NotNull
+String a = "abcd"
+</code></pre>
+</div>
+
+<p>不仅如此，为了避免NPE异常，Kotlin做了一件很有趣的事：当你允许属性可空时，Kotlin编译器将不允许你在未经检查的情况下引用它。</p>
+
+<div class="language-kotlin highlighter-rouge"><pre class="highlight"><code><span class="kd">var</span> <span class="py">person</span><span class="p">:</span> <span class="n">Person</span><span class="p">?</span> <span class="p">=</span> <span class="k">null</span>
+<span class="n">person</span><span class="p">.</span><span class="n">name</span> <span class="p">=</span> <span class="s">"shinelw"</span>  <span class="c1">//编译失败
+</span><span class="n">person</span><span class="o">?.</span><span class="n">name</span> <span class="p">=</span> <span class="s">"shinelw"</span> <span class="c1">//编译成功
+</span></code></pre>
+</div>
+
+<p>如上面的代码所示，当person对象可为null时，必须强制使用 <strong>?.</strong> 来进行null检查。看看 <strong>?.</strong> 在字节码里的样子，</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>    LINENUMBER 13 L1
+    ALOAD 0
+    DUP
+    IFNULL L2
+    LDC "shinelw"
+    INVOKEVIRTUAL Person.setName (Ljava/lang/String;)V
+    GOTO L3
+   L2
+    POP
+   L3
+</code></pre>
+</div>
+
+<p>可见，在person获取name属性的时候进行了null的判断，翻译成java代码：</p>
+
+<div class="language-java highlighter-rouge"><pre class="highlight"><code><span class="n">Person</span> <span class="n">person</span> <span class="o">=</span> <span class="o">(</span><span class="n">Person</span><span class="o">)</span><span class="kc">null</span><span class="o">;</span>
+<span class="k">if</span><span class="o">(</span><span class="n">person</span> <span class="o">!=</span> <span class="kc">null</span><span class="o">)</span> <span class="o">{</span>
+   <span class="n">person</span><span class="o">.</span><span class="na">setName</span><span class="o">(</span><span class="s">"shinelw"</span><span class="o">);</span>
+<span class="o">}</span>
+</code></pre>
+</div>
+
+<p>这么看来，空安全特性的确带来了巨大的好处，极大程度上避免了空指针异常的出现。<em>然而</em>，世上没有十全十美的东西。空安全在开发过程中给我带来了很多幸福的烦恼。举个例子，以前用Java是这样的：</p>
+
+<div class="language-java highlighter-rouge"><pre class="highlight"><code><span class="kd">public</span> <span class="kd">class</span> <span class="nc">A</span> <span class="o">{</span>
+	<span class="n">String</span> <span class="n">a</span><span class="o">;</span>
+	<span class="n">String</span> <span class="n">b</span><span class="o">;</span>
+	<span class="n">String</span> <span class="n">c</span><span class="o">;</span>
+<span class="o">}</span>
+</code></pre>
+</div>
+
+<p>现在呢，Kotlin中是这样的：</p>
+
+<div class="language-kotlin highlighter-rouge"><pre class="highlight"><code><span class="kd">class</span> <span class="nc">A</span> <span class="p">{</span>
+	<span class="kd">var</span> <span class="py">a</span><span class="p">:</span> <span class="n">String</span><span class="p">?</span> <span class="p">=</span> <span class="k">null</span>
+	<span class="kd">var</span> <span class="py">b</span><span class="p">:</span> <span class="n">String</span><span class="p">?</span> <span class="p">=</span> <span class="k">null</span>
+	<span class="kd">var</span> <span class="py">c</span><span class="p">:</span> <span class="n">String</span><span class="p">?</span> <span class="p">=</span> <span class="k">null</span>
+<span class="p">}</span>
+</code></pre>
+</div>
+
+<p>看出区别了吗？</p>
+
+<p>在Kotlin中我们需要在定义变量是就必须给出初始值。开发过程中，很多情况下变量在定义时尚不知道要赋何值的，Kotlin强制初始化赋值让整个代码看起来很“怪异”。对我来说，如果一个变量可为null时，它应该是隐含地就默认给予了null值。</p>
+
+<p>我希望应该是这样的，</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>class A {
+	var a: String?  //默认值为null
+	var b: String?  //默认值为null
+	var c: String?  //默认值为null
+}
+</code></pre>
+</div>
+
+<p>虽然说Kotlin提供了<strong>lateinit</strong>类型懒加载的方式进行初始化，但是也并不能很好的支持全部情况，它只能用于<strong>var</strong>的属性，并且只能在属性没有自定义getter或者setter时候使用。属性的类型必须是非空值，并且它不能使原始类型。</p>
+
+<p>当然，我们换个角度，从语言设计的角度来说，Kotlin这么设计又是很合理的。所有属性要求强制显式的初始化能够更容易的推理代码，明确每个属性在何时何地初始化。</p>
+
+<p>总的来说，空安全机制所做的事情就是，让我们原本在逻辑代码中进行大量判空的工作转移到了初始化上，并很大程度地减轻了工作量。</p>
+
+<h2 id="effective-java">更优雅，遵循Effective Java设计</h2>
+<p>### 1. 类默认不可继承
+《Effective Java》提出一种观点：组合优于继承，避免滥用继承。要么为继承而设计，并提供文档说明，要么就禁止继承。至于为什么这么说呢，我见过一句话很形象：摊开来的代码，比叠起来的代码，更加一目了然。详细可以自行阅读《Effective Java》。</p>
+
+<p>Kotlin默认类是final类型的，即每个类默认不可继承。只有你真的需要继承的时候，再通过<strong>open</strong>声明使用，声明方式如下：</p>
+
+<div class="language-kotlin highlighter-rouge"><pre class="highlight"><code><span class="k">open</span> <span class="kd">class</span> <span class="nc">A</span>
+</code></pre>
+</div>
+
+<h3 id="section-5">2. 更有效地使用构建器模式</h3>
+<p>我们建议使用构建器模式，当Java的构造器存在多个可选的参数时，情况就会变得很复杂，代码冗长，也更容易出错。Kotlin提供了一种更有效的构造器方式，通过默认参数的功能实现。</p>
+
+<div class="language-kotlin highlighter-rouge"><pre class="highlight"><code><span class="kd">data class</span> <span class="nc">Person</span><span class="p">(</span><span class="kd">var</span> <span class="py">name</span><span class="p">:</span> <span class="n">String</span><span class="p">,</span>
+					 <span class="kd">var</span> <span class="py">age</span><span class="p">:</span> <span class="n">Int</span> <span class="p">=</span> <span class="m">18</span><span class="p">,</span>
+					 <span class="kd">var</span> <span class="py">sex</span><span class="p">:</span> <span class="n">Int</span> <span class="p">=</span> <span class="m">0</span><span class="p">,</span>
+					 <span class="kd">var</span> <span class="py">height</span><span class="p">:</span> <span class="n">Float</span> <span class="p">=</span> <span class="m">1.8f</span>
+					 <span class="kd">var</span> <span class="py">weight</span><span class="p">:</span> <span class="n">Float</span> <span class="p">=</span> <span class="m">60f</span><span class="p">)</span>
+
+<span class="c1">//创建对象
+</span><span class="kd">val</span> <span class="py">person</span><span class="p">:</span> <span class="n">Person</span> <span class="p">=</span> <span class="n">Person</span><span class="p">(</span><span class="n">name</span><span class="p">=</span><span class="s">"shinelw"</span><span class="p">,</span>
+								 <span class="n">age</span> <span class="p">=</span> <span class="m">10</span><span class="p">,</span>
+								 <span class="n">height</span> <span class="p">=</span> <span class="m">1.7f</span><span class="p">)</span>
+</code></pre>
+</div>
+
+<h3 id="section-6">3. 单例模式</h3>
+<p>Kotlin默认提供了单例模式的模板，通过<strong>object</strong>关键字即可实现。</p>
+
+<div class="language-kotlin highlighter-rouge"><pre class="highlight"><code><span class="kd">object</span> <span class="nc">Singleton</span> <span class="p">{</span>
+	<span class="c1">//各种函数
+</span>	<span class="k">fun</span> <span class="nf">a</span><span class="p">(){</span><span class="o">..</span><span class="p">.}</span>
+	<span class="o">..</span><span class="p">.</span>
+<span class="p">}</span>
+
+<span class="c1">//使用时
+</span><span class="n">Singleton</span><span class="p">.</span><span class="n">a</span><span class="p">()</span>
+</code></pre>
+</div>
+
+<p>完全不需要手动构建，看上去很好。但是我有一点质疑，它是不是线程安全的，是不是懒加载的。随后通过Kotlin编译器得到字节码，然后再反编译回Java代码。是长这样子的：</p>
+
+<div class="language-java highlighter-rouge"><pre class="highlight"><code><span class="kd">public</span> <span class="kd">class</span> <span class="nc">Singleton</span> <span class="o">{</span>
+   <span class="kd">public</span> <span class="kd">static</span> <span class="kd">final</span> <span class="n">Singleton</span> <span class="n">INSTANCE</span><span class="o">;</span>
+
+   <span class="kd">public</span> <span class="kd">final</span> <span class="kt">void</span> <span class="nf">a</span><span class="o">()</span> <span class="o">{</span>
+   <span class="o">}</span>
+
+   <span class="kd">private</span> <span class="nf">Singleton</span><span class="o">()</span> <span class="o">{</span>
+      <span class="n">INSTANCE</span> <span class="o">=</span> <span class="o">(</span><span class="n">Singleton</span><span class="o">)</span><span class="k">this</span><span class="o">;</span>
+   <span class="o">}</span>
+
+   <span class="kd">static</span> <span class="o">{</span>
+      <span class="k">new</span> <span class="nf">Singleton</span><span class="o">();</span>
+   <span class="o">}</span>
+<span class="o">}</span>
+</code></pre>
+</div>
+
+<p>糟糕的是，从上面代码可以看出，Kotlin的<strong>object</strong>只是一个最简单的饿汉式的单例模式。在第一次加载类到内存的时候就会初始化，虽然它是线程安全的，但是不完美，对吗？</p>
+
+<p>如果你是一个追求完美的人，下面是类似于静态内部类方式实现的单例模式，懒加载且线程安全。缺点是跟Java一样，需要手动构建。：)</p>
+
+<div class="language-kotlin highlighter-rouge"><pre class="highlight"><code><span class="kd">class</span> <span class="nc">Singleton</span> <span class="k">private</span> <span class="k">constructor</span><span class="p">(){</span>
+    <span class="k">companion</span> <span class="kd">object</span> <span class="err">{
+        </span><span class="nc">fun</span> <span class="n">getInstance</span><span class="p">():</span> <span class="n">Singleton</span> <span class="p">{</span>
+            <span class="k">return</span> <span class="n">SingletonHolder</span><span class="p">.</span><span class="n">instance</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+    <span class="k">private</span> <span class="kd">object</span> <span class="nc">SingletonHolder</span> <span class="p">{</span>
+        <span class="kd">val</span> <span class="py">instance</span><span class="p">:</span> <span class="n">Singleton</span> <span class="p">=</span> <span class="n">Singleton</span><span class="p">()</span>
+    <span class="p">}</span>
+
+    <span class="c1">//各种函数..
+</span>    <span class="k">fun</span> <span class="nf">a</span><span class="p">(){}</span>
+<span class="p">}</span>
+</code></pre>
+</div>
+
+<h3 id="override">4. 重载必须使用override</h3>
+
+<p>Java中对于重载的注解@Override不是强制的，一旦项目代码很复杂，这将是一场灾难。当你分不清哪些是重载方法时，对方法进行参数修改是灾难性的。Kotlin基于这点，要求重载方法时必须加上<strong>override</strong>关键字。如果没写，编译器将会报错，强制你加上。</p>
+
+<div class="language-kotlin highlighter-rouge"><pre class="highlight"><code><span class="k">override</span> <span class="k">fun</span> <span class="nf">a</span><span class="p">(){</span><span class="o">..</span><span class="p">.}</span>
+</code></pre>
+</div>
+
+<h2 id="java">完全兼容，与Java互操作</h2>
+<p>这是Kotlin与Scala相比，优势突出的一点。我们可以在Kotlin中调用现存的Java代码，并且也能在Java代码中顺利的调用Kotlin代码。这意味着我们可以马上在现有的Java项目中使用上Kotlin，同时所有之前旧的Java也一样有效。</p>
+
+<p>这是很关键，也是我之所以很看好Kotlin的一个原因。</p>
+
+<p>至于怎么相互调用操作，请大家看官方文档关于<a href="http://kotlinlang.org/docs/reference/java-interop.html">Java互操作</a>的部分。</p>
+
+<p><em>这里只说一个方面，关于空安全方面。</em></p>
+
+<p>因为Java中的任何应用都可以为null，但是在Kotlin中是默认不可为null的，这使得Kotlin对来自Java的对象要求严格空安全是不现实的。Java声明的类型在Kotlin中会被特别对待，称之为<strong>平台类型</strong>。对这种类型的空检查会放宽，因此他们的安全保证与Java中是相同的。</p>
+
+<p>看下面的例子：</p>
+
+<div class="language-java highlighter-rouge"><pre class="highlight"><code><span class="kd">public</span> <span class="kd">class</span> <span class="nc">Person</span><span class="o">{</span>
+	<span class="kd">public</span> <span class="n">String</span> <span class="nf">getName</span><span class="o">(){</span>
+		 <span class="k">return</span> <span class="kc">null</span><span class="o">;</span>
+	<span class="o">}</span>
+<span class="o">}</span>
+</code></pre>
+</div>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>val person = Person()
+val name = person.name // 编译通过 运行值为null
+</code></pre>
+</div>
+
+<p>name本是非null变量，因为调用Java对象所以变成平台类型，放宽了类型空检查。</p>
+
+<p>当然，如果你想要延续Kotlin严格空安全机制的话，可是有办法滴。我们需要在编写Java代码时加上@NotNull注解，这个很熟悉吧，在介绍空安全机制的时候说过Kotlin在实现默认非null属性就是这么实现的。然后代码就变成了这样，</p>
+
+<div class="language-java highlighter-rouge"><pre class="highlight"><code><span class="kd">public</span> <span class="kd">class</span> <span class="nc">Person</span><span class="o">{</span>
+	<span class="kd">public</span> <span class="nd">@NotNull</span> <span class="n">String</span> <span class="nf">getName</span><span class="o">(){</span>
+		 <span class="k">return</span> <span class="kc">null</span><span class="o">;</span>
+	<span class="o">}</span>
+<span class="o">}</span>
+</code></pre>
+</div>
+
+<p>然后在运行的时候就会报以下的错误：</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>Exception in thread "main" java.lang.IllegalStateException: @NotNull method Person.getName must not return null
+	at Person.$$$reportNull$$$0(Person.java)
+	at Person.getName(Person.java:9)
+	at MainKt.main(main.kt:7)
+	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:62)
+	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at java.lang.reflect.Method.invoke(Method.java:498)
+	at com.intellij.rt.execution.application.AppMain.main(AppMain.java:147)
+</code></pre>
+</div>
+
+<h2 id="section-7">总结</h2>
+<p>总而言之，经过短短一个月的Kotlin使用，在实际项目中开发展现出的特性应用是让我感到兴奋的。作为一名开发者，在我眼里，Kotlin设计出来不是抛开Java谈的，而是在Java的毛病的基础上，进行的再开发，拥有很多其他语言优秀的特性，同时完全兼容Java。毕竟，对于一家大企业来讲，为了一门新语言完全摒弃一个很成熟的项目进行再开发是不现实的。相反的是，对于项目中Java难于处理的逻辑，Kotlin的优势一览无余，相辅相成，Kotlin和Java配合使用时目前最完美的方案。</p>
+
+<p>但不可否认的是，Kotlin真的让人感到潜力十足，值得大家去试一试。</p>
+
+                <a id="article-end-anchor"></a>
+                <hr>
+                <!-- clear float -->
+                <div style="float:left">
+                    <a rel="license" href="http://creativecommons.org/licenses/by-nc-nd/4.0/">
+                        <img alt="知识共享许可协议" style="border-width:0, " src="https://i.creativecommons.org/l/by-nc-nd/4.0/88x31.png" />
+                    </a>
+                </div>
+                <div style="clear:both">
+                    本文采用<a rel="license" href="http://creativecommons.org/licenses/by-nc-nd/4.0/">知识共享署名-非商业性使用-禁止演绎 4.0 国际许可协议</a>进行许可，转载请务必注明作者以及原文出处链接。
+                </div>
+                <hr> 
+
+
+                <ul class="pager">
+                    
+                    <li class="previous">
+                        <a href="/2016/05/29/andfix-a-hot-fix-solution/" data-toggle="tooltip" data-placement="top" title="AndFix - 热修复方案原理分析">
+                        Previous<br>
+                        <span>AndFix - 热修复方案原理分析</span>
+                        </a>
+                    </li>
+                     
+                    <li class="next">
+                        <a href="/2017/03/20/kotlin-compiler-process-analysis/" data-toggle="tooltip" data-placement="top" title="Kotlin编译过程分析">
+                        Next<br>
+                        <span>Kotlin编译过程分析</span>
+                        </a>
+                    </li>
+                    
+                </ul>
+
+
+                 
+                <!-- disqus 评论框 start -->
+                <div class="comment">
+                    <div id="disqus_thread" class="disqus-thread"></div>
+                </div>
+                <!-- disqus 评论框 end -->
+                
+
+            </div>
+
+            <!-- Side Catalog Container -->
+            
+            <div class="
+                col-lg-2 col-lg-offset-0
+                visible-lg-block
+                sidebar-container
+                catalog-container">
+                <div class="side-catalog">
+                    <hr class="hidden-sm hidden-xs">
+                    <h5>
+                        <a class="catalog-toggle" href="#">CATALOG</a>
+                    </h5>
+                    <ul class="catalog-body"></ul>
+                </div>
+            </div>
+            
+
+            <!-- Sidebar Container -->
+            <div class="
+                col-lg-8 col-lg-offset-2
+                col-md-10 col-md-offset-1
+                sidebar-container">
+
+                <!-- Featured Tags -->
+                
+                <section>
+                    <hr class="hidden-sm hidden-xs">
+                    <h5><a href="/tags/">FEATURED TAGS</a></h5>
+                    <div class="tags">
+                         
+                        <a href="/tags/#随笔" title="随笔" rel="1">
+                                    随笔
+                                </a>   
+                        <a href="/tags/#设计模式" title="设计模式" rel="3">
+                                    设计模式
+                                </a>   
+                        <a href="/tags/#Android组件" title="Android组件" rel="1">
+                                    Android组件
+                                </a>   
+                        <a href="/tags/#读书笔记" title="读书笔记" rel="1">
+                                    读书笔记
+                                </a>   
+                        <a href="/tags/#AndroidStudio" title="AndroidStudio" rel="2">
+                                    AndroidStudio
+                                </a>   
+                        <a href="/tags/#Ubuntu" title="Ubuntu" rel="1">
+                                    Ubuntu
+                                </a>   
+                        <a href="/tags/#工具" title="工具" rel="1">
+                                    工具
+                                </a>   
+                        <a href="/tags/#抓包" title="抓包" rel="1">
+                                    抓包
+                                </a>   
+                        <a href="/tags/#Android逆向分析" title="Android逆向分析" rel="1">
+                                    Android逆向分析
+                                </a>   
+                        <a href="/tags/#Android" title="Android" rel="1">
+                                    Android
+                                </a>   
+                        <a href="/tags/#HotFix" title="HotFix" rel="1">
+                                    HotFix
+                                </a>   
+                        <a href="/tags/#Kotlin" title="Kotlin" rel="4">
+                                    Kotlin
+                                </a>  
+                    </div>
+                </section>
+                
+
+                <!-- Friends Blog -->
+                
+                <hr>
+                <h5>FRIENDS</h5>
+                <ul class="list-inline">
+                    
+                        <li><a href="http://shinelw.com">Shinelw Blog</a></li>
+                    
+                </ul>
+                
+            </div>
+        </div>
+    </div>
+</article>
+
+
+ 
+<!-- disqus 公共JS代码 start (一个网页只需插入一次) -->
+<script type="text/javascript">
+    /* * * CONFIGURATION VARIABLES * * */
+    var disqus_shortname = "shinelw";
+    var disqus_identifier = "/2017/03/18/kotlin-apply-in-coding";
+    var disqus_title = "谈谈Kotlin特性在开发中的应用"
+    var disqus_url = "http://shinelw.com/2017/03/18/kotlin-apply-in-coding/";
+
+    (function() {
+        var dsq = document.createElement('script');
+        dsq.type = 'text/javascript';
+        dsq.async = true;
+        dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+        (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    })();
+</script>
+<!-- disqus 公共JS代码 end -->
+ 
+<!-- async load function -->
+<script>
+    function async(u, c) {
+        var d = document,
+            t = 'script',
+            o = d.createElement(t),
+            s = d.getElementsByTagName(t)[0];
+        o.src = u;
+        if (c) {
+            o.addEventListener('load', function(e) {
+                c(null, e);
+            }, false);
+        }
+        s.parentNode.insertBefore(o, s);
+    }
+</script>
+<!-- anchor-js, Doc:http://bryanbraun.github.io/anchorjs/ -->
+<script>
+    async("http://cdn.bootcss.com/anchor-js/1.1.1/anchor.min.js", function() {
+        anchors.options = {
+            visible: 'always',
+            placement: 'right',
+            icon: '#'
+        };
+        anchors.add().remove('.intro-header h1').remove('.subheading').remove('.sidebar-container h5');
+    })
+</script>
+<style>
+    /* place left on bigger screen */
+
+    @media all and (min-width: 800px) {
+        .anchorjs-link {
+            position: absolute;
+            left: -0.75em;
+            font-size: 1.1em;
+            margin-top: -0.1em;
+        }
+    }
+</style>
+
+
+
+    
+<!-- busuanzi -->
+<script async src="//dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+<!-- Footer -->
+<footer>
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                <ul class="list-inline text-center">
+                    
+                    <li>
+                        <a href="/feed.xml">
+                            <span class="fa-stack fa-lg">
+                                <i class="fa fa-circle fa-stack-2x"></i>
+                                <i class="fa fa-rss fa-stack-1x fa-inverse"></i>
+                            </span>
+                        </a>
+                    </li>
+                    
+                    
+
+                    <!-- add Weibo, Zhihu by Hux, add target = "_blank" to <a> by Hux -->
+                    
+                    <li>
+                        <a target="_blank" href="https://www.zhihu.com/people/shinelw">
+                            <span class="fa-stack fa-lg">
+                                <i class="fa fa-circle fa-stack-2x"></i>
+                                <i class="fa  fa-stack-1x fa-inverse">知</i>
+                            </span>
+                        </a>
+                    </li>
+                    
+                    
+                    <li>
+                        <a target="_blank" href="http://weibo.com/shenliangwei">
+                            <span class="fa-stack fa-lg">
+                                <i class="fa fa-circle fa-stack-2x"></i>
+                                <i class="fa fa-weibo fa-stack-1x fa-inverse"></i>
+                            </span>
+                        </a>
+                    </li>
+                    
+
+
+                    
+                    
+                    <li>
+                        <a target="_blank" href="https://github.com/Shinelw">
+                            <span class="fa-stack fa-lg">
+                                <i class="fa fa-circle fa-stack-2x"></i>
+                                <i class="fa fa-github fa-stack-1x fa-inverse"></i>
+                            </span>
+                        </a>
+                    </li>
+                    
+                </ul>
+                <p class="copyright text-muted">
+                    Copyright &copy; Shinelw Blog 2017
+                    <br>
+                     Theme by <a href="http://huangxuan.me">Hux</a>
+                    <span style="display: inline-block; margin: 0 5px;">
+                        <i class="fa fa-heart"></i>
+                    </span>
+                    <span id="busuanzi_container_site_pv">
+                        PV: <span id="busuanzi_value_site_pv"></span>
+                    </span>
+                    <span id="busuanzi_container_site_uv">
+                        UV: <span id="busuanzi_value_site_uv"></span>
+                    </span>
+                    <br>
+                    Blog is licensed under <a rel="license" href="http://creativecommons.org/licenses/by-nc-nd/4.0/">CC BY-NC-ND 4.0</a>
+                </p>
+            </div>
+        </div>
+    </div>
+</footer>
+
+<!-- jQuery -->
+<script src="/js/jquery.min.js "></script>
+
+<!-- Bootstrap Core JavaScript -->
+<script src="/js/bootstrap.min.js "></script>
+
+<!-- Custom Theme JavaScript -->
+<script src="/js/shinelw-blog.min.js "></script>
+
+
+<!-- async load function -->
+<script>
+    function async(u, c) {
+      var d = document, t = 'script',
+          o = d.createElement(t),
+          s = d.getElementsByTagName(t)[0];
+      o.src = u;
+      if (c) { o.addEventListener('load', function (e) { c(null, e); }, false); }
+      s.parentNode.insertBefore(o, s);
+    }
+</script>
+
+<!--
+     Because of the native support for backtick-style fenced code blocks
+     right within the Markdown is landed in Github Pages,
+     From V1.6, There is no need for Highlight.js,
+     so Huxblog drops it officially.
+
+     - https://github.com/blog/2100-github-pages-now-faster-and-simpler-with-jekyll-3-0
+     - https://help.github.com/articles/creating-and-highlighting-code-blocks/
+     - https://github.com/jneen/rouge/wiki/list-of-supported-languages-and-lexers
+-->
+<!--
+    <script>
+        async("http://cdn.bootcss.com/highlight.js/8.6/highlight.min.js", function(){
+            hljs.initHighlightingOnLoad();
+        })
+    </script>
+    <link href="http://cdn.bootcss.com/highlight.js/8.6/styles/github.min.css" rel="stylesheet">
+-->
+
+
+<!-- jquery.tagcloud.js -->
+<script>
+    // only load tagcloud.js in tag.html
+    if($('#tag_cloud').length !== 0){
+        async("/js/jquery.tagcloud.js",function(){
+            $.fn.tagcloud.defaults = {
+                //size: {start: 1, end: 1, unit: 'em'},
+                color: {start: '#bbbbee', end: '#0085a1'},
+            };
+            $('#tag_cloud a').tagcloud();
+        })
+    }
+</script>
+
+<!--fastClick.js -->
+<script>
+    async("http://cdn.bootcss.com/fastclick/1.0.6/fastclick.min.js", function(){
+        var $nav = document.querySelector("nav");
+        if($nav) FastClick.attach($nav);
+    })
+</script>
+
+
+<!-- Google Analytics -->
+
+<script>
+    // dynamic User by Hux
+    var _gaId = 'UA-76180718-1';
+    var _gaDomain = 'shinelw.com';
+
+    // Originial
+    (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+    (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+    m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+    })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+    ga('create', _gaId, _gaDomain);
+    ga('send', 'pageview');
+</script>
+
+
+
+<!-- Baidu Tongji -->
+
+<script>
+    // dynamic User by Hux
+    var _baId = 'fdssdfafadsfadsf';
+
+    // Originial
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "//hm.baidu.com/hm.js?" + _baId;
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+</script>
+
+
+
+
+<!-- Side Catalog -->
+
+<script type="text/javascript">
+    function generateCatalog (selector) {
+        var P = $('div.post-container'),a,n,t,l,i,c;
+        a = P.find('h1,h2,h3,h4,h5,h6');
+        a.each(function () {
+            n = $(this).prop('tagName').toLowerCase();
+            i = "#"+$(this).prop('id');
+            t = $(this).text();
+            c = $('<a href="'+i+'" rel="nofollow">'+t+'</a>');
+            l = $('<li class="'+n+'_nav"></li>').append(c);
+            $(selector).append(l);
+        });
+        return true;
+    }
+
+    generateCatalog(".catalog-body");
+
+    // toggle side catalog
+    $(".catalog-toggle").click((function(e){
+        e.preventDefault();
+        $('.side-catalog').toggleClass("fold")
+    }))
+
+    /*
+     * Doc: https://github.com/davist11/jQuery-One-Page-Nav
+     * Fork by Hux to support padding
+     */
+    async("/js/jquery.nav.js", function () {
+        $('.catalog-body').onePageNav({
+            currentClass: "active",
+            changeHash: !1,
+            easing: "swing",
+            filter: "",
+            scrollSpeed: 700,
+            scrollOffset: 100,
+            scrollThreshold: 0,
+            begin: null,
+            end: null,
+            scrollChange: null,
+            endSelector: '#article-end-anchor',
+            unbindSelector: null
+        });
+    });
+</script>
+
+
+
+
+<!-- Image to hack wechat -->
+<img src="/img/icon_wechat.png" width="0" height="0" />
+<!-- Migrate from head to bottom, no longer block render and still work -->
+
+</body>
+
+</html>
