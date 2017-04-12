@@ -5,16 +5,16 @@
     <description>好好学习天天向上。</description>
     <link>http://shinelw.com/</link>
     <atom:link href="http://shinelw.com/feed.xml" rel="self" type="application/rss+xml" />
-    <pubDate>Wed, 12 Apr 2017 02:27:03 +0800</pubDate>
-    <lastBuildDate>Wed, 12 Apr 2017 02:27:03 +0800</lastBuildDate>
-    <generator>Jekyll v3.1.6</generator>
+    <pubDate>Wed, 12 Apr 2017 11:16:59 +0800</pubDate>
+    <lastBuildDate>Wed, 12 Apr 2017 11:16:59 +0800</lastBuildDate>
+    <generator>Jekyll v3.4.2</generator>
     
       <item>
         <title>Kotlin新特性之JavaScript支持</title>
-        <description>&lt;h1 id=&quot;kotlinjavascript&quot;&gt;Kotlin新特性之JavaScript支持&lt;/h1&gt;
+        <description>&lt;h1 id=&quot;kotlin新特性之javascript支持&quot;&gt;Kotlin新特性之JavaScript支持&lt;/h1&gt;
 &lt;p&gt;Kotlin1.1版本正式加入了对JavaScript的支持，也就是说我们可以Kotlin进行网页开发，并且Kotlin也支持了与JavaScript的相互操作。众所周知，JavaScript是动态类型的语言，而相对来说，Kotlin和Java都是静态类型的。同时，两者在编译运行也很不一样，Java更偏向与编译型语言，而JavaScript更偏向于解释型语言。所以，在Kotlin完美兼容Java的同时，增加了JavaScript的支持，让人好奇不已。接下来，我们就来谈谈Kotlin是如何支持JavaScript，以及它是怎么实现的。&lt;/p&gt;
 
-&lt;h2 id=&quot;kotlinjavascript-1&quot;&gt;Kotlin转JavaScript&lt;/h2&gt;
+&lt;h2 id=&quot;kotlin转javascript&quot;&gt;Kotlin转JavaScript&lt;/h2&gt;
 &lt;p&gt;我们先通过一个简单的例子说明Kotlin如何支持JavaScript。
 定义以下Kotlin代码：&lt;/p&gt;
 
@@ -38,20 +38,20 @@
 
 &lt;p&gt;接下来，我们来看看上述Kotlin代码转成JavaScript的等价代码，即KotlinJaSample.js。&lt;/p&gt;
 
-&lt;div class=&quot;language-kotlin highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;k&quot;&gt;if&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;typeof&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;kotlin&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;===&lt;/span&gt; &lt;span class=&quot;err&quot;&gt;&#39;&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;undefined&lt;/span&gt;&lt;span class=&quot;err&quot;&gt;&#39;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
-  &lt;span class=&quot;k&quot;&gt;throw&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;new&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;Error&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;Error loading module &#39;KotlinJsSample&#39;. Its dependency &#39;kotlin&#39; was not found. Please, check whether &#39;kotlin&#39; is loaded prior to &#39;KotlinJsSample&#39;.&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;);&lt;/span&gt;
+&lt;div class=&quot;language-kotlin highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;k&quot;&gt;if&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;typeof&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;kotlin&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;===&lt;/span&gt; &lt;span class=&quot;err&quot;&gt;'&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;undefined&lt;/span&gt;&lt;span class=&quot;err&quot;&gt;'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
+  &lt;span class=&quot;k&quot;&gt;throw&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;new&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;Error&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;Error loading module 'KotlinJsSample'. Its dependency 'kotlin' was not found. Please, check whether 'kotlin' is loaded prior to 'KotlinJsSample'.&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;);&lt;/span&gt;
 &lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
 &lt;span class=&quot;kd&quot;&gt;var&lt;/span&gt; &lt;span class=&quot;py&quot;&gt;KotlinJsSample&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;function&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;_&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;Kotlin&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
-  &lt;span class=&quot;err&quot;&gt;&#39;&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;use&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;strict&lt;/span&gt;&lt;span class=&quot;err&quot;&gt;&#39;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+  &lt;span class=&quot;err&quot;&gt;'&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;use&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;strict&lt;/span&gt;&lt;span class=&quot;err&quot;&gt;'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
   &lt;span class=&quot;kd&quot;&gt;var&lt;/span&gt; &lt;span class=&quot;py&quot;&gt;println&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;Kotlin&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;kotlin&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;io&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;println_s8jyv4&lt;/span&gt;&lt;span class=&quot;err&quot;&gt;$&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
   &lt;span class=&quot;n&quot;&gt;function&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;main&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;args&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
-    &lt;span class=&quot;n&quot;&gt;println&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;err&quot;&gt;&#39;&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;Hello&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;JavaScript&lt;/span&gt;&lt;span class=&quot;err&quot;&gt;&#39;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;);&lt;/span&gt;
+    &lt;span class=&quot;n&quot;&gt;println&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;err&quot;&gt;'&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;Hello&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;JavaScript&lt;/span&gt;&lt;span class=&quot;err&quot;&gt;'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;);&lt;/span&gt;
   &lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
   &lt;span class=&quot;n&quot;&gt;_&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;main_kand9s&lt;/span&gt;&lt;span class=&quot;err&quot;&gt;$&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;main&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
-  &lt;span class=&quot;n&quot;&gt;Kotlin&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;defineModule&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;err&quot;&gt;&#39;&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;KotlinJsSample&lt;/span&gt;&lt;span class=&quot;err&quot;&gt;&#39;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;_&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;);&lt;/span&gt;
+  &lt;span class=&quot;n&quot;&gt;Kotlin&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;defineModule&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;err&quot;&gt;'&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;KotlinJsSample&lt;/span&gt;&lt;span class=&quot;err&quot;&gt;'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;_&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;);&lt;/span&gt;
   &lt;span class=&quot;n&quot;&gt;main&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;([]);&lt;/span&gt;
   &lt;span class=&quot;k&quot;&gt;return&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;_&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
-&lt;span class=&quot;p&quot;&gt;}(&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;typeof&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;KotlinJsSample&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;===&lt;/span&gt; &lt;span class=&quot;err&quot;&gt;&#39;&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;undefined&lt;/span&gt;&lt;span class=&quot;err&quot;&gt;&#39;&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;?&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{}&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;KotlinJsSample&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;kotlin&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;);&lt;/span&gt;
+&lt;span class=&quot;p&quot;&gt;}(&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;typeof&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;KotlinJsSample&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;===&lt;/span&gt; &lt;span class=&quot;err&quot;&gt;'&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;undefined&lt;/span&gt;&lt;span class=&quot;err&quot;&gt;'&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;?&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{}&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;KotlinJsSample&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;kotlin&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;);&lt;/span&gt;
 &lt;/code&gt;&lt;/pre&gt;
 &lt;/div&gt;
 
@@ -141,13 +141,13 @@
 
 &lt;p&gt;通过以上的分析，我们知道了从Kotlin的&lt;code class=&quot;highlighter-rouge&quot;&gt;println&lt;/code&gt;等价到JavaScript的功能，Kotlin的标准库&lt;code class=&quot;highlighter-rouge&quot;&gt;kotlin.js&lt;/code&gt;充当了一个中间人的角色，封装了大量函数方法，这些函数与Kotlin语法更为接近。一方面让Kotlin编译器将Kotlin代码转成JavaScript时，工作量更少，只需与&lt;code class=&quot;highlighter-rouge&quot;&gt;kotlin.js&lt;/code&gt;中进行对应；另一方面，减少产生重复多余的代码，&lt;code class=&quot;highlighter-rouge&quot;&gt;kotlin.js&lt;/code&gt;标准库封装了大量公共方法，让转换后的代码更加简洁可读。&lt;/p&gt;
 
-&lt;h2 id=&quot;kotlinjavascript-2&quot;&gt;Kotlin与JavaScript互操作&lt;/h2&gt;
+&lt;h2 id=&quot;kotlin与javascript互操作&quot;&gt;Kotlin与JavaScript互操作&lt;/h2&gt;
 &lt;p&gt;在谈Kotlin和JavaScript互操作之前，先吐槽一句，跟Java互操作相比，真心不方便，并且局限性挺大的。原因在于，Kotlin-Java模式中它将Java类视为Kotlin类，并且Java类也将Kotlin类进行Java类，所以在两者进行互操作的时候，是基本不要额外的改变的。然而，我们知道JavaScript是一种动态类型语言，而Kotlin是静态类型语言，可以说它们两者是区别挺大的，也就不能跟Java一样，自由的进行互操作。&lt;/p&gt;
 
-&lt;h3 id=&quot;kotlinjavascript-3&quot;&gt;Kotlin中调用JavaScript&lt;/h3&gt;
+&lt;h3 id=&quot;kotlin中调用javascript&quot;&gt;Kotlin中调用JavaScript&lt;/h3&gt;
 &lt;p&gt;在Kotlin代码中，如果想要调用JavaScript代码，基本上有两种方式：&lt;code class=&quot;highlighter-rouge&quot;&gt;js()&lt;/code&gt;内联模式和头文件模式。&lt;/p&gt;
 
-&lt;h4 id=&quot;jsjavascript&quot;&gt;js()内联JavaScript&lt;/h4&gt;
+&lt;h4 id=&quot;js内联javascript&quot;&gt;js()内联JavaScript&lt;/h4&gt;
 &lt;p&gt;我们可以使用&lt;code class=&quot;highlighter-rouge&quot;&gt;js(&quot;...&quot;)&lt;/code&gt;函数将一些JavaScript代码直接嵌入到Kotlin代码中。但是，有一点要求，js函数的参数必须是字符串常量。&lt;/p&gt;
 
 &lt;p&gt;举个例子：&lt;/p&gt;
@@ -163,20 +163,20 @@
 
 &lt;p&gt;编译转换成JavaScript代码，&lt;/p&gt;
 
-&lt;div class=&quot;language-js highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;k&quot;&gt;if&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;typeof&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;kotlin&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;===&lt;/span&gt; &lt;span class=&quot;s1&quot;&gt;&#39;undefined&#39;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
-  &lt;span class=&quot;k&quot;&gt;throw&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;new&lt;/span&gt; &lt;span class=&quot;nb&quot;&gt;Error&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;Error loading module &#39;KotlinJsSample&#39;. Its dependency &#39;kotlin&#39; was not found. Please, check whether &#39;kotlin&#39; is loaded prior to &#39;KotlinJsSample&#39;.&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;);&lt;/span&gt;
+&lt;div class=&quot;language-js highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;k&quot;&gt;if&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;typeof&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;kotlin&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;===&lt;/span&gt; &lt;span class=&quot;s1&quot;&gt;'undefined'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
+  &lt;span class=&quot;k&quot;&gt;throw&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;new&lt;/span&gt; &lt;span class=&quot;nb&quot;&gt;Error&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;Error loading module 'KotlinJsSample'. Its dependency 'kotlin' was not found. Please, check whether 'kotlin' is loaded prior to 'KotlinJsSample'.&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;);&lt;/span&gt;
 &lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
 &lt;span class=&quot;kd&quot;&gt;var&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;KotlinJsSample&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;kd&quot;&gt;function&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;_&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;Kotlin&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
-  &lt;span class=&quot;s1&quot;&gt;&#39;use strict&#39;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+  &lt;span class=&quot;s1&quot;&gt;'use strict'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
   &lt;span class=&quot;kd&quot;&gt;function&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;main&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;args&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
-    &lt;span class=&quot;kd&quot;&gt;var&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;message&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;s1&quot;&gt;&#39;Hello JavaScript&#39;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+    &lt;span class=&quot;kd&quot;&gt;var&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;message&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;s1&quot;&gt;'Hello JavaScript'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
     &lt;span class=&quot;nx&quot;&gt;console&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;log&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;message&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;);&lt;/span&gt;
   &lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
   &lt;span class=&quot;nx&quot;&gt;_&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;main_kand9s$&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;main&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
-  &lt;span class=&quot;nx&quot;&gt;Kotlin&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;defineModule&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s1&quot;&gt;&#39;KotlinJsSample&#39;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;_&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;);&lt;/span&gt;
+  &lt;span class=&quot;nx&quot;&gt;Kotlin&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;defineModule&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s1&quot;&gt;'KotlinJsSample'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;_&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;);&lt;/span&gt;
   &lt;span class=&quot;nx&quot;&gt;main&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;([]);&lt;/span&gt;
   &lt;span class=&quot;k&quot;&gt;return&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;_&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
-&lt;span class=&quot;p&quot;&gt;}(&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;typeof&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;KotlinJsSample&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;===&lt;/span&gt; &lt;span class=&quot;s1&quot;&gt;&#39;undefined&#39;&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;?&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{}&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;KotlinJsSample&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;kotlin&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;);&lt;/span&gt;
+&lt;span class=&quot;p&quot;&gt;}(&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;typeof&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;KotlinJsSample&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;===&lt;/span&gt; &lt;span class=&quot;s1&quot;&gt;'undefined'&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;?&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{}&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;KotlinJsSample&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;kotlin&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;);&lt;/span&gt;
 
 &lt;/code&gt;&lt;/pre&gt;
 &lt;/div&gt;
@@ -199,8 +199,8 @@
 &lt;div class=&quot;language-js highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;p&quot;&gt;...&lt;/span&gt;
 
 &lt;span class=&quot;kd&quot;&gt;function&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;main&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;args&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
-  &lt;span class=&quot;kd&quot;&gt;var&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;message&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;s1&quot;&gt;&#39;Hello JavaScript&#39;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
-  &lt;span class=&quot;kd&quot;&gt;var&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;console&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;s1&quot;&gt;&#39;console.&#39;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+  &lt;span class=&quot;kd&quot;&gt;var&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;message&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;s1&quot;&gt;'Hello JavaScript'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+  &lt;span class=&quot;kd&quot;&gt;var&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;console&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;s1&quot;&gt;'console.'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
   &lt;span class=&quot;nx&quot;&gt;console&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;log&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;message&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;);&lt;/span&gt;
 &lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
 
@@ -219,7 +219,7 @@
 
 &lt;p&gt;可以看到，若参数不是字符串常量，比如以上例子，Kotlin编译器会对&lt;code class=&quot;highlighter-rouge&quot;&gt;console&lt;/code&gt;进行处理，默认&lt;code class=&quot;highlighter-rouge&quot;&gt;console&lt;/code&gt;是一个用户自定义的变量，那么再执行&lt;code class=&quot;highlighter-rouge&quot;&gt;console.log()&lt;/code&gt;就会报错找不到该函数了。&lt;/p&gt;
 
-&lt;h4 id=&quot;external&quot;&gt;external修饰符定义头文件&lt;/h4&gt;
+&lt;h4 id=&quot;external修饰符定义头文件&quot;&gt;external修饰符定义头文件&lt;/h4&gt;
 &lt;p&gt;如果你用过内联JavaScript的方式，你就会知道，真的很鸡肋！做点log的工作，还能干嘛？？？&lt;/p&gt;
 
 &lt;p&gt;所以，Kotlin又搞了一个强大一些的方式，通过&lt;code class=&quot;highlighter-rouge&quot;&gt;external&lt;/code&gt;修饰符定义JavaScript文件头的方式进行引入调用。&lt;/p&gt;
@@ -246,7 +246,7 @@
 
 &lt;p&gt;这种方式下，当你在Kotlin中要使用JavaScript代码之前，必须加上相关的JavaScript头文件声明。这么做的目的，就是为了让Kotlin知道相关JavaScript函数的存在，以保证可以正常的调用到，然后在Kotlin编译器环节，直接使用到JavaScript代码。看上去挺麻烦的，但是总的来说，比内联来的强大。&lt;/p&gt;
 
-&lt;h3 id=&quot;javascriptkotlin&quot;&gt;JavaScript中调用Kotlin&lt;/h3&gt;
+&lt;h3 id=&quot;javascript中调用kotlin&quot;&gt;JavaScript中调用Kotlin&lt;/h3&gt;
 &lt;p&gt;我们知道，Kotlin编译器会将原生的Kotlin代码转换成相应的JavaScript代码，并且对于原先Kotlin中定义的函数名和变量都不会改变，这意味着在JavaScript中我们可以自由的使用相关的函数和属性。&lt;/p&gt;
 
 &lt;p&gt;说白了，我们就是在JavaScript代码中调用经过Kotlin编译器转换后的JavaScript代码。&lt;/p&gt;
@@ -379,7 +379,7 @@
 
 &lt;p&gt;通过两者的比较，我们可以很明显看出两者在工作原理上很不一样。Kotlin对于JavaScript的支持，更多的只是将Kotlin等价转换成JavaScript以达到支持的功能，然后做一些函数的封装工作。kotlinc-js编译器做的工作大致是：词法分析、语法分析、语义分析、转成JS代码，然后通过JavaScript引擎执行。&lt;/p&gt;
 
-&lt;h2 id=&quot;section&quot;&gt;总结&lt;/h2&gt;
+&lt;h2 id=&quot;总结&quot;&gt;总结&lt;/h2&gt;
 
 &lt;p&gt;Kotlin能够同时支持Java和JavaScript，听上去是很让人感到兴奋的。但是就目前来说，Kotlin对于JavaScript的支持很明显的不如Java，局限性和互操作上都相差甚多。对于反射等功能，目前也尚不支持。&lt;/p&gt;
 
@@ -400,10 +400,10 @@
     
       <item>
         <title>Kotlin属性引发的方法数问题</title>
-        <description>&lt;h1 id=&quot;kotlin&quot;&gt;Kotlin属性引发的方法数问题&lt;/h1&gt;
+        <description>&lt;h1 id=&quot;kotlin属性引发的方法数问题&quot;&gt;Kotlin属性引发的方法数问题&lt;/h1&gt;
 &lt;p&gt;Kotlin最重要的一个优势就是简洁。说白了就是写的代码比Java来的少，所以很大程度上使用Kotlin开发会减少项目中的代码行数。然而，如果你觉得方法数肯定也减少的话，那就too young too simple了！首先，撇开引入Kotlin标准库的7000个方法数不谈，接下来我们来谈谈Kotlin属性带来的方法数问题。&lt;/p&gt;
 
-&lt;h2 id=&quot;section&quot;&gt;方法数问题&lt;/h2&gt;
+&lt;h2 id=&quot;方法数问题&quot;&gt;方法数问题&lt;/h2&gt;
 
 &lt;p&gt;我们知道，与Java不同的是，Kotlin语言中不提供任何方法来定义裸字段。所有的var和var声明都创建的是一个属性。乍一看来，这是一个伟大的优点，它会自动为你生成getter/setter方法。当然，当你在定义属性变量的同时，
 它也允许你自行添加一个get或者set方法。&lt;/p&gt;
@@ -573,7 +573,7 @@
 
 &lt;p&gt;那么，这时候我只想要完成和Java代码中一样的事并且不增加多余的方法数，该怎么办？&lt;/p&gt;
 
-&lt;h2 id=&quot;section-1&quot;&gt;解决过程&lt;/h2&gt;
+&lt;h2 id=&quot;解决过程&quot;&gt;解决过程&lt;/h2&gt;
 
 &lt;p&gt;我们到Kotlin编译过程的最后阶段—目标代码生成，定位到PropertyCodegen类，如果生成属性相关代码。&lt;/p&gt;
 
@@ -643,7 +643,7 @@
 
 &lt;p&gt;从代码我们可以看出，有三种情况会返回false，从而不生成getter/setter代码。我们来看这三种情况的实现以及功能验证。&lt;/p&gt;
 
-&lt;h3 id=&quot;constjvmfiled&quot;&gt;情况一：const修饰或者@JvmFiled注解&lt;/h3&gt;
+&lt;h3 id=&quot;情况一const修饰或者jvmfiled注解&quot;&gt;情况一：const修饰或者@JvmFiled注解&lt;/h3&gt;
 
 &lt;div class=&quot;language-java highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;kd&quot;&gt;public&lt;/span&gt; &lt;span class=&quot;kd&quot;&gt;static&lt;/span&gt; &lt;span class=&quot;kt&quot;&gt;boolean&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;isConstOrHasJvmFieldAnnotation&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nd&quot;&gt;@NotNull&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;PropertyDescriptor&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;propertyDescriptor&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;
         &lt;span class=&quot;k&quot;&gt;return&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;propertyDescriptor&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;isConst&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;()&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;||&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;hasJvmFieldAnnotation&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;propertyDescriptor&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;);&lt;/span&gt;
@@ -708,7 +708,7 @@
 
 &lt;p&gt;果然，A和B均没有生成响应的getter/setter方法。&lt;/p&gt;
 
-&lt;h3 id=&quot;val&quot;&gt;情况二：当属性类型为Val&lt;/h3&gt;
+&lt;h3 id=&quot;情况二当属性类型为val&quot;&gt;情况二：当属性类型为Val&lt;/h3&gt;
 
 &lt;p&gt;可想而知，当属性类型为val时，属性值则不可改变，所以只会生成getter访问方法，而不会生成setter方法。&lt;/p&gt;
 
@@ -761,7 +761,7 @@
 &lt;/code&gt;&lt;/pre&gt;
 &lt;/div&gt;
 
-&lt;h3 id=&quot;private&quot;&gt;情况三： 权限访问设置为private&lt;/h3&gt;
+&lt;h3 id=&quot;情况三-权限访问设置为private&quot;&gt;情况三： 权限访问设置为private&lt;/h3&gt;
 
 &lt;div class=&quot;language-java highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt; &lt;span class=&quot;kt&quot;&gt;boolean&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;isDefaultAccessor&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;accessor&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;==&lt;/span&gt; &lt;span class=&quot;kc&quot;&gt;null&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;||&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;!&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;accessor&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;hasBody&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;();&lt;/span&gt;
  &lt;span class=&quot;k&quot;&gt;if&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;Visibilities&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;isPrivate&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;descriptor&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;getVisibility&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;()))&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;
@@ -769,8 +769,10 @@
         &lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;
 &lt;/code&gt;&lt;/pre&gt;
 &lt;/div&gt;
-&lt;p&gt;从代码可以看出，具体分为两种情形：
-1. 当属性的访问权限为&lt;strong&gt;Visibilities.isPrivate&lt;/strong&gt;时，并且是默认访问器时，不自动生成访问器。&lt;/p&gt;
+&lt;p&gt;从代码可以看出，具体分为两种情形：&lt;/p&gt;
+&lt;ol&gt;
+  &lt;li&gt;当属性的访问权限为&lt;strong&gt;Visibilities.isPrivate&lt;/strong&gt;时，并且是默认访问器时，不自动生成访问器。&lt;/li&gt;
+&lt;/ol&gt;
 
 &lt;p&gt;以下验证此种情况。&lt;/p&gt;
 
@@ -820,7 +822,7 @@
 &lt;/div&gt;
 &lt;p&gt;我们会发现很神奇的现象，等价成Java代码后，a字段不见了，但是生成了private访问权限的getter/setter。&lt;/p&gt;
 
-&lt;h2 id=&quot;section-2&quot;&gt;总结&lt;/h2&gt;
+&lt;h2 id=&quot;总结&quot;&gt;总结&lt;/h2&gt;
 
 &lt;p&gt;通过分析Kotlin编译过程中目标代码生成的阶段，我们发现了几种不自动生成getter/setter访问器代码的情形。但是，对于一开始应用的场景，只有情况一最为合适。即：&lt;/p&gt;
 
@@ -892,7 +894,7 @@
     
       <item>
         <title>Kotlin编译过程分析</title>
-        <description>&lt;h1 id=&quot;kotlin&quot;&gt;Kotlin编译过程分析&lt;/h1&gt;
+        <description>&lt;h1 id=&quot;kotlin编译过程分析&quot;&gt;Kotlin编译过程分析&lt;/h1&gt;
 
 &lt;p&gt;我们知道，Kotlin基于Java虚拟机（JVM），通过Kotlin编译器生成的JVM字节码与Java编译的字节码基本相同，也因此与Java可以完全兼容，并且语法更加简洁，让我对Kotlin的编译过程甚是好奇。一通Google之后，毫无收获，Kotlin作为一门新语言，绝大多数的资料都局限于它的用法和特性相关。幸好Kotlin所有源码都已开源，遂决定生啃之。&lt;/p&gt;
 
@@ -904,7 +906,7 @@
 
 &lt;p&gt;上图是Java编译器的编译过程，正如它们俩完全兼容的特性一样，等分析完Kotlin的编译过程，你会发现，Kotlin和Java的编译过程也是很相似的。&lt;/p&gt;
 
-&lt;h2 id=&quot;section&quot;&gt;1. 编译入口&lt;/h2&gt;
+&lt;h2 id=&quot;1-编译入口&quot;&gt;1. 编译入口&lt;/h2&gt;
 
 &lt;p&gt;整个Kotlin工程代码达到200多MB，面对如此巨大的项目，我们需要找一个入口来进行逐步深入。所以，我们从最简单直观的入手，来看一下Kotlin的编译命令：&lt;/p&gt;
 
@@ -1017,7 +1019,7 @@ KotlinToJVMBytecodeCompiler.compileBunchOfSources(environment)
 &lt;/code&gt;&lt;/pre&gt;
 &lt;/div&gt;
 
-&lt;h2 id=&quot;section-1&quot;&gt;2. 编译过程&lt;/h2&gt;
+&lt;h2 id=&quot;2-编译过程&quot;&gt;2. 编译过程&lt;/h2&gt;
 
 &lt;p&gt;Kotlin的整个编译过程大致有以下环节：&lt;/p&gt;
 
@@ -1030,7 +1032,7 @@ KotlinToJVMBytecodeCompiler.compileBunchOfSources(environment)
 
 &lt;p&gt;其中，我们把词法分析、语法分析、语义分析及中间代码生成称之为编译器前段，将源程序翻译成中间代码；目标代码生成称之为编译器后端，负责将中间代码转换生成目标代码，与目标语言有关的细节尽可能放在了后端。&lt;/p&gt;
 
-&lt;h3 id=&quot;section-2&quot;&gt;2.1 词法分析&lt;/h3&gt;
+&lt;h3 id=&quot;21-词法分析&quot;&gt;2.1 词法分析&lt;/h3&gt;
 &lt;p&gt;词法分析是将源程序读入的字符序列，按照一定的规则转换成词法单元（Token）序列的过程。词法单元是语言中具有独立意义的最小单元，包括关键字、标识符、常数、运算符、界符等等。&lt;/p&gt;
 
 &lt;p&gt;来看看Kotlin中划分的Token。&lt;/p&gt;
@@ -1104,7 +1106,7 @@ public interface KtTokens {
 
 &lt;p&gt;将所有的Kotlin词法单元一一枚举出来并分组以后，就要进行词法分析了。Kotlin使用了第三方开源的&lt;a href=&quot;http://www.jflex.de/&quot;&gt;JFlex&lt;/a&gt;作为词法分析器，并没有自己实现（当然，重复造轮子就是一件很愚蠢的事情了:)）。&lt;/p&gt;
 
-&lt;h4 id=&quot;jflexkotlinflex&quot;&gt;2.1.1 定义JFlex词法分析配置文件Kotlin.flex&lt;/h4&gt;
+&lt;h4 id=&quot;211-定义jflex词法分析配置文件kotlinflex&quot;&gt;2.1.1 定义JFlex词法分析配置文件Kotlin.flex&lt;/h4&gt;
 &lt;p&gt;配置文件分为三个部分：&lt;/p&gt;
 
  	- 用户代码：。
@@ -1113,16 +1115,16 @@ public interface KtTokens {
 
 &lt;p&gt;整个flex规范配置文件如下格式：&lt;/p&gt;
 
-&lt;p&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;
-用户代码
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;用户代码
 %%
 选项与声明
 %%
 词法规则
-&lt;/code&gt;
-具体可看&lt;a href=&quot;&quot;&gt;Kotlin.flex&lt;/a&gt;详细配置文件。&lt;/p&gt;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+&lt;p&gt;具体可看&lt;a href=&quot;&quot;&gt;Kotlin.flex&lt;/a&gt;详细配置文件。&lt;/p&gt;
 
-&lt;h4 id=&quot;jetlexer&quot;&gt;2.1.2 词法分析器_JetLexer&lt;/h4&gt;
+&lt;h4 id=&quot;212-词法分析器_jetlexer&quot;&gt;2.1.2 词法分析器_JetLexer&lt;/h4&gt;
 &lt;p&gt;JFlex会读取配置文件并生成一个词法分析器（扫描器），在Kotlin编译器中对应&lt;strong&gt;_JetLexer&lt;/strong&gt;&lt;/p&gt;
 
 &lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;/**
@@ -1166,7 +1168,7 @@ class _JetLexer implements FlexLexer {
     catch (ArrayIndexOutOfBoundsException e) {
       message = ZZ_ERROR_MSG[ZZ_UNKNOWN_ERROR];
     }
-    throw new KotlinLexerException(message + &quot;\n at &#39;&quot; + yytext() + &quot;&#39;\n&quot; + zzBuffer);
+    throw new KotlinLexerException(message + &quot;\n at '&quot; + yytext() + &quot;'\n&quot; + zzBuffer);
   }
 
    //将制定数量的字符推送到输入流
@@ -1197,7 +1199,7 @@ class _JetLexer implements FlexLexer {
 &lt;/code&gt;&lt;/pre&gt;
 &lt;/div&gt;
 
-&lt;h3 id=&quot;section-3&quot;&gt;2.2 语法分析&lt;/h3&gt;
+&lt;h3 id=&quot;22-语法分析&quot;&gt;2.2 语法分析&lt;/h3&gt;
 &lt;p&gt;语法分析的任务是在词法分析的基础上将单词序列组合成各类语法短语，如“程序”，“语句”，“表达式”等等,语法分析器将判断源程序在结构上是否正确。在语法分析过程中，会生成语法树（ST）/抽象语法树（AST）。&lt;/p&gt;
 
 &lt;p&gt;Kotlin中定义了AST的数据结构，&lt;/p&gt;
@@ -1305,7 +1307,7 @@ public interface ASTNode extends UserDataHolder {
 
 &lt;p&gt;&lt;img src=&quot;https://github.com/Shinelw/shinelw.github.io/blob/master/assets/PsiBuilder.gif?raw=true&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
 
-&lt;h3 id=&quot;section-4&quot;&gt;2.3 语义分析及中间代码生成&lt;/h3&gt;
+&lt;h3 id=&quot;23-语义分析及中间代码生成&quot;&gt;2.3 语义分析及中间代码生成&lt;/h3&gt;
 &lt;p&gt;语义分析的任务是检查抽象语法树AST的上下文相关属性，即检查源代码是否符合该编程语言的规范，比如变量类型定义是否正确，运算符是否匹配等等。&lt;/p&gt;
 
 &lt;p&gt;举个例子：&lt;/p&gt;
@@ -1366,7 +1368,7 @@ println(c)
 &lt;/code&gt;&lt;/pre&gt;
 &lt;/div&gt;
 
-&lt;h3 id=&quot;section-5&quot;&gt;2.4 目标代码生成&lt;/h3&gt;
+&lt;h3 id=&quot;24-目标代码生成&quot;&gt;2.4 目标代码生成&lt;/h3&gt;
 
 &lt;p&gt;目标代码生成的任务，顾名思义，是将中间代码转换为目标代码，即JVM字节码，位于&lt;strong&gt;org.jetbrains.kotlin.codegen&lt;/strong&gt;模块中。&lt;/p&gt;
 
@@ -1457,7 +1459,7 @@ public void setA(int a) {
 
 &lt;p&gt;可以看到，Kotlin在目标代码生成环节做了更多的处理，在该环节实现了自动生成Getter、Setter的代码。&lt;/p&gt;
 
-&lt;h2 id=&quot;section-6&quot;&gt;总结&lt;/h2&gt;
+&lt;h2 id=&quot;总结&quot;&gt;总结&lt;/h2&gt;
 
 &lt;p&gt;Kotlin的编译过程分析完了，当然很多细节的东西并没有深入研究，并且内容太大，不是一篇文章可以说的详尽的。&lt;/p&gt;
 
@@ -1476,15 +1478,15 @@ public void setA(int a) {
     
       <item>
         <title>谈谈Kotlin特性在开发中的应用</title>
-        <description>&lt;h2 id=&quot;section&quot;&gt;概述&lt;/h2&gt;
+        <description>&lt;h2 id=&quot;概述&quot;&gt;概述&lt;/h2&gt;
 &lt;p&gt;Kotlin是JetBrains团队开发的一种静态类型的函数式编程语言，它基于Java虚拟机（JVM），通过Kotlin的编译器生成的JVM字节码与Java编译的字节码非常相似。事实也的确如此，虽然在语法方面与Java差异很大，但是Kotlin和Java在开发过程中是完全兼容的。所以说，Kotlin很值得一试。本文将重点谈谈Kotlin新特性在实际项目开发中的感受。&lt;/p&gt;
 
 &lt;p&gt;关于语法使用及入门可以参见&lt;a href=&quot;https://kotlinlang.org/docs/reference/&quot;&gt;官方文档&lt;/a&gt;或者&lt;a href=&quot;https://kotlin-zhcn.github.io/docs/reference/&quot;&gt;中文文档&lt;/a&gt;。&lt;/p&gt;
 
-&lt;h2 id=&quot;section-1&quot;&gt;简洁，使用更少的代码做更多的事&lt;/h2&gt;
-&lt;p&gt;在我看来，Kotlin很关键的一个优点就是简洁。相对于Java，使用Kotlin往往能够用更少的代码获得更多的功能。这有什么好处呢？很简单，写的代码越少，逻辑越清晰，所犯的错误就会越少。
-### 1. 数据类
-数据类大量重复的getter和setter相信会是很多人在开发过程中吐槽的一个点。举一个很经典的例子，我们需要一个Person的数据类。&lt;/p&gt;
+&lt;h2 id=&quot;简洁使用更少的代码做更多的事&quot;&gt;简洁，使用更少的代码做更多的事&lt;/h2&gt;
+&lt;p&gt;在我看来，Kotlin很关键的一个优点就是简洁。相对于Java，使用Kotlin往往能够用更少的代码获得更多的功能。这有什么好处呢？很简单，写的代码越少，逻辑越清晰，所犯的错误就会越少。&lt;/p&gt;
+&lt;h3 id=&quot;1-数据类&quot;&gt;1. 数据类&lt;/h3&gt;
+&lt;p&gt;数据类大量重复的getter和setter相信会是很多人在开发过程中吐槽的一个点。举一个很经典的例子，我们需要一个Person的数据类。&lt;/p&gt;
 
 &lt;p&gt;在Java中，需要这么写：&lt;/p&gt;
 
@@ -1536,11 +1538,11 @@ public void setA(int a) {
     &lt;span class=&quot;nd&quot;&gt;@Override&lt;/span&gt;
     &lt;span class=&quot;kd&quot;&gt;public&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;String&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;toString&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;()&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;
         &lt;span class=&quot;k&quot;&gt;return&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;&quot;Person{&quot;&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;+&lt;/span&gt;
-                &lt;span class=&quot;s&quot;&gt;&quot;name=&#39;&quot;&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;+&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;name&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;+&lt;/span&gt; &lt;span class=&quot;sc&quot;&gt;&#39;\&#39;&#39;&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;+&lt;/span&gt;
+                &lt;span class=&quot;s&quot;&gt;&quot;name='&quot;&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;+&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;name&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;+&lt;/span&gt; &lt;span class=&quot;sc&quot;&gt;'\''&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;+&lt;/span&gt;
                 &lt;span class=&quot;s&quot;&gt;&quot;, age=&quot;&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;+&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;age&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;+&lt;/span&gt;
                 &lt;span class=&quot;s&quot;&gt;&quot;, sex=&quot;&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;+&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;sex&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;==&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;0&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;?&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;&quot;男&quot;&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;&quot;女&quot;&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;+&lt;/span&gt;
                 &lt;span class=&quot;s&quot;&gt;&quot;, height=&quot;&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;+&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;height&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;+&lt;/span&gt;
-                &lt;span class=&quot;sc&quot;&gt;&#39;}&#39;&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;;&lt;/span&gt;
+                &lt;span class=&quot;sc&quot;&gt;'}'&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;;&lt;/span&gt;
  &lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;
 &lt;/code&gt;&lt;/pre&gt;
 &lt;/div&gt;
@@ -1556,7 +1558,7 @@ public void setA(int a) {
 
 &lt;p&gt;Kotlin提供的数据类会让你自动获得所需的getter、setters、toString()，这很大程度上减少了大量重复的工作。当然，我们也可以很轻松的去覆盖这些函数，做自定义的事情，但是在大多数情况下，只需声明类和属性就已经足够了。&lt;/p&gt;
 
-&lt;h3 id=&quot;section-2&quot;&gt;2. 区间表达式&lt;/h3&gt;
+&lt;h3 id=&quot;2-区间表达式&quot;&gt;2. 区间表达式&lt;/h3&gt;
 &lt;p&gt;在Java中我们经常要写这样的代码，&lt;/p&gt;
 
 &lt;div class=&quot;language-java highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;k&quot;&gt;for&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;kt&quot;&gt;int&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;i&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;0&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;;&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;i&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;&amp;lt;=&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;10&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;;&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;i&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;++){&lt;/span&gt;
@@ -1592,7 +1594,7 @@ public void setA(int a) {
 &lt;/code&gt;&lt;/pre&gt;
 &lt;/div&gt;
 
-&lt;h3 id=&quot;lamda&quot;&gt;3. Lamda表达式&lt;/h3&gt;
+&lt;h3 id=&quot;3-lamda表达式&quot;&gt;3. Lamda表达式&lt;/h3&gt;
 &lt;p&gt;Java在Java8才支持Lamda语法，在Kotlin里完全支持。有对比才有差距，看例子：&lt;/p&gt;
 
 &lt;p&gt;** Java中：**&lt;/p&gt;
@@ -1611,13 +1613,13 @@ public void setA(int a) {
 &lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;
 &lt;/div&gt;
 
-&lt;h3 id=&quot;section-3&quot;&gt;4. 类扩展&lt;/h3&gt;
+&lt;h3 id=&quot;4-类扩展&quot;&gt;4. 类扩展&lt;/h3&gt;
 &lt;p&gt;类扩展是一个超级强大的功能，我终于可以摆脱大量的Util工具类了。：）&lt;/p&gt;
 
 &lt;p&gt;看一个例子：&lt;/p&gt;
 
 &lt;div class=&quot;language-kotlin highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;k&quot;&gt;fun&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;MutableList&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;&amp;lt;&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;Int&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;&amp;gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;swap&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;index1&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;Int&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;index2&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;Int&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
-	&lt;span class=&quot;kd&quot;&gt;val&lt;/span&gt; &lt;span class=&quot;py&quot;&gt;tmp&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;this&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;index1&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;]&lt;/span&gt; &lt;span class=&quot;c1&quot;&gt;// &#39;this&#39; 对应该列表
+	&lt;span class=&quot;kd&quot;&gt;val&lt;/span&gt; &lt;span class=&quot;py&quot;&gt;tmp&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;this&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;index1&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;]&lt;/span&gt; &lt;span class=&quot;c1&quot;&gt;// 'this' 对应该列表
 &lt;/span&gt;	&lt;span class=&quot;k&quot;&gt;this&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;index1&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;]&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;this&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;index2&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;]&lt;/span&gt;
 	&lt;span class=&quot;k&quot;&gt;this&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;index2&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;]&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;tmp&lt;/span&gt;
 	&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
@@ -1625,7 +1627,7 @@ public void setA(int a) {
 
 &lt;span class=&quot;c1&quot;&gt;//使用
 &lt;/span&gt;&lt;span class=&quot;kd&quot;&gt;val&lt;/span&gt; &lt;span class=&quot;py&quot;&gt;l&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;mutableListOf&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;m&quot;&gt;1&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;m&quot;&gt;2&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;m&quot;&gt;3&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
-&lt;span class=&quot;n&quot;&gt;l&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;swap&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;m&quot;&gt;0&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;m&quot;&gt;2&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;c1&quot;&gt;// &#39;swap()&#39; 内部的 &#39;this&#39; 得到 &#39;l&#39; 的值
+&lt;span class=&quot;n&quot;&gt;l&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;swap&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;m&quot;&gt;0&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;m&quot;&gt;2&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;c1&quot;&gt;// 'swap()' 内部的 'this' 得到 'l' 的值
 &lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;
 &lt;/div&gt;
 
@@ -1714,9 +1716,9 @@ public void setA(int a) {
 
 &lt;p&gt;所以在底层，其实就是我们平时所写的Util工具类，但是Kotlin默认帮我们实现了，我们只需更简洁的编写调用就好了。&lt;/p&gt;
 
-&lt;h2 id=&quot;npe&quot;&gt;安全，避免NPE空指针异常&lt;/h2&gt;
+&lt;h2 id=&quot;安全避免npe空指针异常&quot;&gt;安全，避免NPE空指针异常&lt;/h2&gt;
 
-&lt;h3 id=&quot;section-4&quot;&gt;1. 空安全&lt;/h3&gt;
+&lt;h3 id=&quot;1-空安全&quot;&gt;1. 空安全&lt;/h3&gt;
 &lt;p&gt;这是一个让人又爱又恨的特性。一直以来，NullPointException空指针异常在开发中是最低级也最致命的问题。我们往往需要进行各种null的判断以试图去避免NPE的发生。Kotlin基于这个问题，提出了一个空安全的概念，即每个属性默认不可为null。&lt;/p&gt;
 
 &lt;p&gt;举个例子。&lt;/p&gt;
@@ -1834,9 +1836,9 @@ String a = &quot;abcd&quot;
 
 &lt;p&gt;总的来说，空安全机制所做的事情就是，让我们原本在逻辑代码中进行大量判空的工作转移到了初始化上，并很大程度地减轻了工作量。&lt;/p&gt;
 
-&lt;h2 id=&quot;effective-java&quot;&gt;更优雅，遵循Effective Java设计&lt;/h2&gt;
-&lt;p&gt;### 1. 类默认不可继承
-《Effective Java》提出一种观点：组合优于继承，避免滥用继承。要么为继承而设计，并提供文档说明，要么就禁止继承。至于为什么这么说呢，我见过一句话很形象：摊开来的代码，比叠起来的代码，更加一目了然。详细可以自行阅读《Effective Java》。&lt;/p&gt;
+&lt;h2 id=&quot;更优雅遵循effective-java设计&quot;&gt;更优雅，遵循Effective Java设计&lt;/h2&gt;
+&lt;h3 id=&quot;1-类默认不可继承&quot;&gt;1. 类默认不可继承&lt;/h3&gt;
+&lt;p&gt;《Effective Java》提出一种观点：组合优于继承，避免滥用继承。要么为继承而设计，并提供文档说明，要么就禁止继承。至于为什么这么说呢，我见过一句话很形象：摊开来的代码，比叠起来的代码，更加一目了然。详细可以自行阅读《Effective Java》。&lt;/p&gt;
 
 &lt;p&gt;Kotlin默认类是final类型的，即每个类默认不可继承。只有你真的需要继承的时候，再通过&lt;strong&gt;open&lt;/strong&gt;声明使用，声明方式如下：&lt;/p&gt;
 
@@ -1844,7 +1846,7 @@ String a = &quot;abcd&quot;
 &lt;/code&gt;&lt;/pre&gt;
 &lt;/div&gt;
 
-&lt;h3 id=&quot;section-5&quot;&gt;2. 更有效地使用构建器模式&lt;/h3&gt;
+&lt;h3 id=&quot;2-更有效地使用构建器模式&quot;&gt;2. 更有效地使用构建器模式&lt;/h3&gt;
 &lt;p&gt;我们建议使用构建器模式，当Java的构造器存在多个可选的参数时，情况就会变得很复杂，代码冗长，也更容易出错。Kotlin提供了一种更有效的构造器方式，通过默认参数的功能实现。&lt;/p&gt;
 
 &lt;div class=&quot;language-kotlin highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;kd&quot;&gt;data class&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;Person&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;kd&quot;&gt;var&lt;/span&gt; &lt;span class=&quot;py&quot;&gt;name&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;String&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;
@@ -1860,7 +1862,7 @@ String a = &quot;abcd&quot;
 &lt;/code&gt;&lt;/pre&gt;
 &lt;/div&gt;
 
-&lt;h3 id=&quot;section-6&quot;&gt;3. 单例模式&lt;/h3&gt;
+&lt;h3 id=&quot;3-单例模式&quot;&gt;3. 单例模式&lt;/h3&gt;
 &lt;p&gt;Kotlin默认提供了单例模式的模板，通过&lt;strong&gt;object&lt;/strong&gt;关键字即可实现。&lt;/p&gt;
 
 &lt;div class=&quot;language-kotlin highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;kd&quot;&gt;object&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;Singleton&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
@@ -1913,7 +1915,7 @@ String a = &quot;abcd&quot;
 &lt;/code&gt;&lt;/pre&gt;
 &lt;/div&gt;
 
-&lt;h3 id=&quot;override&quot;&gt;4. 重载必须使用override&lt;/h3&gt;
+&lt;h3 id=&quot;4-重载必须使用override&quot;&gt;4. 重载必须使用override&lt;/h3&gt;
 
 &lt;p&gt;Java中对于重载的注解@Override不是强制的，一旦项目代码很复杂，这将是一场灾难。当你分不清哪些是重载方法时，对方法进行参数修改是灾难性的。Kotlin基于这点，要求重载方法时必须加上&lt;strong&gt;override&lt;/strong&gt;关键字。如果没写，编译器将会报错，强制你加上。&lt;/p&gt;
 
@@ -1921,7 +1923,7 @@ String a = &quot;abcd&quot;
 &lt;/code&gt;&lt;/pre&gt;
 &lt;/div&gt;
 
-&lt;h2 id=&quot;java&quot;&gt;完全兼容，与Java互操作&lt;/h2&gt;
+&lt;h2 id=&quot;完全兼容与java互操作&quot;&gt;完全兼容，与Java互操作&lt;/h2&gt;
 &lt;p&gt;这是Kotlin与Scala相比，优势突出的一点。我们可以在Kotlin中调用现存的Java代码，并且也能在Java代码中顺利的调用Kotlin代码。这意味着我们可以马上在现有的Java项目中使用上Kotlin，同时所有之前旧的Java也一样有效。&lt;/p&gt;
 
 &lt;p&gt;这是很关键，也是我之所以很看好Kotlin的一个原因。&lt;/p&gt;
@@ -1973,7 +1975,7 @@ val name = person.name // 编译通过 运行值为null
 &lt;/code&gt;&lt;/pre&gt;
 &lt;/div&gt;
 
-&lt;h2 id=&quot;section-7&quot;&gt;总结&lt;/h2&gt;
+&lt;h2 id=&quot;总结&quot;&gt;总结&lt;/h2&gt;
 &lt;p&gt;总而言之，经过短短一个月的Kotlin使用，在实际项目中开发展现出的特性应用是让我感到兴奋的。作为一名开发者，在我眼里，Kotlin设计出来不是抛开Java谈的，而是在Java的毛病的基础上，进行的再开发，拥有很多其他语言优秀的特性，同时完全兼容Java。毕竟，对于一家大企业来讲，为了一门新语言完全摒弃一个很成熟的项目进行再开发是不现实的。相反的是，对于项目中Java难于处理的逻辑，Kotlin的优势一览无余，相辅相成，Kotlin和Java配合使用时目前最完美的方案。&lt;/p&gt;
 
 &lt;p&gt;但不可否认的是，Kotlin真的让人感到潜力十足，值得大家去试一试。&lt;/p&gt;
@@ -1991,21 +1993,21 @@ val name = person.name // 编译通过 运行值为null
         <title>AndFix - 热修复方案原理分析</title>
         <description>&lt;p&gt;AndFix是阿里开源的一种在线bug热修复的方案，当线上应用出现紧急Bug时，无需再重新发版本，通过发送补丁的方式达到修复Bug的功能，相对于之前同样为阿里开源的Dexposed来说，AndFix支持Android2.3-6.0，并且同时支持Dalvik和ART模式。&lt;/p&gt;
 
-&lt;h2 id=&quot;section&quot;&gt;实现思路&lt;/h2&gt;
+&lt;h2 id=&quot;实现思路&quot;&gt;实现思路&lt;/h2&gt;
 
 &lt;p&gt;AndFix的实现思路就是方法的替换，在native层动态替换方法，通过native代码中hook java层的代码。大致的思路如下图：&lt;/p&gt;
 
 &lt;p&gt;&lt;img src=&quot;https://raw.githubusercontent.com/Shinelw/shinelw.github.io/master/assets/principle.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
 
-&lt;h2 id=&quot;section-1&quot;&gt;使用流程&lt;/h2&gt;
+&lt;h2 id=&quot;使用流程&quot;&gt;使用流程&lt;/h2&gt;
 
-&lt;h3 id=&quot;section-2&quot;&gt;1. 引入依赖&lt;/h3&gt;
+&lt;h3 id=&quot;1-引入依赖&quot;&gt;1. 引入依赖&lt;/h3&gt;
 
-&lt;div class=&quot;language-gradle highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;n&quot;&gt;compile&lt;/span&gt; &lt;span class=&quot;s1&quot;&gt;&#39;com.alipay.euler:andfix:0.4.0@aar&#39;&lt;/span&gt;
+&lt;div class=&quot;language-gradle highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;n&quot;&gt;compile&lt;/span&gt; &lt;span class=&quot;s1&quot;&gt;'com.alipay.euler:andfix:0.4.0@aar'&lt;/span&gt;
 &lt;/code&gt;&lt;/pre&gt;
 &lt;/div&gt;
 
-&lt;h3 id=&quot;patchmanager&quot;&gt;2. 初始化PatchManager&lt;/h3&gt;
+&lt;h3 id=&quot;2-初始化patchmanager&quot;&gt;2. 初始化PatchManager&lt;/h3&gt;
 
 &lt;p&gt;在应用的Application中对AndFix进行初始化，加载Patch。&lt;/p&gt;
 
@@ -2016,7 +2018,7 @@ val name = person.name // 编译通过 运行值为null
 &lt;/code&gt;&lt;/pre&gt;
 &lt;/div&gt;
 
-&lt;h3 id=&quot;patch&quot;&gt;3. 加载patch&lt;/h3&gt;
+&lt;h3 id=&quot;3-加载patch&quot;&gt;3. 加载patch&lt;/h3&gt;
 
 &lt;div class=&quot;language-java highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;c1&quot;&gt;//加载 patch&lt;/span&gt;
 &lt;span class=&quot;n&quot;&gt;mPatchManager&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;loadPatch&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;();&lt;/span&gt;
@@ -2025,7 +2027,7 @@ val name = person.name // 编译通过 运行值为null
 
 &lt;p&gt;保证尽快的初始化PatchManager和加载patch，在Applicaton.onCreate()中执行，确保patch可以加载修复。&lt;/p&gt;
 
-&lt;h3 id=&quot;apkpatchdiff&quot;&gt;4. ApkPatch工具产生diff差异包&lt;/h3&gt;
+&lt;h3 id=&quot;4-apkpatch工具产生diff差异包&quot;&gt;4. ApkPatch工具产生diff差异包&lt;/h3&gt;
 
 &lt;p&gt;AndFix提供了一个ApkPatch的工具，这个工具的主要功能就是比对两个apk，将不同的类（即修复过的类）标识出来，进行更快速的定位修复。&lt;/p&gt;
 
@@ -2043,7 +2045,7 @@ val name = person.name // 编译通过 运行值为null
 &lt;/code&gt;&lt;/pre&gt;
 &lt;/div&gt;
 
-&lt;h3 id=&quot;patch-1&quot;&gt;5. 添加patch进行修复&lt;/h3&gt;
+&lt;h3 id=&quot;5-添加patch进行修复&quot;&gt;5. 添加patch进行修复&lt;/h3&gt;
 
 &lt;p&gt;从服务器拉取patch以后，将patch添加到patchManager中进行修复操作。&lt;/p&gt;
 
@@ -2053,11 +2055,11 @@ val name = person.name // 编译通过 运行值为null
 
 &lt;p&gt;以上，就完成了整个AndFix的bug修复过程。&lt;/p&gt;
 
-&lt;h2 id=&quot;section-3&quot;&gt;源码分析&lt;/h2&gt;
+&lt;h2 id=&quot;源码分析&quot;&gt;源码分析&lt;/h2&gt;
 
 &lt;p&gt;针对于源码的分析过程，大致跟随AndFix整个修复流程来进行。&lt;/p&gt;
 
-&lt;h3 id=&quot;patchmanager-1&quot;&gt;1. PatchManager&lt;/h3&gt;
+&lt;h3 id=&quot;1-patchmanager&quot;&gt;1. PatchManager&lt;/h3&gt;
 
 &lt;div class=&quot;language-java highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;	&lt;span class=&quot;kd&quot;&gt;public&lt;/span&gt; &lt;span class=&quot;kt&quot;&gt;void&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;init&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;String&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;appVersion&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;	
 		&lt;span class=&quot;c1&quot;&gt;//patch路径的初始化&lt;/span&gt;
@@ -2116,7 +2118,7 @@ val name = person.name // 编译通过 运行值为null
 
 &lt;p&gt;接下来进入AndFixManager中。&lt;/p&gt;
 
-&lt;h3 id=&quot;andfixmanager&quot;&gt;2. AndFixManager&lt;/h3&gt;
+&lt;h3 id=&quot;2-andfixmanager&quot;&gt;2. AndFixManager&lt;/h3&gt;
 
 &lt;div class=&quot;language-java highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;	&lt;span class=&quot;kd&quot;&gt;public&lt;/span&gt; &lt;span class=&quot;kd&quot;&gt;synchronized&lt;/span&gt; &lt;span class=&quot;kt&quot;&gt;void&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;fix&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;File&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;file&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;ClassLoader&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;classLoader&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;,&lt;/span&gt;
 			&lt;span class=&quot;n&quot;&gt;List&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;lt;&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;String&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;gt;&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;classes&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;
@@ -2241,7 +2243,7 @@ val name = person.name // 编译通过 运行值为null
 
 &lt;p&gt;定位到需要修复的方法以后，进入AndFix进行方法的替换。&lt;/p&gt;
 
-&lt;h3 id=&quot;andfix&quot;&gt;3. AndFix&lt;/h3&gt;
+&lt;h3 id=&quot;3-andfix&quot;&gt;3. AndFix&lt;/h3&gt;
 
 &lt;p&gt;AndFix是Java层进行方法替换的核心类，在该类中提供了Native层的接口，加载了&lt;strong&gt;andfix.cpp&lt;/strong&gt;，主要进行了Native层的初始化，以及目标修复类的替换工作。&lt;/p&gt;
 
@@ -2278,7 +2280,7 @@ val name = person.name // 编译通过 运行值为null
 
 &lt;p&gt;紧接着进入核心的Native层。&lt;/p&gt;
 
-&lt;h3 id=&quot;native&quot;&gt;4. Native层分析&lt;/h3&gt;
+&lt;h3 id=&quot;4-native层分析&quot;&gt;4. Native层分析&lt;/h3&gt;
 
 &lt;p&gt;针对Dalvik和ART，在Native层中有不同的处理。首先，&lt;em&gt;AndFixManager&lt;/em&gt;类中对系统是否支持进行了判断。&lt;/p&gt;
 
@@ -2346,7 +2348,7 @@ val name = person.name // 编译通过 运行值为null
 
 &lt;p&gt;ART和Dalvik的不同，&lt;em&gt;setup()&lt;/em&gt;方法会分别进入不同的方法执行，&lt;/p&gt;
 
-&lt;h4 id=&quot;dalvik&quot;&gt;Dalvik部分&lt;/h4&gt;
+&lt;h4 id=&quot;dalvik部分&quot;&gt;Dalvik部分&lt;/h4&gt;
 
 &lt;p&gt;进入&lt;em&gt;dalvik_setup()&lt;/em&gt;方法中，位于&lt;em&gt;dalvik_method_replace.cpp&lt;/em&gt;中，如下：&lt;/p&gt;
 
@@ -2413,7 +2415,7 @@ val name = person.name // 编译通过 运行值为null
 &lt;/code&gt;&lt;/pre&gt;
 &lt;/div&gt;
 
-&lt;h4 id=&quot;art&quot;&gt;ART部分&lt;/h4&gt;
+&lt;h4 id=&quot;art部分&quot;&gt;ART部分&lt;/h4&gt;
 
 &lt;p&gt;art部分根据版本号的不同，进行了不同的处理。代码树为：&lt;/p&gt;
 
@@ -2500,18 +2502,20 @@ val name = person.name // 编译通过 运行值为null
 
 &lt;p&gt;至此，AndFix的整个方法替换流程已经结束。&lt;/p&gt;
 
-&lt;p&gt;总体的过程总结如下：
-1. 初始化patch管理器，加载补丁；
-2. 检查手机是否支持，判断ART、Dalvik；
-3. 进行md5，指纹的安全检查
-4. 验证补丁的配置，通过patch-classes字段得到要替换的所有类
-5. 通过注解从类中得到具体要替换的方法
-6. 修改方法的访问权限为public
-7. 得到指向新方法和被替换目标方法的指针，将新方法指向目标方法，完成方法的替换。&lt;/p&gt;
+&lt;p&gt;总体的过程总结如下：&lt;/p&gt;
+&lt;ol&gt;
+  &lt;li&gt;初始化patch管理器，加载补丁；&lt;/li&gt;
+  &lt;li&gt;检查手机是否支持，判断ART、Dalvik；&lt;/li&gt;
+  &lt;li&gt;进行md5，指纹的安全检查&lt;/li&gt;
+  &lt;li&gt;验证补丁的配置，通过patch-classes字段得到要替换的所有类&lt;/li&gt;
+  &lt;li&gt;通过注解从类中得到具体要替换的方法&lt;/li&gt;
+  &lt;li&gt;修改方法的访问权限为public&lt;/li&gt;
+  &lt;li&gt;得到指向新方法和被替换目标方法的指针，将新方法指向目标方法，完成方法的替换。&lt;/li&gt;
+&lt;/ol&gt;
 
 &lt;p&gt;概括一句话就是，Java层进行补丁的加载，手机支持，安全检查，得到替换类等一系列前期准备工作；Native层进行类权限的修改、类的替换等核心功能。&lt;/p&gt;
 
-&lt;h2 id=&quot;apkpatch&quot;&gt;ApkPatch工具原理分析&lt;/h2&gt;
+&lt;h2 id=&quot;apkpatch工具原理分析&quot;&gt;ApkPatch工具原理分析&lt;/h2&gt;
 
 &lt;p&gt;讲完了AndFix整个的替换流程，最后一节我们来分析一下生成diff差异包补丁的原理。&lt;/p&gt;
 
@@ -2553,11 +2557,11 @@ val name = person.name // 编译通过 运行值为null
       &lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;
       &lt;span class=&quot;n&quot;&gt;File&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;dexFile&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;new&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;File&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;this&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;out&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;&quot;diff.dex&quot;&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;);&lt;/span&gt;
       &lt;span class=&quot;k&quot;&gt;if&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;((&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;dexFile&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;exists&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;())&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;&amp;amp;&amp;amp;&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;(!&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;dexFile&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;delete&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;()))&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;
-        &lt;span class=&quot;k&quot;&gt;throw&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;new&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;RuntimeException&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;diff.dex can&#39;t be removed.&quot;&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;);&lt;/span&gt;
+        &lt;span class=&quot;k&quot;&gt;throw&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;new&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;RuntimeException&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;diff.dex can't be removed.&quot;&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;);&lt;/span&gt;
       &lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;
       &lt;span class=&quot;n&quot;&gt;File&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;outFile&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;new&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;File&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;this&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;out&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;&quot;diff.apatch&quot;&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;);&lt;/span&gt;
       &lt;span class=&quot;k&quot;&gt;if&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;((&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;outFile&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;exists&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;())&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;&amp;amp;&amp;amp;&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;(!&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;outFile&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;delete&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;()))&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;
-        &lt;span class=&quot;k&quot;&gt;throw&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;new&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;RuntimeException&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;diff.apatch can&#39;t be removed.&quot;&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;);&lt;/span&gt;
+        &lt;span class=&quot;k&quot;&gt;throw&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;new&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;RuntimeException&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;diff.apatch can't be removed.&quot;&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;);&lt;/span&gt;
       &lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;
       &lt;span class=&quot;c1&quot;&gt;//找出差异信息&lt;/span&gt;
       &lt;span class=&quot;n&quot;&gt;DiffInfo&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;info&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;new&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;DexDiffer&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;().&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;diff&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;this&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;from&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;this&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;to&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;);&lt;/span&gt;
@@ -2581,7 +2585,7 @@ val name = person.name // 编译通过 运行值为null
 
 &lt;p&gt;代码中可以看出，创建patch补丁大致是四个步骤，为diff()、buildCode()、build()、release()，接下来我们对每个步骤进行分析。&lt;/p&gt;
 
-&lt;h3 id=&quot;diff---apk&quot;&gt;1. diff() - 找出新旧apk中差异信息&lt;/h3&gt;
+&lt;h3 id=&quot;1-diff---找出新旧apk中差异信息&quot;&gt;1. diff() - 找出新旧apk中差异信息&lt;/h3&gt;
 
 &lt;div class=&quot;language-java highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;kd&quot;&gt;public&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;DiffInfo&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;diff&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;File&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;newFile&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;File&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;oldFile&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;
     &lt;span class=&quot;kd&quot;&gt;throws&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;IOException&lt;/span&gt;
@@ -2638,7 +2642,7 @@ val name = person.name // 编译通过 运行值为null
 &lt;/code&gt;&lt;/pre&gt;
 &lt;/div&gt;
 
-&lt;h3 id=&quot;buildcode---infosmalidex&quot;&gt;2. buildCode() - Info信息写入.smali文件中，生成dex文件&lt;/h3&gt;
+&lt;h3 id=&quot;2-buildcode---info信息写入smali文件中生成dex文件&quot;&gt;2. buildCode() - Info信息写入.smali文件中，生成dex文件&lt;/h3&gt;
 
 &lt;div class=&quot;language-java highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;kd&quot;&gt;private&lt;/span&gt; &lt;span class=&quot;kd&quot;&gt;static&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;Set&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;lt;&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;String&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;gt;&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;buildCode&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;File&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;smaliDir&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;File&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;dexFile&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;DiffInfo&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;info&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;
     &lt;span class=&quot;kd&quot;&gt;throws&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;IOException&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;RecognitionException&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;FileNotFoundException&lt;/span&gt;
@@ -2658,7 +2662,7 @@ val name = person.name // 编译通过 运行值为null
         &lt;span class=&quot;n&quot;&gt;TypeGenUtil&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;newType&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;className&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;));&lt;/span&gt;
       &lt;span class=&quot;n&quot;&gt;classes&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;add&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;TypeGenUtil&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;newType&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;className&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;
         &lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;substring&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;1&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;TypeGenUtil&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;newType&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;className&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;).&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;length&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;()&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;-&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;1&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;
-        &lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;replace&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;sc&quot;&gt;&#39;/&#39;&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;sc&quot;&gt;&#39;.&#39;&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;));&lt;/span&gt;
+        &lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;replace&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;sc&quot;&gt;'/'&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;sc&quot;&gt;'.'&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;));&lt;/span&gt;
       &lt;span class=&quot;n&quot;&gt;SmaliMod&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;assembleSmaliFile&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;smaliFile&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;dexBuilder&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;kc&quot;&gt;true&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;kc&quot;&gt;true&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;);&lt;/span&gt;
     &lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;
     &lt;span class=&quot;c1&quot;&gt;//生成diff.dex文件&lt;/span&gt;
@@ -2668,7 +2672,7 @@ val name = person.name // 编译通过 运行值为null
 &lt;/code&gt;&lt;/pre&gt;
 &lt;/div&gt;
 
-&lt;h3 id=&quot;build---keystoreapatch&quot;&gt;3. build() - 根据keystore进行签名，生成.apatch补丁文件&lt;/h3&gt;
+&lt;h3 id=&quot;3-build---根据keystore进行签名生成apatch补丁文件&quot;&gt;3. build() - 根据keystore进行签名，生成.apatch补丁文件&lt;/h3&gt;
 
 &lt;div class=&quot;language-java highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;kd&quot;&gt;protected&lt;/span&gt; &lt;span class=&quot;kt&quot;&gt;void&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;build&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;File&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;outFile&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;File&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;dexFile&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;
     &lt;span class=&quot;kd&quot;&gt;throws&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;KeyStoreException&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;FileNotFoundException&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;IOException&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;NoSuchAlgorithmException&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;CertificateException&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;UnrecoverableEntryException&lt;/span&gt;
@@ -2739,14 +2743,14 @@ val name = person.name // 编译通过 运行值为null
 
 &lt;p&gt;至此，第三步完成以后，会生成一个diff.apatch的文件，这个文件其他内容上跟最终补丁文件已经一致，那么最后一步&lt;strong&gt;release()&lt;/strong&gt;做了什么呢。&lt;/p&gt;
 
-&lt;h3 id=&quot;release---diffapatch&quot;&gt;4. release() - 重命名diff.apatch文件&lt;/h3&gt;
+&lt;h3 id=&quot;4-release---重命名diffapatch文件&quot;&gt;4. release() - 重命名diff.apatch文件&lt;/h3&gt;
 
 &lt;div class=&quot;language-java highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;  &lt;span class=&quot;kd&quot;&gt;protected&lt;/span&gt; &lt;span class=&quot;kt&quot;&gt;void&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;release&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;File&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;outDir&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;File&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;dexFile&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;File&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;outFile&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;
     &lt;span class=&quot;kd&quot;&gt;throws&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;NoSuchAlgorithmException&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;FileNotFoundException&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;IOException&lt;/span&gt;
   &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;
     &lt;span class=&quot;n&quot;&gt;MessageDigest&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;messageDigest&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;MessageDigest&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;getInstance&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;md5&quot;&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;);&lt;/span&gt;
     &lt;span class=&quot;n&quot;&gt;FileInputStream&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;fileInputStream&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;new&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;FileInputStream&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;dexFile&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;);&lt;/span&gt;
-    &lt;span class=&quot;kt&quot;&gt;byte&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;[]&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;buffer&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;new&lt;/span&gt; &lt;span class=&quot;kt&quot;&gt;byte&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;err&quot;&gt;&#39;&#39;&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;];&lt;/span&gt;
+    &lt;span class=&quot;kt&quot;&gt;byte&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;[]&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;buffer&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;new&lt;/span&gt; &lt;span class=&quot;kt&quot;&gt;byte&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;err&quot;&gt;''&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;];&lt;/span&gt;
     &lt;span class=&quot;kt&quot;&gt;int&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;len&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;0&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;;&lt;/span&gt;
     &lt;span class=&quot;k&quot;&gt;while&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;((&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;len&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;fileInputStream&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;read&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;buffer&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;))&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;&amp;gt;&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;0&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;
       &lt;span class=&quot;n&quot;&gt;messageDigest&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;update&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;buffer&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;0&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;len&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;);&lt;/span&gt;
@@ -2763,7 +2767,7 @@ val name = person.name // 编译通过 运行值为null
 
 &lt;p&gt;到这里，经过四个步骤，生成了最终的补丁文件，在命令行后共生成diff.dex、smali文件、md5.apatch三个文件。其中md5.apatch文件就是我们进行热修复的补丁。&lt;/p&gt;
 
-&lt;h2 id=&quot;section-4&quot;&gt;总结&lt;/h2&gt;
+&lt;h2 id=&quot;总结&quot;&gt;总结&lt;/h2&gt;
 
 &lt;p&gt;AndFix提供了一种Native层hook Java层代码的思路，实现了动态的替换方法。在处理简单没有特别复杂的方法中有独特的优势，但因为在加载类时跳过了类装载过程直接设置为初始化完毕，所以不支持新增静态变量和方法。&lt;/p&gt;
 
@@ -2783,7 +2787,7 @@ val name = person.name // 编译通过 运行值为null
     
       <item>
         <title>Android APK打包流程</title>
-        <description>&lt;h2 id=&quot;section&quot;&gt;概述&lt;/h2&gt;
+        <description>&lt;h2 id=&quot;概述&quot;&gt;概述&lt;/h2&gt;
 
 &lt;p&gt;今天主要讲一下Android程序的生成步骤，即Android打包成APK的流程。&lt;/p&gt;
 
@@ -2797,23 +2801,23 @@ val name = person.name // 编译通过 运行值为null
 
 &lt;p&gt;&lt;img src=&quot;https://raw.githubusercontent.com/Shinelw/shinelw.github.io/master/assets/build.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
 
-&lt;h2 id=&quot;section-1&quot;&gt;打包流程&lt;/h2&gt;
+&lt;h2 id=&quot;打包流程&quot;&gt;打包流程&lt;/h2&gt;
 
-&lt;h3 id=&quot;rjava&quot;&gt;1. 打包资源文件，生成R.java文件&lt;/h3&gt;
+&lt;h3 id=&quot;1-打包资源文件生成rjava文件&quot;&gt;1. 打包资源文件，生成R.java文件&lt;/h3&gt;
 
 &lt;p&gt;打包资源的工具是&lt;strong&gt;aapt（The Android Asset Packaing Tool）&lt;/strong&gt;，位于android-sdk/platform-tools目录下。在这个过程中，项目中的AndroidManifest.xml文件和布局文件XML都会编译，然后生成相应的R.jva。&lt;/p&gt;
 
-&lt;h3 id=&quot;aidljava&quot;&gt;2. 处理aidl文件，生成相应的Java文件&lt;/h3&gt;
+&lt;h3 id=&quot;2-处理aidl文件生成相应的java文件&quot;&gt;2. 处理aidl文件，生成相应的Java文件&lt;/h3&gt;
 
 &lt;p&gt;这一过程中使用到的工具是&lt;strong&gt;aidl（Android Interface Definition Language）&lt;/strong&gt;，即Android接口描述语言。位于android-sdk/platform-tools目录下。aidl工具解析接口定义文件然后生成相应的Java代码接口供程序调用。&lt;/p&gt;
 
 &lt;p&gt;如果在项目没有使用到aidl文件，则可以跳过这一步。&lt;/p&gt;
 
-&lt;h3 id=&quot;class&quot;&gt;3. 编译项目源代码，生成class文件&lt;/h3&gt;
+&lt;h3 id=&quot;3-编译项目源代码生成class文件&quot;&gt;3. 编译项目源代码，生成class文件&lt;/h3&gt;
 
 &lt;p&gt;项目中所有的Java代码，包括&lt;em&gt;R.java&lt;/em&gt;和&lt;em&gt;.aidl&lt;/em&gt;文件，都会变Java编译器（&lt;strong&gt;javac&lt;/strong&gt;）编译成&lt;em&gt;.class&lt;/em&gt;文件，生成的class文件位于工程中的bin/classes目录下。&lt;/p&gt;
 
-&lt;h3 id=&quot;classclassesdex&quot;&gt;4. 转换所有的class文件，生成classes.dex文件&lt;/h3&gt;
+&lt;h3 id=&quot;4-转换所有的class文件生成classesdex文件&quot;&gt;4. 转换所有的class文件，生成classes.dex文件&lt;/h3&gt;
 
 &lt;p&gt;&lt;strong&gt;dx&lt;/strong&gt;工具生成可供Android系统Dalvik虚拟机执行的classes.dex文件，该工具位于android-sdk/platform-tools 目录下。&lt;/p&gt;
 
@@ -2821,19 +2825,19 @@ val name = person.name // 编译通过 运行值为null
 
 &lt;p&gt;dx工具的主要工作是将Java字节码转成成Dalvik字节码、压缩常量池、消除冗余信息等。&lt;/p&gt;
 
-&lt;h3 id=&quot;apk&quot;&gt;5. 打包生成APK文件&lt;/h3&gt;
+&lt;h3 id=&quot;5-打包生成apk文件&quot;&gt;5. 打包生成APK文件&lt;/h3&gt;
 
 &lt;p&gt;所有没有编译的资源（如images等）、编译过的资源和&lt;em&gt;.dex&lt;/em&gt;文件都会被&lt;strong&gt;apkbuilder&lt;/strong&gt;工具打包到最终的&lt;em&gt;.apk&lt;/em&gt;文件中。&lt;/p&gt;
 
 &lt;p&gt;打包的工具&lt;strong&gt;apkbuilder&lt;/strong&gt;位于 android-sdk/tools目录下。apkbuilder为一个脚本文件，实际调用的是android-sdk/tools/lib/sdklib.jar文件中的&lt;strong&gt;com.android.sdklib.build.ApkbuilderMain&lt;/strong&gt;类。&lt;/p&gt;
 
-&lt;h3 id=&quot;apk-1&quot;&gt;6. 对APK文件进行签名&lt;/h3&gt;
+&lt;h3 id=&quot;6-对apk文件进行签名&quot;&gt;6. 对APK文件进行签名&lt;/h3&gt;
 
 &lt;p&gt;一旦APK文件生成，它必须被签名才能被安装在设备上。&lt;/p&gt;
 
 &lt;p&gt;在开发过程中，主要用到的就是两种签名的&lt;strong&gt;keystore&lt;/strong&gt;。一种是用于调试的debug.keystore，它主要用于调试，在Eclipse或者Android Studio中直接run以后跑在手机上的就是使用的debug.keystore。另一种就是用于发布正式版本的keystore。&lt;/p&gt;
 
-&lt;h3 id=&quot;apk-2&quot;&gt;7. 对签名后的APK文件进行对齐处理&lt;/h3&gt;
+&lt;h3 id=&quot;7-对签名后的apk文件进行对齐处理&quot;&gt;7. 对签名后的APK文件进行对齐处理&lt;/h3&gt;
 
 &lt;p&gt;如果你发布的apk是正式版的话，就必须对APK进行对齐处理，用到的工具是&lt;strong&gt;zipalign&lt;/strong&gt;，它位于android-sdk/tools目录下。&lt;/p&gt;
 
@@ -2875,7 +2879,7 @@ val name = person.name // 编译通过 运行值为null
 目前最新版本是3.11.4，所以google搜索一下charles 3.11.4 注册文件，要是你还懒得搜索的话，可以&lt;a href=&quot;https://github.com/Shinelw/Android/raw/master/BlogPicture/charles/charles.jar&quot;&gt;点这里&lt;/a&gt;，我已经把注册文件保存在github上，如需自取~
 至于安装的话，鉴于我的环境是mac osx，所以就讲一下mac中的破解方法。&lt;/p&gt;
 
-&lt;h3 id=&quot;section&quot;&gt;&lt;strong&gt;破解方法：&lt;/strong&gt;&lt;/h3&gt;
+&lt;h3 id=&quot;破解方法&quot;&gt;&lt;strong&gt;破解方法：&lt;/strong&gt;&lt;/h3&gt;
 &lt;ol&gt;
   &lt;li&gt;打开Applications找到Charles软件，显示包内容，打开Java文件夹。&lt;/li&gt;
   &lt;li&gt;把下载好的charles.jar文件替换到Java文件夹中，重启应用就ok了。&lt;/li&gt;
@@ -2884,7 +2888,7 @@ val name = person.name // 编译通过 运行值为null
 &lt;p&gt;接下来是配置方法，在3.10版本以后，配置方法就变得特别简单，只要跟随Help中SLL Proxying中的操作就ok了。
 &lt;img src=&quot;https://raw.githubusercontent.com/Shinelw/Android/master/BlogPicture/charles/Screen%20Shot%202016-04-21%20at%203.47.52%20PM.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
 
-&lt;h3 id=&quot;section-1&quot;&gt;&lt;strong&gt;配置&lt;/strong&gt;&lt;/h3&gt;
+&lt;h3 id=&quot;配置&quot;&gt;&lt;strong&gt;配置&lt;/strong&gt;&lt;/h3&gt;
 &lt;ol&gt;
   &lt;li&gt;安装本地证书。
  点击Help中SLL Proxying中的Install Charles Root Certificate，然后输入密码，选择全部信任。&lt;/li&gt;
@@ -2906,7 +2910,7 @@ val name = person.name // 编译通过 运行值为null
 
 &lt;p&gt;以上，就是所有的配置过程。&lt;/p&gt;
 
-&lt;h3 id=&quot;section-2&quot;&gt;&lt;strong&gt;总结&lt;/strong&gt;&lt;/h3&gt;
+&lt;h3 id=&quot;总结&quot;&gt;&lt;strong&gt;总结&lt;/strong&gt;&lt;/h3&gt;
 &lt;p&gt;抓包对于程序员来说应该是一个必备的技能点，而且很有趣。比如在抓包的过程中会发现很多应用对于密码都是明文的= =
 继续加油吧~&lt;/p&gt;
 </description>
@@ -2923,7 +2927,7 @@ val name = person.name // 编译通过 运行值为null
     
       <item>
         <title>Wish App逆向分析app_device_id字段生成算法</title>
-        <description>&lt;h2 id=&quot;section&quot;&gt;&lt;strong&gt;概述&lt;/strong&gt;&lt;/h2&gt;
+        <description>&lt;h2 id=&quot;概述&quot;&gt;&lt;strong&gt;概述&lt;/strong&gt;&lt;/h2&gt;
 
 &lt;p&gt;本文对Wish App进行了反编译，对应用中app_device_id字段的生成算法进行了逆向分析。&lt;/p&gt;
 
@@ -2937,7 +2941,7 @@ val name = person.name // 编译通过 运行值为null
 
 &lt;p&gt;反编译环境：mac osx&lt;/p&gt;
 
-&lt;h2 id=&quot;apkjavasmali&quot;&gt;&lt;strong&gt;apk反编译获得java代码和smali反汇编代码&lt;/strong&gt;&lt;/h2&gt;
+&lt;h2 id=&quot;apk反编译获得java代码和smali反汇编代码&quot;&gt;&lt;strong&gt;apk反编译获得java代码和smali反汇编代码&lt;/strong&gt;&lt;/h2&gt;
 
 &lt;p&gt;&lt;strong&gt;1. 从google play下载Wish.apk&lt;/strong&gt;&lt;/p&gt;
 
@@ -2965,7 +2969,7 @@ val name = person.name // 编译通过 运行值为null
 
 &lt;p&gt;&lt;img src=&quot;https://raw.githubusercontent.com/Shinelw/Android/master/BlogPicture/Wish_analysis/Screen%20Shot%202016-04-18%20at%206.43.30%20PM.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
 
-&lt;h2 id=&quot;appdeviceid&quot;&gt;&lt;strong&gt;分析app_device_id字段生成算法&lt;/strong&gt;&lt;/h2&gt;
+&lt;h2 id=&quot;分析app_device_id字段生成算法&quot;&gt;&lt;strong&gt;分析app_device_id字段生成算法&lt;/strong&gt;&lt;/h2&gt;
 
 &lt;p&gt;&lt;strong&gt;1. 快速定位app_device_id字段代码位置&lt;/strong&gt;&lt;/p&gt;
 
@@ -3047,7 +3051,7 @@ val name = person.name // 编译通过 运行值为null
 
 &lt;p&gt;&lt;img src=&quot;https://raw.githubusercontent.com/Shinelw/Android/master/BlogPicture/Wish_analysis/Picture2.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
 
-&lt;h2 id=&quot;section-1&quot;&gt;&lt;strong&gt;总体流程&lt;/strong&gt;&lt;/h2&gt;
+&lt;h2 id=&quot;总体流程&quot;&gt;&lt;strong&gt;总体流程&lt;/strong&gt;&lt;/h2&gt;
 
 &lt;p&gt;大致流程图如下：&lt;/p&gt;
 
@@ -3061,7 +3065,7 @@ val name = person.name // 编译通过 运行值为null
 
 &lt;p&gt;&lt;img src=&quot;https://raw.githubusercontent.com/Shinelw/Android/master/BlogPicture/Wish_analysis/Screen%20Shot%202016-04-21%20at%202.09.41%20PM.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
 
-&lt;h2 id=&quot;section-2&quot;&gt;&lt;strong&gt;总结：&lt;/strong&gt;&lt;/h2&gt;
+&lt;h2 id=&quot;总结&quot;&gt;&lt;strong&gt;总结：&lt;/strong&gt;&lt;/h2&gt;
 
 &lt;p&gt;由于app_device_id字段对应的值是随机产生的，但是由上述代码分析可知，每一次访问网络的时候都要发送app_device_id字段，这就要求对应值要是唯一的，以确保进行操作的设备是安全的。而这里对实现唯一的方法就是永远只随机产生一次，通过SharedPreferences和File方式分别把值分别保存下来。只有当应用卸载重新安装并且删除本地文件device_data的时候才会重新随机产生一个app_device_id值，然后一般用户是不可以在删除应用的时候同时找到它所保存的文件路径并删除，这就达到了设备ID的唯一性。&lt;/p&gt;
 </description>
@@ -3128,7 +3132,7 @@ val name = person.name // 编译通过 运行值为null
   &lt;li&gt;&lt;strong&gt;IntelliJ 15 Update&lt;/strong&gt; - Android Studio 基于IntelliJ 构建，已升级到最新版本。&lt;/li&gt;
 &lt;/ul&gt;
 
-&lt;h3 id=&quot;section&quot;&gt;&lt;strong&gt;深入了解新特性&lt;/strong&gt;&lt;/h3&gt;
+&lt;h3 id=&quot;深入了解新特性&quot;&gt;&lt;strong&gt;深入了解新特性&lt;/strong&gt;&lt;/h3&gt;
 
 &lt;p&gt;&lt;strong&gt;Instant Run&lt;/strong&gt;&lt;/p&gt;
 
@@ -3172,7 +3176,7 @@ val name = person.name // 编译通过 运行值为null
   &lt;li&gt;之后创建的新项目都默认使用Instant Run。&lt;/li&gt;
 &lt;/ol&gt;
 
-&lt;h3 id=&quot;section-1&quot;&gt;&lt;strong&gt;体验感受&lt;/strong&gt;&lt;/h3&gt;
+&lt;h3 id=&quot;体验感受&quot;&gt;&lt;strong&gt;体验感受&lt;/strong&gt;&lt;/h3&gt;
 &lt;ol&gt;
   &lt;li&gt;Instant Run是版本最大亮点，没有之一。体验下来确实快了很多，而且在你修改界面以后运行后能直接显示该页面效果，而不是重新启动应用。&lt;/li&gt;
   &lt;li&gt;新的虚拟机感觉噱头大于实际使用效果，还是喜欢用真机测试，爽。&lt;/li&gt;

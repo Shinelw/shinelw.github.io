@@ -199,10 +199,10 @@
                 col-md-10 col-md-offset-1
                 post-container">
 
-                <h1 id="kotlinjavascript">Kotlin新特性之JavaScript支持</h1>
+                <h1 id="kotlin新特性之javascript支持">Kotlin新特性之JavaScript支持</h1>
 <p>Kotlin1.1版本正式加入了对JavaScript的支持，也就是说我们可以Kotlin进行网页开发，并且Kotlin也支持了与JavaScript的相互操作。众所周知，JavaScript是动态类型的语言，而相对来说，Kotlin和Java都是静态类型的。同时，两者在编译运行也很不一样，Java更偏向与编译型语言，而JavaScript更偏向于解释型语言。所以，在Kotlin完美兼容Java的同时，增加了JavaScript的支持，让人好奇不已。接下来，我们就来谈谈Kotlin是如何支持JavaScript，以及它是怎么实现的。</p>
 
-<h2 id="kotlinjavascript-1">Kotlin转JavaScript</h2>
+<h2 id="kotlin转javascript">Kotlin转JavaScript</h2>
 <p>我们先通过一个简单的例子说明Kotlin如何支持JavaScript。
 定义以下Kotlin代码：</p>
 
@@ -329,13 +329,13 @@
 
 <p>通过以上的分析，我们知道了从Kotlin的<code class="highlighter-rouge">println</code>等价到JavaScript的功能，Kotlin的标准库<code class="highlighter-rouge">kotlin.js</code>充当了一个中间人的角色，封装了大量函数方法，这些函数与Kotlin语法更为接近。一方面让Kotlin编译器将Kotlin代码转成JavaScript时，工作量更少，只需与<code class="highlighter-rouge">kotlin.js</code>中进行对应；另一方面，减少产生重复多余的代码，<code class="highlighter-rouge">kotlin.js</code>标准库封装了大量公共方法，让转换后的代码更加简洁可读。</p>
 
-<h2 id="kotlinjavascript-2">Kotlin与JavaScript互操作</h2>
+<h2 id="kotlin与javascript互操作">Kotlin与JavaScript互操作</h2>
 <p>在谈Kotlin和JavaScript互操作之前，先吐槽一句，跟Java互操作相比，真心不方便，并且局限性挺大的。原因在于，Kotlin-Java模式中它将Java类视为Kotlin类，并且Java类也将Kotlin类进行Java类，所以在两者进行互操作的时候，是基本不要额外的改变的。然而，我们知道JavaScript是一种动态类型语言，而Kotlin是静态类型语言，可以说它们两者是区别挺大的，也就不能跟Java一样，自由的进行互操作。</p>
 
-<h3 id="kotlinjavascript-3">Kotlin中调用JavaScript</h3>
+<h3 id="kotlin中调用javascript">Kotlin中调用JavaScript</h3>
 <p>在Kotlin代码中，如果想要调用JavaScript代码，基本上有两种方式：<code class="highlighter-rouge">js()</code>内联模式和头文件模式。</p>
 
-<h4 id="jsjavascript">js()内联JavaScript</h4>
+<h4 id="js内联javascript">js()内联JavaScript</h4>
 <p>我们可以使用<code class="highlighter-rouge">js("...")</code>函数将一些JavaScript代码直接嵌入到Kotlin代码中。但是，有一点要求，js函数的参数必须是字符串常量。</p>
 
 <p>举个例子：</p>
@@ -407,7 +407,7 @@
 
 <p>可以看到，若参数不是字符串常量，比如以上例子，Kotlin编译器会对<code class="highlighter-rouge">console</code>进行处理，默认<code class="highlighter-rouge">console</code>是一个用户自定义的变量，那么再执行<code class="highlighter-rouge">console.log()</code>就会报错找不到该函数了。</p>
 
-<h4 id="external">external修饰符定义头文件</h4>
+<h4 id="external修饰符定义头文件">external修饰符定义头文件</h4>
 <p>如果你用过内联JavaScript的方式，你就会知道，真的很鸡肋！做点log的工作，还能干嘛？？？</p>
 
 <p>所以，Kotlin又搞了一个强大一些的方式，通过<code class="highlighter-rouge">external</code>修饰符定义JavaScript文件头的方式进行引入调用。</p>
@@ -434,7 +434,7 @@
 
 <p>这种方式下，当你在Kotlin中要使用JavaScript代码之前，必须加上相关的JavaScript头文件声明。这么做的目的，就是为了让Kotlin知道相关JavaScript函数的存在，以保证可以正常的调用到，然后在Kotlin编译器环节，直接使用到JavaScript代码。看上去挺麻烦的，但是总的来说，比内联来的强大。</p>
 
-<h3 id="javascriptkotlin">JavaScript中调用Kotlin</h3>
+<h3 id="javascript中调用kotlin">JavaScript中调用Kotlin</h3>
 <p>我们知道，Kotlin编译器会将原生的Kotlin代码转换成相应的JavaScript代码，并且对于原先Kotlin中定义的函数名和变量都不会改变，这意味着在JavaScript中我们可以自由的使用相关的函数和属性。</p>
 
 <p>说白了，我们就是在JavaScript代码中调用经过Kotlin编译器转换后的JavaScript代码。</p>
@@ -567,7 +567,7 @@
 
 <p>通过两者的比较，我们可以很明显看出两者在工作原理上很不一样。Kotlin对于JavaScript的支持，更多的只是将Kotlin等价转换成JavaScript以达到支持的功能，然后做一些函数的封装工作。kotlinc-js编译器做的工作大致是：词法分析、语法分析、语义分析、转成JS代码，然后通过JavaScript引擎执行。</p>
 
-<h2 id="section">总结</h2>
+<h2 id="总结">总结</h2>
 
 <p>Kotlin能够同时支持Java和JavaScript，听上去是很让人感到兴奋的。但是就目前来说，Kotlin对于JavaScript的支持很明显的不如Java，局限性和互操作上都相差甚多。对于反射等功能，目前也尚不支持。</p>
 

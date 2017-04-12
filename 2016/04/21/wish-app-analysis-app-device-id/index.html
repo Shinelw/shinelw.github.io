@@ -199,7 +199,7 @@
                 col-md-10 col-md-offset-1
                 post-container">
 
-                <h2 id="section"><strong>概述</strong></h2>
+                <h2 id="概述"><strong>概述</strong></h2>
 
 <p>本文对Wish App进行了反编译，对应用中app_device_id字段的生成算法进行了逆向分析。</p>
 
@@ -213,7 +213,7 @@
 
 <p>反编译环境：mac osx</p>
 
-<h2 id="apkjavasmali"><strong>apk反编译获得java代码和smali反汇编代码</strong></h2>
+<h2 id="apk反编译获得java代码和smali反汇编代码"><strong>apk反编译获得java代码和smali反汇编代码</strong></h2>
 
 <p><strong>1. 从google play下载Wish.apk</strong></p>
 
@@ -241,7 +241,7 @@
 
 <p><img src="https://raw.githubusercontent.com/Shinelw/Android/master/BlogPicture/Wish_analysis/Screen%20Shot%202016-04-18%20at%206.43.30%20PM.png" alt="" /></p>
 
-<h2 id="appdeviceid"><strong>分析app_device_id字段生成算法</strong></h2>
+<h2 id="分析app_device_id字段生成算法"><strong>分析app_device_id字段生成算法</strong></h2>
 
 <p><strong>1. 快速定位app_device_id字段代码位置</strong></p>
 
@@ -323,7 +323,7 @@
 
 <p><img src="https://raw.githubusercontent.com/Shinelw/Android/master/BlogPicture/Wish_analysis/Picture2.png" alt="" /></p>
 
-<h2 id="section-1"><strong>总体流程</strong></h2>
+<h2 id="总体流程"><strong>总体流程</strong></h2>
 
 <p>大致流程图如下：</p>
 
@@ -337,7 +337,7 @@
 
 <p><img src="https://raw.githubusercontent.com/Shinelw/Android/master/BlogPicture/Wish_analysis/Screen%20Shot%202016-04-21%20at%202.09.41%20PM.png" alt="" /></p>
 
-<h2 id="section-2"><strong>总结：</strong></h2>
+<h2 id="总结"><strong>总结：</strong></h2>
 
 <p>由于app_device_id字段对应的值是随机产生的，但是由上述代码分析可知，每一次访问网络的时候都要发送app_device_id字段，这就要求对应值要是唯一的，以确保进行操作的设备是安全的。而这里对实现唯一的方法就是永远只随机产生一次，通过SharedPreferences和File方式分别把值分别保存下来。只有当应用卸载重新安装并且删除本地文件device_data的时候才会重新随机产生一个app_device_id值，然后一般用户是不可以在删除应用的时候同时找到它所保存的文件路径并删除，这就达到了设备ID的唯一性。</p>
 

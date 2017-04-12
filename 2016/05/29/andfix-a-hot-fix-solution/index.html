@@ -201,21 +201,21 @@
 
                 <p>AndFix是阿里开源的一种在线bug热修复的方案，当线上应用出现紧急Bug时，无需再重新发版本，通过发送补丁的方式达到修复Bug的功能，相对于之前同样为阿里开源的Dexposed来说，AndFix支持Android2.3-6.0，并且同时支持Dalvik和ART模式。</p>
 
-<h2 id="section">实现思路</h2>
+<h2 id="实现思路">实现思路</h2>
 
 <p>AndFix的实现思路就是方法的替换，在native层动态替换方法，通过native代码中hook java层的代码。大致的思路如下图：</p>
 
 <p><img src="https://raw.githubusercontent.com/Shinelw/shinelw.github.io/master/assets/principle.png" alt="" /></p>
 
-<h2 id="section-1">使用流程</h2>
+<h2 id="使用流程">使用流程</h2>
 
-<h3 id="section-2">1. 引入依赖</h3>
+<h3 id="1-引入依赖">1. 引入依赖</h3>
 
 <div class="language-gradle highlighter-rouge"><pre class="highlight"><code><span class="n">compile</span> <span class="s1">'com.alipay.euler:andfix:0.4.0@aar'</span>
 </code></pre>
 </div>
 
-<h3 id="patchmanager">2. 初始化PatchManager</h3>
+<h3 id="2-初始化patchmanager">2. 初始化PatchManager</h3>
 
 <p>在应用的Application中对AndFix进行初始化，加载Patch。</p>
 
@@ -226,7 +226,7 @@
 </code></pre>
 </div>
 
-<h3 id="patch">3. 加载patch</h3>
+<h3 id="3-加载patch">3. 加载patch</h3>
 
 <div class="language-java highlighter-rouge"><pre class="highlight"><code><span class="c1">//加载 patch</span>
 <span class="n">mPatchManager</span><span class="o">.</span><span class="na">loadPatch</span><span class="o">();</span>
@@ -235,7 +235,7 @@
 
 <p>保证尽快的初始化PatchManager和加载patch，在Applicaton.onCreate()中执行，确保patch可以加载修复。</p>
 
-<h3 id="apkpatchdiff">4. ApkPatch工具产生diff差异包</h3>
+<h3 id="4-apkpatch工具产生diff差异包">4. ApkPatch工具产生diff差异包</h3>
 
 <p>AndFix提供了一个ApkPatch的工具，这个工具的主要功能就是比对两个apk，将不同的类（即修复过的类）标识出来，进行更快速的定位修复。</p>
 
@@ -253,7 +253,7 @@
 </code></pre>
 </div>
 
-<h3 id="patch-1">5. 添加patch进行修复</h3>
+<h3 id="5-添加patch进行修复">5. 添加patch进行修复</h3>
 
 <p>从服务器拉取patch以后，将patch添加到patchManager中进行修复操作。</p>
 
@@ -263,11 +263,11 @@
 
 <p>以上，就完成了整个AndFix的bug修复过程。</p>
 
-<h2 id="section-3">源码分析</h2>
+<h2 id="源码分析">源码分析</h2>
 
 <p>针对于源码的分析过程，大致跟随AndFix整个修复流程来进行。</p>
 
-<h3 id="patchmanager-1">1. PatchManager</h3>
+<h3 id="1-patchmanager">1. PatchManager</h3>
 
 <div class="language-java highlighter-rouge"><pre class="highlight"><code>	<span class="kd">public</span> <span class="kt">void</span> <span class="nf">init</span><span class="o">(</span><span class="n">String</span> <span class="n">appVersion</span><span class="o">)</span> <span class="o">{</span>	
 		<span class="c1">//patch路径的初始化</span>
@@ -326,7 +326,7 @@
 
 <p>接下来进入AndFixManager中。</p>
 
-<h3 id="andfixmanager">2. AndFixManager</h3>
+<h3 id="2-andfixmanager">2. AndFixManager</h3>
 
 <div class="language-java highlighter-rouge"><pre class="highlight"><code>	<span class="kd">public</span> <span class="kd">synchronized</span> <span class="kt">void</span> <span class="nf">fix</span><span class="o">(</span><span class="n">File</span> <span class="n">file</span><span class="o">,</span> <span class="n">ClassLoader</span> <span class="n">classLoader</span><span class="o">,</span>
 			<span class="n">List</span><span class="o">&lt;</span><span class="n">String</span><span class="o">&gt;</span> <span class="n">classes</span><span class="o">)</span> <span class="o">{</span>
@@ -451,7 +451,7 @@
 
 <p>定位到需要修复的方法以后，进入AndFix进行方法的替换。</p>
 
-<h3 id="andfix">3. AndFix</h3>
+<h3 id="3-andfix">3. AndFix</h3>
 
 <p>AndFix是Java层进行方法替换的核心类，在该类中提供了Native层的接口，加载了<strong>andfix.cpp</strong>，主要进行了Native层的初始化，以及目标修复类的替换工作。</p>
 
@@ -488,7 +488,7 @@
 
 <p>紧接着进入核心的Native层。</p>
 
-<h3 id="native">4. Native层分析</h3>
+<h3 id="4-native层分析">4. Native层分析</h3>
 
 <p>针对Dalvik和ART，在Native层中有不同的处理。首先，<em>AndFixManager</em>类中对系统是否支持进行了判断。</p>
 
@@ -556,7 +556,7 @@
 
 <p>ART和Dalvik的不同，<em>setup()</em>方法会分别进入不同的方法执行，</p>
 
-<h4 id="dalvik">Dalvik部分</h4>
+<h4 id="dalvik部分">Dalvik部分</h4>
 
 <p>进入<em>dalvik_setup()</em>方法中，位于<em>dalvik_method_replace.cpp</em>中，如下：</p>
 
@@ -623,7 +623,7 @@
 </code></pre>
 </div>
 
-<h4 id="art">ART部分</h4>
+<h4 id="art部分">ART部分</h4>
 
 <p>art部分根据版本号的不同，进行了不同的处理。代码树为：</p>
 
@@ -710,18 +710,20 @@
 
 <p>至此，AndFix的整个方法替换流程已经结束。</p>
 
-<p>总体的过程总结如下：
-1. 初始化patch管理器，加载补丁；
-2. 检查手机是否支持，判断ART、Dalvik；
-3. 进行md5，指纹的安全检查
-4. 验证补丁的配置，通过patch-classes字段得到要替换的所有类
-5. 通过注解从类中得到具体要替换的方法
-6. 修改方法的访问权限为public
-7. 得到指向新方法和被替换目标方法的指针，将新方法指向目标方法，完成方法的替换。</p>
+<p>总体的过程总结如下：</p>
+<ol>
+  <li>初始化patch管理器，加载补丁；</li>
+  <li>检查手机是否支持，判断ART、Dalvik；</li>
+  <li>进行md5，指纹的安全检查</li>
+  <li>验证补丁的配置，通过patch-classes字段得到要替换的所有类</li>
+  <li>通过注解从类中得到具体要替换的方法</li>
+  <li>修改方法的访问权限为public</li>
+  <li>得到指向新方法和被替换目标方法的指针，将新方法指向目标方法，完成方法的替换。</li>
+</ol>
 
 <p>概括一句话就是，Java层进行补丁的加载，手机支持，安全检查，得到替换类等一系列前期准备工作；Native层进行类权限的修改、类的替换等核心功能。</p>
 
-<h2 id="apkpatch">ApkPatch工具原理分析</h2>
+<h2 id="apkpatch工具原理分析">ApkPatch工具原理分析</h2>
 
 <p>讲完了AndFix整个的替换流程，最后一节我们来分析一下生成diff差异包补丁的原理。</p>
 
@@ -791,7 +793,7 @@
 
 <p>代码中可以看出，创建patch补丁大致是四个步骤，为diff()、buildCode()、build()、release()，接下来我们对每个步骤进行分析。</p>
 
-<h3 id="diff---apk">1. diff() - 找出新旧apk中差异信息</h3>
+<h3 id="1-diff---找出新旧apk中差异信息">1. diff() - 找出新旧apk中差异信息</h3>
 
 <div class="language-java highlighter-rouge"><pre class="highlight"><code><span class="kd">public</span> <span class="n">DiffInfo</span> <span class="nf">diff</span><span class="o">(</span><span class="n">File</span> <span class="n">newFile</span><span class="o">,</span> <span class="n">File</span> <span class="n">oldFile</span><span class="o">)</span>
     <span class="kd">throws</span> <span class="n">IOException</span>
@@ -848,7 +850,7 @@
 </code></pre>
 </div>
 
-<h3 id="buildcode---infosmalidex">2. buildCode() - Info信息写入.smali文件中，生成dex文件</h3>
+<h3 id="2-buildcode---info信息写入smali文件中生成dex文件">2. buildCode() - Info信息写入.smali文件中，生成dex文件</h3>
 
 <div class="language-java highlighter-rouge"><pre class="highlight"><code><span class="kd">private</span> <span class="kd">static</span> <span class="n">Set</span><span class="o">&lt;</span><span class="n">String</span><span class="o">&gt;</span> <span class="nf">buildCode</span><span class="o">(</span><span class="n">File</span> <span class="n">smaliDir</span><span class="o">,</span> <span class="n">File</span> <span class="n">dexFile</span><span class="o">,</span> <span class="n">DiffInfo</span> <span class="n">info</span><span class="o">)</span>
     <span class="kd">throws</span> <span class="n">IOException</span><span class="o">,</span> <span class="n">RecognitionException</span><span class="o">,</span> <span class="n">FileNotFoundException</span>
@@ -878,7 +880,7 @@
 </code></pre>
 </div>
 
-<h3 id="build---keystoreapatch">3. build() - 根据keystore进行签名，生成.apatch补丁文件</h3>
+<h3 id="3-build---根据keystore进行签名生成apatch补丁文件">3. build() - 根据keystore进行签名，生成.apatch补丁文件</h3>
 
 <div class="language-java highlighter-rouge"><pre class="highlight"><code><span class="kd">protected</span> <span class="kt">void</span> <span class="nf">build</span><span class="o">(</span><span class="n">File</span> <span class="n">outFile</span><span class="o">,</span> <span class="n">File</span> <span class="n">dexFile</span><span class="o">)</span>
     <span class="kd">throws</span> <span class="n">KeyStoreException</span><span class="o">,</span> <span class="n">FileNotFoundException</span><span class="o">,</span> <span class="n">IOException</span><span class="o">,</span> <span class="n">NoSuchAlgorithmException</span><span class="o">,</span> <span class="n">CertificateException</span><span class="o">,</span> <span class="n">UnrecoverableEntryException</span>
@@ -949,7 +951,7 @@
 
 <p>至此，第三步完成以后，会生成一个diff.apatch的文件，这个文件其他内容上跟最终补丁文件已经一致，那么最后一步<strong>release()</strong>做了什么呢。</p>
 
-<h3 id="release---diffapatch">4. release() - 重命名diff.apatch文件</h3>
+<h3 id="4-release---重命名diffapatch文件">4. release() - 重命名diff.apatch文件</h3>
 
 <div class="language-java highlighter-rouge"><pre class="highlight"><code>  <span class="kd">protected</span> <span class="kt">void</span> <span class="nf">release</span><span class="o">(</span><span class="n">File</span> <span class="n">outDir</span><span class="o">,</span> <span class="n">File</span> <span class="n">dexFile</span><span class="o">,</span> <span class="n">File</span> <span class="n">outFile</span><span class="o">)</span>
     <span class="kd">throws</span> <span class="n">NoSuchAlgorithmException</span><span class="o">,</span> <span class="n">FileNotFoundException</span><span class="o">,</span> <span class="n">IOException</span>
@@ -973,7 +975,7 @@
 
 <p>到这里，经过四个步骤，生成了最终的补丁文件，在命令行后共生成diff.dex、smali文件、md5.apatch三个文件。其中md5.apatch文件就是我们进行热修复的补丁。</p>
 
-<h2 id="section-4">总结</h2>
+<h2 id="总结">总结</h2>
 
 <p>AndFix提供了一种Native层hook Java层代码的思路，实现了动态的替换方法。在处理简单没有特别复杂的方法中有独特的优势，但因为在加载类时跳过了类装载过程直接设置为初始化完毕，所以不支持新增静态变量和方法。</p>
 
