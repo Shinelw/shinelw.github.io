@@ -5,25 +5,19 @@
     <description>好好学习天天向上。</description>
     <link>http://shinelw.com/</link>
     <atom:link href="http://shinelw.com/feed.xml" rel="self" type="application/rss+xml" />
-    <pubDate>Fri, 14 Apr 2017 14:41:40 +0800</pubDate>
-    <lastBuildDate>Fri, 14 Apr 2017 14:41:40 +0800</lastBuildDate>
+    <pubDate>Fri, 14 Apr 2017 14:51:37 +0800</pubDate>
+    <lastBuildDate>Fri, 14 Apr 2017 14:51:37 +0800</lastBuildDate>
     <generator>Jekyll v3.4.2</generator>
     
       <item>
         <title>深度分析FlexboxLayout可伸缩布局</title>
         <description>&lt;p&gt;Google开源了一种可伸缩弹性的布局FlexboxLayout，它根据CSS的FlexBox仿造而来，提供了更加灵活简单的布局方式。初识FlexboxLayout时，首先联想到的是开源项目流式布局&lt;a href=&quot;https://github.com/hongyangAndroid/FlowLayout&quot;&gt;FlowLayout&lt;/a&gt;。但相比于FlowLayout，FlexboxLayout在操作上更加简单，并且更加强大，谷歌在apha版本中加入了对于RecyclerView的支持。对于FlexboxLayout，最适合的应用场景在于 &lt;code class=&quot;highlighter-rouge&quot;&gt;标签云&lt;/code&gt; 和 &lt;code class=&quot;highlighter-rouge&quot;&gt;图片流&lt;/code&gt; ，如下图。&lt;/p&gt;
 
-&lt;table&gt;&lt;tr&gt;
-&lt;td&gt;&amp;lt;img src=&quot;http://oodzkgz2y.bkt.clouddn.com/tag.png&quot; border=0&amp;gt;&lt;/td&gt;
-&lt;td&gt;&amp;lt;img src=&quot;http://oodzkgz2y.bkt.clouddn.com/picflow.jpg&quot; border=0&amp;gt;&lt;/td&gt;
-&lt;/tr&gt;&lt;/table&gt;
+&lt;p&gt;&lt;img src=&quot;http://oodzkgz2y.bkt.clouddn.com/tagpicflow.png&quot; alt=&quot;tagpicflow&quot; /&gt;&lt;/p&gt;
 
 &lt;p&gt;同时，FlexboxLayout提供了一个很强大的特性，根据屏幕的大小自动适配自动换行。当我们把手机的屏幕旋转时，就会变成下面的样子。&lt;/p&gt;
 
-&lt;table&gt;&lt;tr&gt;
-&lt;td&gt;&amp;lt;img src=&quot;http://oodzkgz2y.bkt.clouddn.com/tag-rotate.png&quot; border=0&amp;gt;&lt;/td&gt;
-&lt;td&gt;&amp;lt;img src=&quot;http://oodzkgz2y.bkt.clouddn.com/picflow-rotate.jpg&quot; border=0&amp;gt;&lt;/td&gt;
-&lt;/tr&gt;&lt;/table&gt;
+&lt;p&gt;&lt;img src=&quot;http://oodzkgz2y.bkt.clouddn.com/tagpicflow-rotate.png&quot; alt=&quot;tagpicflow-rotate&quot; /&gt;&lt;/p&gt;
 
 &lt;p&gt;不需要人肉进行复杂的手机适配工作，FlexboxLayout自动的帮我们完成了适配。接下来，我们来看看FlexboxLayout如何实现可伸缩可自动换行的特性。&lt;/p&gt;
 
