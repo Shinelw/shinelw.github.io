@@ -903,6 +903,19 @@
   <li>RecyclerView不支持AlignContent多轴线对齐方式，若为FLEX_END，并且FlexWrap=WRAP，则需要从底部垂直往上滚动，这显然是不合理的。同理于flexWrap为WRAP_REVERSE的情况。</li>
 </ol>
 
+<p>另一方面，FlexLayoutManager(RecyclerView)有独特的优势，即支持View回收和滚动。</p>
+
+<p>对于View回收，FlexboxLayout本质上ViewGroup，进行了Measure、Layout、Draw的操作，并不能支持视图回收；而FlexboxLayoutManager基于RecyclerView的特性，在ViewHolder视图复用、视图缓存回收等方面天然支持。</p>
+
+<p>对于页面滚动，<code class="highlighter-rouge">*1</code>表示FlexboxLayout可以通过包装ScrollView来实现，但是因为FlexboxLayout不支持view回收，大量的子元素view会占据极大的内存空间。而FlexboxLayoutManager基于RecyclerView，天然支持滚动。</p>
+
+<p>综上，我们可以得到FlexboxLayout和FlexLayoutManager(RecyclerView)不同的使用场景：</p>
+
+<ul>
+  <li>FlexboxLayout： 适合少量的view，比如<code class="highlighter-rouge">标签云</code>，不考虑大量view的情况。</li>
+  <li>FlexLayoutManager(RecyclerView)： 适合大量的view，比如<code class="highlighter-rouge">图片流</code>,视图回收能保证其良好的性能。</li>
+</ul>
+
 <hr />
 
 <p>参考资料：</p>
