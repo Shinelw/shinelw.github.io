@@ -203,15 +203,15 @@
                 <p>Google开源了一种可伸缩弹性的布局FlexboxLayout，它根据CSS的FlexBox仿造而来，提供了更加灵活简单的布局方式。初识FlexboxLayout时，首先联想到的是开源项目流式布局<a href="https://github.com/hongyangAndroid/FlowLayout">FlowLayout</a>。但相比于FlowLayout，FlexboxLayout在操作上更加简单，并且更加强大，谷歌在apha版本中加入了对于RecyclerView的支持。对于FlexboxLayout，最适合的应用场景在于 <code class="highlighter-rouge">标签云</code> 和 <code class="highlighter-rouge">图片流</code> ，如下图。</p>
 
 <table><tr>
-<td>&lt;img src="../assets/flexboxlayout/tag.png" border=0&gt;</td>
-<td>&lt;img src="../assets/flexboxlayout/picflow.jpg" border=0&gt;</td>
+<td>&lt;img src="http://oodzkgz2y.bkt.clouddn.com/tag.png" border=0&gt;</td>
+<td>&lt;img src="http://oodzkgz2y.bkt.clouddn.com/picflow.jpg" border=0&gt;</td>
 </tr></table>
 
 <p>同时，FlexboxLayout提供了一个很强大的特性，根据屏幕的大小自动适配自动换行。当我们把手机的屏幕旋转时，就会变成下面的样子。</p>
 
 <table><tr>
-<td>&lt;img src="../assets/flexboxlayout/tag-rotate.png" border=0&gt;</td>
-<td>&lt;img src="../assets/flexboxlayout/picflow-rotate.jpg" border=0&gt;</td>
+<td>&lt;img src="http://oodzkgz2y.bkt.clouddn.com/tag-rotate.png" border=0&gt;</td>
+<td>&lt;img src="http://oodzkgz2y.bkt.clouddn.com/picflow-rotate.jpg" border=0&gt;</td>
 </tr></table>
 
 <p>不需要人肉进行复杂的手机适配工作，FlexboxLayout自动的帮我们完成了适配。接下来，我们来看看FlexboxLayout如何实现可伸缩可自动换行的特性。</p>
@@ -221,7 +221,7 @@
 <h2 id="项目框架">项目框架</h2>
 <p>我们先看一下FlexboxLayout项目的整个类图，基于版本0.3.0-alpha3。</p>
 
-<p><img src="../assets/flexboxlayout/flexboxlayout.jpg" alt="FlexboxLayout类图" /></p>
+<p><img src="http://oodzkgz2y.bkt.clouddn.com/flexboxlayout.jpg" alt="FlexboxLayout类图" /></p>
 
 <p>整体上来看，项目基本可以分成三个部分，<code class="highlighter-rouge">公共接口/逻辑部分</code>、<code class="highlighter-rouge">FlexboxLayout实现</code> 、 <code class="highlighter-rouge">RecyclerView接入实现</code>。</p>
 
@@ -278,7 +278,7 @@
 
 <p>举个例子，当<code class="highlighter-rouge">FlexDirection=ROW</code>, <code class="highlighter-rouge">FlexWrap=NOWRAP</code>的时候，如下：</p>
 
-<p><img src="../assets/flexboxlayout/justifycontent.png" alt="justify-content" /></p>
+<p><img src="http://oodzkgz2y.bkt.clouddn.com/justifycontent.png" alt="justify-content" /></p>
 
 <h4 id="3-flexwrap">3. FlexWrap</h4>
 <p>FlexWrap决定是否自动换行和换行的方式，有三种取值。</p>
@@ -306,7 +306,7 @@
 
 <p>举个例子，当<code class="highlighter-rouge">FlexDirection=ROW</code>, <code class="highlighter-rouge">FlexWrap=NOWRAP</code>的时候，如下：</p>
 
-<p><img src="../assets/flexboxlayout/alignitems.png" alt="align-item" /></p>
+<p><img src="http://oodzkgz2y.bkt.clouddn.com/alignitems.png" alt="align-item" /></p>
 
 <h4 id="5-aligncontent">5. AlignContent</h4>
 <p>AlignContent决定容器内多根轴线的对齐方式，如果只有一行，则该属性不生效，有6种取值。</p>
@@ -324,7 +324,7 @@
 
 <p>举个例子，当<code class="highlighter-rouge">FlexDirection=ROW</code>, <code class="highlighter-rouge">FlexWrap=WRAP</code>的时候，如下：</p>
 
-<p><img src="../assets/flexboxlayout/aligncontent.png" alt="align-content" /></p>
+<p><img src="http://oodzkgz2y.bkt.clouddn.com/aligncontent.png" alt="align-content" /></p>
 
 <h3 id="layout的组成">Layout的组成</h3>
 
@@ -347,7 +347,7 @@
 <h3 id="flexcontainer通用容器接口">FlexContainer通用容器接口</h3>
 <p>以上，由容器的组成FlexLine、FlexItem和容器的属性就构成了整个通用的可伸缩容器（FlexContainer），除此之外，FlexContainer作为FlexboxLayout和FlexboxLayoutManager的通用接口，也定义了一些相同的行为函数，包括<code class="highlighter-rouge">addView()</code>、<code class="highlighter-rouge">removeViewAt()</code>、<code class="highlighter-rouge">getFlexItemAt()</code>等，整个结构如下：</p>
 
-<p><img src="../assets/flexboxlayout/flexcontainer.png" alt="flexcontainer" /></p>
+<p><img src="http://oodzkgz2y.bkt.clouddn.com/flexcontainer.png" alt="flexcontainer" /></p>
 
 <h2 id="flexboxlayout的实现过程">FlexboxLayout的实现过程</h2>
 
@@ -730,7 +730,7 @@
 
 <p>举个例子，当<code class="highlighter-rouge">FlexDirection=ROW</code>,<code class="highlighter-rouge">FlexWrap=WRAP</code>时，则主轴为水平方向，沿着交叉轴滚动。此时，mLayoutFromEnd = fasle，即布局方向从起始点开始。此时，填充的示意图如下图：</p>
 
-<p><img src="../assets/flexboxlayout/anchor-fill.png" alt="anchor-fill" /></p>
+<p><img src="http://oodzkgz2y.bkt.clouddn.com/anchor-fill.png" alt="anchor-fill" /></p>
 
 <p>由于mIndexToFlexLine保存了每个FlexLine的子元素数量和在整个容器中的位置，所以在填充的过程中每行能容纳的子元素确定，如图主轴为水平方向，则填充方向为往起始方向(start)填充最左上角，往终点方向(end)填充值最右下角。虽然填充方向为start、end两个方向同时进行，但是一般来说，初始的锚点都在起始点或者终点。</p>
 
@@ -821,83 +821,83 @@
   <tbody>
     <tr>
       <td>flexDirection</td>
-      <td style="text-align: center"><img src="../assets/flexboxlayout/check_green_small.png" alt="Check" /></td>
-      <td style="text-align: center"><img src="../assets/flexboxlayout/check_green_small.png" alt="Check" /></td>
+      <td style="text-align: center"><img src="http://oodzkgz2y.bkt.clouddn.com/check_green_small.png" alt="Check" /></td>
+      <td style="text-align: center"><img src="http://oodzkgz2y.bkt.clouddn.com/check_green_small.png" alt="Check" /></td>
     </tr>
     <tr>
       <td>flexWrap</td>
-      <td style="text-align: center"><img src="../assets/flexboxlayout/check_green_small.png" alt="Check" /></td>
-      <td style="text-align: center"><img src="../assets/flexboxlayout/check_green_small.png" alt="Check" /> (except <code class="highlighter-rouge">wrap_reverse</code>)</td>
+      <td style="text-align: center"><img src="http://oodzkgz2y.bkt.clouddn.com/check_green_small.png" alt="Check" /></td>
+      <td style="text-align: center"><img src="http://oodzkgz2y.bkt.clouddn.com/check_green_small.png" alt="Check" /> (except <code class="highlighter-rouge">wrap_reverse</code>)</td>
     </tr>
     <tr>
       <td>justifyContent</td>
-      <td style="text-align: center"><img src="../assets/flexboxlayout/check_green_small.png" alt="Check" /></td>
-      <td style="text-align: center"><img src="../assets/flexboxlayout/check_green_small.png" alt="Check" /></td>
+      <td style="text-align: center"><img src="http://oodzkgz2y.bkt.clouddn.com/check_green_small.png" alt="Check" /></td>
+      <td style="text-align: center"><img src="http://oodzkgz2y.bkt.clouddn.com/check_green_small.png" alt="Check" /></td>
     </tr>
     <tr>
       <td>alignItems</td>
-      <td style="text-align: center"><img src="../assets/flexboxlayout/check_green_small.png" alt="Check" /></td>
-      <td style="text-align: center"><img src="../assets/flexboxlayout/check_green_small.png" alt="Check" /></td>
+      <td style="text-align: center"><img src="http://oodzkgz2y.bkt.clouddn.com/check_green_small.png" alt="Check" /></td>
+      <td style="text-align: center"><img src="http://oodzkgz2y.bkt.clouddn.com/check_green_small.png" alt="Check" /></td>
     </tr>
     <tr>
       <td>alignContent</td>
-      <td style="text-align: center"><img src="../assets/flexboxlayout/check_green_small.png" alt="Check" /></td>
+      <td style="text-align: center"><img src="http://oodzkgz2y.bkt.clouddn.com/check_green_small.png" alt="Check" /></td>
       <td style="text-align: center">-</td>
     </tr>
     <tr>
       <td>layout_order</td>
-      <td style="text-align: center"><img src="../assets/flexboxlayout/check_green_small.png" alt="Check" /></td>
+      <td style="text-align: center"><img src="http://oodzkgz2y.bkt.clouddn.com/check_green_small.png" alt="Check" /></td>
       <td style="text-align: center">-</td>
     </tr>
     <tr>
       <td>layout_flexGrow</td>
-      <td style="text-align: center"><img src="../assets/flexboxlayout/check_green_small.png" alt="Check" /></td>
-      <td style="text-align: center"><img src="../assets/flexboxlayout/check_green_small.png" alt="Check" /></td>
+      <td style="text-align: center"><img src="http://oodzkgz2y.bkt.clouddn.com/check_green_small.png" alt="Check" /></td>
+      <td style="text-align: center"><img src="http://oodzkgz2y.bkt.clouddn.com/check_green_small.png" alt="Check" /></td>
     </tr>
     <tr>
       <td>layout_flexShrink</td>
-      <td style="text-align: center"><img src="../assets/flexboxlayout/check_green_small.png" alt="Check" /></td>
-      <td style="text-align: center"><img src="../assets/flexboxlayout/check_green_small.png" alt="Check" /></td>
+      <td style="text-align: center"><img src="http://oodzkgz2y.bkt.clouddn.com/check_green_small.png" alt="Check" /></td>
+      <td style="text-align: center"><img src="http://oodzkgz2y.bkt.clouddn.com/check_green_small.png" alt="Check" /></td>
     </tr>
     <tr>
       <td>layout_alignSelf</td>
-      <td style="text-align: center"><img src="../assets/flexboxlayout/check_green_small.png" alt="Check" /></td>
-      <td style="text-align: center"><img src="../assets/flexboxlayout/check_green_small.png" alt="Check" /></td>
+      <td style="text-align: center"><img src="http://oodzkgz2y.bkt.clouddn.com/check_green_small.png" alt="Check" /></td>
+      <td style="text-align: center"><img src="http://oodzkgz2y.bkt.clouddn.com/check_green_small.png" alt="Check" /></td>
     </tr>
     <tr>
       <td>layout_flexBasisPercent</td>
-      <td style="text-align: center"><img src="../assets/flexboxlayout/check_green_small.png" alt="Check" /></td>
-      <td style="text-align: center"><img src="../assets/flexboxlayout/check_green_small.png" alt="Check" /></td>
+      <td style="text-align: center"><img src="http://oodzkgz2y.bkt.clouddn.com/check_green_small.png" alt="Check" /></td>
+      <td style="text-align: center"><img src="http://oodzkgz2y.bkt.clouddn.com/check_green_small.png" alt="Check" /></td>
     </tr>
     <tr>
       <td>layout_(min/max)Width</td>
-      <td style="text-align: center"><img src="../assets/flexboxlayout/check_green_small.png" alt="Check" /></td>
-      <td style="text-align: center"><img src="../assets/flexboxlayout/check_green_small.png" alt="Check" /></td>
+      <td style="text-align: center"><img src="http://oodzkgz2y.bkt.clouddn.com/check_green_small.png" alt="Check" /></td>
+      <td style="text-align: center"><img src="http://oodzkgz2y.bkt.clouddn.com/check_green_small.png" alt="Check" /></td>
     </tr>
     <tr>
       <td>layout_(min/max)Height</td>
-      <td style="text-align: center"><img src="../assets/flexboxlayout/check_green_small.png" alt="Check" /></td>
-      <td style="text-align: center"><img src="../assets/flexboxlayout/check_green_small.png" alt="Check" /></td>
+      <td style="text-align: center"><img src="http://oodzkgz2y.bkt.clouddn.com/check_green_small.png" alt="Check" /></td>
+      <td style="text-align: center"><img src="http://oodzkgz2y.bkt.clouddn.com/check_green_small.png" alt="Check" /></td>
     </tr>
     <tr>
       <td>layout_wrapBefore</td>
-      <td style="text-align: center"><img src="../assets/flexboxlayout/check_green_small.png" alt="Check" /></td>
-      <td style="text-align: center"><img src="../assets/flexboxlayout/check_green_small.png" alt="Check" /></td>
+      <td style="text-align: center"><img src="http://oodzkgz2y.bkt.clouddn.com/check_green_small.png" alt="Check" /></td>
+      <td style="text-align: center"><img src="http://oodzkgz2y.bkt.clouddn.com/check_green_small.png" alt="Check" /></td>
     </tr>
     <tr>
       <td>Divider</td>
-      <td style="text-align: center"><img src="../assets/flexboxlayout/check_green_small.png" alt="Check" /></td>
-      <td style="text-align: center"><img src="../assets/flexboxlayout/check_green_small.png" alt="Check" /></td>
+      <td style="text-align: center"><img src="http://oodzkgz2y.bkt.clouddn.com/check_green_small.png" alt="Check" /></td>
+      <td style="text-align: center"><img src="http://oodzkgz2y.bkt.clouddn.com/check_green_small.png" alt="Check" /></td>
     </tr>
     <tr>
       <td>View recycling</td>
       <td style="text-align: center">-</td>
-      <td style="text-align: center"><img src="../assets/flexboxlayout/check_green_small.png" alt="Check" /></td>
+      <td style="text-align: center"><img src="http://oodzkgz2y.bkt.clouddn.com/check_green_small.png" alt="Check" /></td>
     </tr>
     <tr>
       <td>Scrolling</td>
       <td style="text-align: center">*1</td>
-      <td style="text-align: center"><img src="../assets/flexboxlayout/check_green_small.png" alt="Check" /></td>
+      <td style="text-align: center"><img src="http://oodzkgz2y.bkt.clouddn.com/check_green_small.png" alt="Check" /></td>
     </tr>
   </tbody>
 </table>

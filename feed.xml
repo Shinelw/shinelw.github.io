@@ -5,8 +5,8 @@
     <description>好好学习天天向上。</description>
     <link>http://shinelw.com/</link>
     <atom:link href="http://shinelw.com/feed.xml" rel="self" type="application/rss+xml" />
-    <pubDate>Fri, 14 Apr 2017 14:26:31 +0800</pubDate>
-    <lastBuildDate>Fri, 14 Apr 2017 14:26:31 +0800</lastBuildDate>
+    <pubDate>Fri, 14 Apr 2017 14:41:40 +0800</pubDate>
+    <lastBuildDate>Fri, 14 Apr 2017 14:41:40 +0800</lastBuildDate>
     <generator>Jekyll v3.4.2</generator>
     
       <item>
@@ -14,15 +14,15 @@
         <description>&lt;p&gt;Google开源了一种可伸缩弹性的布局FlexboxLayout，它根据CSS的FlexBox仿造而来，提供了更加灵活简单的布局方式。初识FlexboxLayout时，首先联想到的是开源项目流式布局&lt;a href=&quot;https://github.com/hongyangAndroid/FlowLayout&quot;&gt;FlowLayout&lt;/a&gt;。但相比于FlowLayout，FlexboxLayout在操作上更加简单，并且更加强大，谷歌在apha版本中加入了对于RecyclerView的支持。对于FlexboxLayout，最适合的应用场景在于 &lt;code class=&quot;highlighter-rouge&quot;&gt;标签云&lt;/code&gt; 和 &lt;code class=&quot;highlighter-rouge&quot;&gt;图片流&lt;/code&gt; ，如下图。&lt;/p&gt;
 
 &lt;table&gt;&lt;tr&gt;
-&lt;td&gt;&amp;lt;img src=&quot;../assets/flexboxlayout/tag.png&quot; border=0&amp;gt;&lt;/td&gt;
-&lt;td&gt;&amp;lt;img src=&quot;../assets/flexboxlayout/picflow.jpg&quot; border=0&amp;gt;&lt;/td&gt;
+&lt;td&gt;&amp;lt;img src=&quot;http://oodzkgz2y.bkt.clouddn.com/tag.png&quot; border=0&amp;gt;&lt;/td&gt;
+&lt;td&gt;&amp;lt;img src=&quot;http://oodzkgz2y.bkt.clouddn.com/picflow.jpg&quot; border=0&amp;gt;&lt;/td&gt;
 &lt;/tr&gt;&lt;/table&gt;
 
 &lt;p&gt;同时，FlexboxLayout提供了一个很强大的特性，根据屏幕的大小自动适配自动换行。当我们把手机的屏幕旋转时，就会变成下面的样子。&lt;/p&gt;
 
 &lt;table&gt;&lt;tr&gt;
-&lt;td&gt;&amp;lt;img src=&quot;../assets/flexboxlayout/tag-rotate.png&quot; border=0&amp;gt;&lt;/td&gt;
-&lt;td&gt;&amp;lt;img src=&quot;../assets/flexboxlayout/picflow-rotate.jpg&quot; border=0&amp;gt;&lt;/td&gt;
+&lt;td&gt;&amp;lt;img src=&quot;http://oodzkgz2y.bkt.clouddn.com/tag-rotate.png&quot; border=0&amp;gt;&lt;/td&gt;
+&lt;td&gt;&amp;lt;img src=&quot;http://oodzkgz2y.bkt.clouddn.com/picflow-rotate.jpg&quot; border=0&amp;gt;&lt;/td&gt;
 &lt;/tr&gt;&lt;/table&gt;
 
 &lt;p&gt;不需要人肉进行复杂的手机适配工作，FlexboxLayout自动的帮我们完成了适配。接下来，我们来看看FlexboxLayout如何实现可伸缩可自动换行的特性。&lt;/p&gt;
@@ -32,7 +32,7 @@
 &lt;h2 id=&quot;项目框架&quot;&gt;项目框架&lt;/h2&gt;
 &lt;p&gt;我们先看一下FlexboxLayout项目的整个类图，基于版本0.3.0-alpha3。&lt;/p&gt;
 
-&lt;p&gt;&lt;img src=&quot;../assets/flexboxlayout/flexboxlayout.jpg&quot; alt=&quot;FlexboxLayout类图&quot; /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src=&quot;http://oodzkgz2y.bkt.clouddn.com/flexboxlayout.jpg&quot; alt=&quot;FlexboxLayout类图&quot; /&gt;&lt;/p&gt;
 
 &lt;p&gt;整体上来看，项目基本可以分成三个部分，&lt;code class=&quot;highlighter-rouge&quot;&gt;公共接口/逻辑部分&lt;/code&gt;、&lt;code class=&quot;highlighter-rouge&quot;&gt;FlexboxLayout实现&lt;/code&gt; 、 &lt;code class=&quot;highlighter-rouge&quot;&gt;RecyclerView接入实现&lt;/code&gt;。&lt;/p&gt;
 
@@ -89,7 +89,7 @@
 
 &lt;p&gt;举个例子，当&lt;code class=&quot;highlighter-rouge&quot;&gt;FlexDirection=ROW&lt;/code&gt;, &lt;code class=&quot;highlighter-rouge&quot;&gt;FlexWrap=NOWRAP&lt;/code&gt;的时候，如下：&lt;/p&gt;
 
-&lt;p&gt;&lt;img src=&quot;../assets/flexboxlayout/justifycontent.png&quot; alt=&quot;justify-content&quot; /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src=&quot;http://oodzkgz2y.bkt.clouddn.com/justifycontent.png&quot; alt=&quot;justify-content&quot; /&gt;&lt;/p&gt;
 
 &lt;h4 id=&quot;3-flexwrap&quot;&gt;3. FlexWrap&lt;/h4&gt;
 &lt;p&gt;FlexWrap决定是否自动换行和换行的方式，有三种取值。&lt;/p&gt;
@@ -117,7 +117,7 @@
 
 &lt;p&gt;举个例子，当&lt;code class=&quot;highlighter-rouge&quot;&gt;FlexDirection=ROW&lt;/code&gt;, &lt;code class=&quot;highlighter-rouge&quot;&gt;FlexWrap=NOWRAP&lt;/code&gt;的时候，如下：&lt;/p&gt;
 
-&lt;p&gt;&lt;img src=&quot;../assets/flexboxlayout/alignitems.png&quot; alt=&quot;align-item&quot; /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src=&quot;http://oodzkgz2y.bkt.clouddn.com/alignitems.png&quot; alt=&quot;align-item&quot; /&gt;&lt;/p&gt;
 
 &lt;h4 id=&quot;5-aligncontent&quot;&gt;5. AlignContent&lt;/h4&gt;
 &lt;p&gt;AlignContent决定容器内多根轴线的对齐方式，如果只有一行，则该属性不生效，有6种取值。&lt;/p&gt;
@@ -135,7 +135,7 @@
 
 &lt;p&gt;举个例子，当&lt;code class=&quot;highlighter-rouge&quot;&gt;FlexDirection=ROW&lt;/code&gt;, &lt;code class=&quot;highlighter-rouge&quot;&gt;FlexWrap=WRAP&lt;/code&gt;的时候，如下：&lt;/p&gt;
 
-&lt;p&gt;&lt;img src=&quot;../assets/flexboxlayout/aligncontent.png&quot; alt=&quot;align-content&quot; /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src=&quot;http://oodzkgz2y.bkt.clouddn.com/aligncontent.png&quot; alt=&quot;align-content&quot; /&gt;&lt;/p&gt;
 
 &lt;h3 id=&quot;layout的组成&quot;&gt;Layout的组成&lt;/h3&gt;
 
@@ -158,7 +158,7 @@
 &lt;h3 id=&quot;flexcontainer通用容器接口&quot;&gt;FlexContainer通用容器接口&lt;/h3&gt;
 &lt;p&gt;以上，由容器的组成FlexLine、FlexItem和容器的属性就构成了整个通用的可伸缩容器（FlexContainer），除此之外，FlexContainer作为FlexboxLayout和FlexboxLayoutManager的通用接口，也定义了一些相同的行为函数，包括&lt;code class=&quot;highlighter-rouge&quot;&gt;addView()&lt;/code&gt;、&lt;code class=&quot;highlighter-rouge&quot;&gt;removeViewAt()&lt;/code&gt;、&lt;code class=&quot;highlighter-rouge&quot;&gt;getFlexItemAt()&lt;/code&gt;等，整个结构如下：&lt;/p&gt;
 
-&lt;p&gt;&lt;img src=&quot;../assets/flexboxlayout/flexcontainer.png&quot; alt=&quot;flexcontainer&quot; /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src=&quot;http://oodzkgz2y.bkt.clouddn.com/flexcontainer.png&quot; alt=&quot;flexcontainer&quot; /&gt;&lt;/p&gt;
 
 &lt;h2 id=&quot;flexboxlayout的实现过程&quot;&gt;FlexboxLayout的实现过程&lt;/h2&gt;
 
@@ -541,7 +541,7 @@
 
 &lt;p&gt;举个例子，当&lt;code class=&quot;highlighter-rouge&quot;&gt;FlexDirection=ROW&lt;/code&gt;,&lt;code class=&quot;highlighter-rouge&quot;&gt;FlexWrap=WRAP&lt;/code&gt;时，则主轴为水平方向，沿着交叉轴滚动。此时，mLayoutFromEnd = fasle，即布局方向从起始点开始。此时，填充的示意图如下图：&lt;/p&gt;
 
-&lt;p&gt;&lt;img src=&quot;../assets/flexboxlayout/anchor-fill.png&quot; alt=&quot;anchor-fill&quot; /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src=&quot;http://oodzkgz2y.bkt.clouddn.com/anchor-fill.png&quot; alt=&quot;anchor-fill&quot; /&gt;&lt;/p&gt;
 
 &lt;p&gt;由于mIndexToFlexLine保存了每个FlexLine的子元素数量和在整个容器中的位置，所以在填充的过程中每行能容纳的子元素确定，如图主轴为水平方向，则填充方向为往起始方向(start)填充最左上角，往终点方向(end)填充值最右下角。虽然填充方向为start、end两个方向同时进行，但是一般来说，初始的锚点都在起始点或者终点。&lt;/p&gt;
 
@@ -632,83 +632,83 @@
   &lt;tbody&gt;
     &lt;tr&gt;
       &lt;td&gt;flexDirection&lt;/td&gt;
-      &lt;td style=&quot;text-align: center&quot;&gt;&lt;img src=&quot;../assets/flexboxlayout/check_green_small.png&quot; alt=&quot;Check&quot; /&gt;&lt;/td&gt;
-      &lt;td style=&quot;text-align: center&quot;&gt;&lt;img src=&quot;../assets/flexboxlayout/check_green_small.png&quot; alt=&quot;Check&quot; /&gt;&lt;/td&gt;
+      &lt;td style=&quot;text-align: center&quot;&gt;&lt;img src=&quot;http://oodzkgz2y.bkt.clouddn.com/check_green_small.png&quot; alt=&quot;Check&quot; /&gt;&lt;/td&gt;
+      &lt;td style=&quot;text-align: center&quot;&gt;&lt;img src=&quot;http://oodzkgz2y.bkt.clouddn.com/check_green_small.png&quot; alt=&quot;Check&quot; /&gt;&lt;/td&gt;
     &lt;/tr&gt;
     &lt;tr&gt;
       &lt;td&gt;flexWrap&lt;/td&gt;
-      &lt;td style=&quot;text-align: center&quot;&gt;&lt;img src=&quot;../assets/flexboxlayout/check_green_small.png&quot; alt=&quot;Check&quot; /&gt;&lt;/td&gt;
-      &lt;td style=&quot;text-align: center&quot;&gt;&lt;img src=&quot;../assets/flexboxlayout/check_green_small.png&quot; alt=&quot;Check&quot; /&gt; (except &lt;code class=&quot;highlighter-rouge&quot;&gt;wrap_reverse&lt;/code&gt;)&lt;/td&gt;
+      &lt;td style=&quot;text-align: center&quot;&gt;&lt;img src=&quot;http://oodzkgz2y.bkt.clouddn.com/check_green_small.png&quot; alt=&quot;Check&quot; /&gt;&lt;/td&gt;
+      &lt;td style=&quot;text-align: center&quot;&gt;&lt;img src=&quot;http://oodzkgz2y.bkt.clouddn.com/check_green_small.png&quot; alt=&quot;Check&quot; /&gt; (except &lt;code class=&quot;highlighter-rouge&quot;&gt;wrap_reverse&lt;/code&gt;)&lt;/td&gt;
     &lt;/tr&gt;
     &lt;tr&gt;
       &lt;td&gt;justifyContent&lt;/td&gt;
-      &lt;td style=&quot;text-align: center&quot;&gt;&lt;img src=&quot;../assets/flexboxlayout/check_green_small.png&quot; alt=&quot;Check&quot; /&gt;&lt;/td&gt;
-      &lt;td style=&quot;text-align: center&quot;&gt;&lt;img src=&quot;../assets/flexboxlayout/check_green_small.png&quot; alt=&quot;Check&quot; /&gt;&lt;/td&gt;
+      &lt;td style=&quot;text-align: center&quot;&gt;&lt;img src=&quot;http://oodzkgz2y.bkt.clouddn.com/check_green_small.png&quot; alt=&quot;Check&quot; /&gt;&lt;/td&gt;
+      &lt;td style=&quot;text-align: center&quot;&gt;&lt;img src=&quot;http://oodzkgz2y.bkt.clouddn.com/check_green_small.png&quot; alt=&quot;Check&quot; /&gt;&lt;/td&gt;
     &lt;/tr&gt;
     &lt;tr&gt;
       &lt;td&gt;alignItems&lt;/td&gt;
-      &lt;td style=&quot;text-align: center&quot;&gt;&lt;img src=&quot;../assets/flexboxlayout/check_green_small.png&quot; alt=&quot;Check&quot; /&gt;&lt;/td&gt;
-      &lt;td style=&quot;text-align: center&quot;&gt;&lt;img src=&quot;../assets/flexboxlayout/check_green_small.png&quot; alt=&quot;Check&quot; /&gt;&lt;/td&gt;
+      &lt;td style=&quot;text-align: center&quot;&gt;&lt;img src=&quot;http://oodzkgz2y.bkt.clouddn.com/check_green_small.png&quot; alt=&quot;Check&quot; /&gt;&lt;/td&gt;
+      &lt;td style=&quot;text-align: center&quot;&gt;&lt;img src=&quot;http://oodzkgz2y.bkt.clouddn.com/check_green_small.png&quot; alt=&quot;Check&quot; /&gt;&lt;/td&gt;
     &lt;/tr&gt;
     &lt;tr&gt;
       &lt;td&gt;alignContent&lt;/td&gt;
-      &lt;td style=&quot;text-align: center&quot;&gt;&lt;img src=&quot;../assets/flexboxlayout/check_green_small.png&quot; alt=&quot;Check&quot; /&gt;&lt;/td&gt;
+      &lt;td style=&quot;text-align: center&quot;&gt;&lt;img src=&quot;http://oodzkgz2y.bkt.clouddn.com/check_green_small.png&quot; alt=&quot;Check&quot; /&gt;&lt;/td&gt;
       &lt;td style=&quot;text-align: center&quot;&gt;-&lt;/td&gt;
     &lt;/tr&gt;
     &lt;tr&gt;
       &lt;td&gt;layout_order&lt;/td&gt;
-      &lt;td style=&quot;text-align: center&quot;&gt;&lt;img src=&quot;../assets/flexboxlayout/check_green_small.png&quot; alt=&quot;Check&quot; /&gt;&lt;/td&gt;
+      &lt;td style=&quot;text-align: center&quot;&gt;&lt;img src=&quot;http://oodzkgz2y.bkt.clouddn.com/check_green_small.png&quot; alt=&quot;Check&quot; /&gt;&lt;/td&gt;
       &lt;td style=&quot;text-align: center&quot;&gt;-&lt;/td&gt;
     &lt;/tr&gt;
     &lt;tr&gt;
       &lt;td&gt;layout_flexGrow&lt;/td&gt;
-      &lt;td style=&quot;text-align: center&quot;&gt;&lt;img src=&quot;../assets/flexboxlayout/check_green_small.png&quot; alt=&quot;Check&quot; /&gt;&lt;/td&gt;
-      &lt;td style=&quot;text-align: center&quot;&gt;&lt;img src=&quot;../assets/flexboxlayout/check_green_small.png&quot; alt=&quot;Check&quot; /&gt;&lt;/td&gt;
+      &lt;td style=&quot;text-align: center&quot;&gt;&lt;img src=&quot;http://oodzkgz2y.bkt.clouddn.com/check_green_small.png&quot; alt=&quot;Check&quot; /&gt;&lt;/td&gt;
+      &lt;td style=&quot;text-align: center&quot;&gt;&lt;img src=&quot;http://oodzkgz2y.bkt.clouddn.com/check_green_small.png&quot; alt=&quot;Check&quot; /&gt;&lt;/td&gt;
     &lt;/tr&gt;
     &lt;tr&gt;
       &lt;td&gt;layout_flexShrink&lt;/td&gt;
-      &lt;td style=&quot;text-align: center&quot;&gt;&lt;img src=&quot;../assets/flexboxlayout/check_green_small.png&quot; alt=&quot;Check&quot; /&gt;&lt;/td&gt;
-      &lt;td style=&quot;text-align: center&quot;&gt;&lt;img src=&quot;../assets/flexboxlayout/check_green_small.png&quot; alt=&quot;Check&quot; /&gt;&lt;/td&gt;
+      &lt;td style=&quot;text-align: center&quot;&gt;&lt;img src=&quot;http://oodzkgz2y.bkt.clouddn.com/check_green_small.png&quot; alt=&quot;Check&quot; /&gt;&lt;/td&gt;
+      &lt;td style=&quot;text-align: center&quot;&gt;&lt;img src=&quot;http://oodzkgz2y.bkt.clouddn.com/check_green_small.png&quot; alt=&quot;Check&quot; /&gt;&lt;/td&gt;
     &lt;/tr&gt;
     &lt;tr&gt;
       &lt;td&gt;layout_alignSelf&lt;/td&gt;
-      &lt;td style=&quot;text-align: center&quot;&gt;&lt;img src=&quot;../assets/flexboxlayout/check_green_small.png&quot; alt=&quot;Check&quot; /&gt;&lt;/td&gt;
-      &lt;td style=&quot;text-align: center&quot;&gt;&lt;img src=&quot;../assets/flexboxlayout/check_green_small.png&quot; alt=&quot;Check&quot; /&gt;&lt;/td&gt;
+      &lt;td style=&quot;text-align: center&quot;&gt;&lt;img src=&quot;http://oodzkgz2y.bkt.clouddn.com/check_green_small.png&quot; alt=&quot;Check&quot; /&gt;&lt;/td&gt;
+      &lt;td style=&quot;text-align: center&quot;&gt;&lt;img src=&quot;http://oodzkgz2y.bkt.clouddn.com/check_green_small.png&quot; alt=&quot;Check&quot; /&gt;&lt;/td&gt;
     &lt;/tr&gt;
     &lt;tr&gt;
       &lt;td&gt;layout_flexBasisPercent&lt;/td&gt;
-      &lt;td style=&quot;text-align: center&quot;&gt;&lt;img src=&quot;../assets/flexboxlayout/check_green_small.png&quot; alt=&quot;Check&quot; /&gt;&lt;/td&gt;
-      &lt;td style=&quot;text-align: center&quot;&gt;&lt;img src=&quot;../assets/flexboxlayout/check_green_small.png&quot; alt=&quot;Check&quot; /&gt;&lt;/td&gt;
+      &lt;td style=&quot;text-align: center&quot;&gt;&lt;img src=&quot;http://oodzkgz2y.bkt.clouddn.com/check_green_small.png&quot; alt=&quot;Check&quot; /&gt;&lt;/td&gt;
+      &lt;td style=&quot;text-align: center&quot;&gt;&lt;img src=&quot;http://oodzkgz2y.bkt.clouddn.com/check_green_small.png&quot; alt=&quot;Check&quot; /&gt;&lt;/td&gt;
     &lt;/tr&gt;
     &lt;tr&gt;
       &lt;td&gt;layout_(min/max)Width&lt;/td&gt;
-      &lt;td style=&quot;text-align: center&quot;&gt;&lt;img src=&quot;../assets/flexboxlayout/check_green_small.png&quot; alt=&quot;Check&quot; /&gt;&lt;/td&gt;
-      &lt;td style=&quot;text-align: center&quot;&gt;&lt;img src=&quot;../assets/flexboxlayout/check_green_small.png&quot; alt=&quot;Check&quot; /&gt;&lt;/td&gt;
+      &lt;td style=&quot;text-align: center&quot;&gt;&lt;img src=&quot;http://oodzkgz2y.bkt.clouddn.com/check_green_small.png&quot; alt=&quot;Check&quot; /&gt;&lt;/td&gt;
+      &lt;td style=&quot;text-align: center&quot;&gt;&lt;img src=&quot;http://oodzkgz2y.bkt.clouddn.com/check_green_small.png&quot; alt=&quot;Check&quot; /&gt;&lt;/td&gt;
     &lt;/tr&gt;
     &lt;tr&gt;
       &lt;td&gt;layout_(min/max)Height&lt;/td&gt;
-      &lt;td style=&quot;text-align: center&quot;&gt;&lt;img src=&quot;../assets/flexboxlayout/check_green_small.png&quot; alt=&quot;Check&quot; /&gt;&lt;/td&gt;
-      &lt;td style=&quot;text-align: center&quot;&gt;&lt;img src=&quot;../assets/flexboxlayout/check_green_small.png&quot; alt=&quot;Check&quot; /&gt;&lt;/td&gt;
+      &lt;td style=&quot;text-align: center&quot;&gt;&lt;img src=&quot;http://oodzkgz2y.bkt.clouddn.com/check_green_small.png&quot; alt=&quot;Check&quot; /&gt;&lt;/td&gt;
+      &lt;td style=&quot;text-align: center&quot;&gt;&lt;img src=&quot;http://oodzkgz2y.bkt.clouddn.com/check_green_small.png&quot; alt=&quot;Check&quot; /&gt;&lt;/td&gt;
     &lt;/tr&gt;
     &lt;tr&gt;
       &lt;td&gt;layout_wrapBefore&lt;/td&gt;
-      &lt;td style=&quot;text-align: center&quot;&gt;&lt;img src=&quot;../assets/flexboxlayout/check_green_small.png&quot; alt=&quot;Check&quot; /&gt;&lt;/td&gt;
-      &lt;td style=&quot;text-align: center&quot;&gt;&lt;img src=&quot;../assets/flexboxlayout/check_green_small.png&quot; alt=&quot;Check&quot; /&gt;&lt;/td&gt;
+      &lt;td style=&quot;text-align: center&quot;&gt;&lt;img src=&quot;http://oodzkgz2y.bkt.clouddn.com/check_green_small.png&quot; alt=&quot;Check&quot; /&gt;&lt;/td&gt;
+      &lt;td style=&quot;text-align: center&quot;&gt;&lt;img src=&quot;http://oodzkgz2y.bkt.clouddn.com/check_green_small.png&quot; alt=&quot;Check&quot; /&gt;&lt;/td&gt;
     &lt;/tr&gt;
     &lt;tr&gt;
       &lt;td&gt;Divider&lt;/td&gt;
-      &lt;td style=&quot;text-align: center&quot;&gt;&lt;img src=&quot;../assets/flexboxlayout/check_green_small.png&quot; alt=&quot;Check&quot; /&gt;&lt;/td&gt;
-      &lt;td style=&quot;text-align: center&quot;&gt;&lt;img src=&quot;../assets/flexboxlayout/check_green_small.png&quot; alt=&quot;Check&quot; /&gt;&lt;/td&gt;
+      &lt;td style=&quot;text-align: center&quot;&gt;&lt;img src=&quot;http://oodzkgz2y.bkt.clouddn.com/check_green_small.png&quot; alt=&quot;Check&quot; /&gt;&lt;/td&gt;
+      &lt;td style=&quot;text-align: center&quot;&gt;&lt;img src=&quot;http://oodzkgz2y.bkt.clouddn.com/check_green_small.png&quot; alt=&quot;Check&quot; /&gt;&lt;/td&gt;
     &lt;/tr&gt;
     &lt;tr&gt;
       &lt;td&gt;View recycling&lt;/td&gt;
       &lt;td style=&quot;text-align: center&quot;&gt;-&lt;/td&gt;
-      &lt;td style=&quot;text-align: center&quot;&gt;&lt;img src=&quot;../assets/flexboxlayout/check_green_small.png&quot; alt=&quot;Check&quot; /&gt;&lt;/td&gt;
+      &lt;td style=&quot;text-align: center&quot;&gt;&lt;img src=&quot;http://oodzkgz2y.bkt.clouddn.com/check_green_small.png&quot; alt=&quot;Check&quot; /&gt;&lt;/td&gt;
     &lt;/tr&gt;
     &lt;tr&gt;
       &lt;td&gt;Scrolling&lt;/td&gt;
       &lt;td style=&quot;text-align: center&quot;&gt;*1&lt;/td&gt;
-      &lt;td style=&quot;text-align: center&quot;&gt;&lt;img src=&quot;../assets/flexboxlayout/check_green_small.png&quot; alt=&quot;Check&quot; /&gt;&lt;/td&gt;
+      &lt;td style=&quot;text-align: center&quot;&gt;&lt;img src=&quot;http://oodzkgz2y.bkt.clouddn.com/check_green_small.png&quot; alt=&quot;Check&quot; /&gt;&lt;/td&gt;
     &lt;/tr&gt;
   &lt;/tbody&gt;
 &lt;/table&gt;
