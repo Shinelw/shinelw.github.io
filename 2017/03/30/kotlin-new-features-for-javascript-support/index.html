@@ -206,10 +206,10 @@
 <p>我们先通过一个简单的例子说明Kotlin如何支持JavaScript。
 定义以下Kotlin代码：</p>
 
-<div class="language-kotlin highlighter-rouge"><pre class="highlight"><code><span class="c1">//Main.kt
-</span><span class="k">fun</span> <span class="nf">main</span><span class="p">(</span><span class="n">args</span><span class="p">:</span> <span class="n">Arrays</span><span class="p">&lt;</span><span class="n">String</span><span class="p">&gt;)</span> <span class="p">{</span>
-  <span class="n">println</span><span class="p">(</span><span class="s">"Hello JavaScript"</span><span class="p">)</span>
-<span class="p">}</span>
+<div class="language-java highlighter-rouge"><pre class="highlight"><code><span class="c1">//Main.kt</span>
+<span class="n">fun</span> <span class="nf">main</span><span class="o">(</span><span class="nl">args:</span> <span class="n">Arrays</span><span class="o">&lt;</span><span class="n">String</span><span class="o">&gt;)</span> <span class="o">{</span>
+  <span class="n">println</span><span class="o">(</span><span class="s">"Hello JavaScript"</span><span class="o">)</span>
+<span class="o">}</span>
 </code></pre>
 </div>
 
@@ -226,20 +226,20 @@
 
 <p>接下来，我们来看看上述Kotlin代码转成JavaScript的等价代码，即KotlinJaSample.js。</p>
 
-<div class="language-kotlin highlighter-rouge"><pre class="highlight"><code><span class="k">if</span> <span class="p">(</span><span class="k">typeof</span> <span class="n">kotlin</span> <span class="p">===</span> <span class="err">'</span><span class="n">undefined</span><span class="err">'</span><span class="p">)</span> <span class="p">{</span>
-  <span class="k">throw</span> <span class="n">new</span> <span class="n">Error</span><span class="p">(</span><span class="s">"Error loading module 'KotlinJsSample'. Its dependency 'kotlin' was not found. Please, check whether 'kotlin' is loaded prior to 'KotlinJsSample'."</span><span class="p">);</span>
-<span class="p">}</span>
-<span class="kd">var</span> <span class="py">KotlinJsSample</span> <span class="p">=</span> <span class="n">function</span> <span class="p">(</span><span class="n">_</span><span class="p">,</span> <span class="n">Kotlin</span><span class="p">)</span> <span class="p">{</span>
-  <span class="err">'</span><span class="n">use</span> <span class="n">strict</span><span class="err">'</span><span class="p">;</span>
-  <span class="kd">var</span> <span class="py">println</span> <span class="p">=</span> <span class="n">Kotlin</span><span class="p">.</span><span class="n">kotlin</span><span class="p">.</span><span class="n">io</span><span class="p">.</span><span class="n">println_s8jyv4</span><span class="err">$</span><span class="p">;</span>
-  <span class="n">function</span> <span class="n">main</span><span class="p">(</span><span class="n">args</span><span class="p">)</span> <span class="p">{</span>
-    <span class="n">println</span><span class="p">(</span><span class="err">'</span><span class="n">Hello</span> <span class="n">JavaScript</span><span class="err">'</span><span class="p">);</span>
-  <span class="p">}</span>
-  <span class="n">_</span><span class="p">.</span><span class="n">main_kand9s</span><span class="err">$</span> <span class="p">=</span> <span class="n">main</span><span class="p">;</span>
-  <span class="n">Kotlin</span><span class="p">.</span><span class="n">defineModule</span><span class="p">(</span><span class="err">'</span><span class="n">KotlinJsSample</span><span class="err">'</span><span class="p">,</span> <span class="n">_</span><span class="p">);</span>
-  <span class="n">main</span><span class="p">([]);</span>
-  <span class="k">return</span> <span class="n">_</span><span class="p">;</span>
-<span class="p">}(</span><span class="k">typeof</span> <span class="n">KotlinJsSample</span> <span class="p">===</span> <span class="err">'</span><span class="n">undefined</span><span class="err">'</span> <span class="p">?</span> <span class="p">{}</span> <span class="p">:</span> <span class="n">KotlinJsSample</span><span class="p">,</span> <span class="n">kotlin</span><span class="p">);</span>
+<div class="language-java highlighter-rouge"><pre class="highlight"><code><span class="k">if</span> <span class="o">(</span><span class="n">typeof</span> <span class="n">kotlin</span> <span class="o">===</span> <span class="err">'</span><span class="n">undefined</span><span class="err">'</span><span class="o">)</span> <span class="o">{</span>
+  <span class="k">throw</span> <span class="k">new</span> <span class="nf">Error</span><span class="o">(</span><span class="s">"Error loading module 'KotlinJsSample'. Its dependency 'kotlin' was not found. Please, check whether 'kotlin' is loaded prior to 'KotlinJsSample'."</span><span class="o">);</span>
+<span class="o">}</span>
+<span class="n">var</span> <span class="n">KotlinJsSample</span> <span class="o">=</span> <span class="n">function</span> <span class="o">(</span><span class="n">_</span><span class="o">,</span> <span class="n">Kotlin</span><span class="o">)</span> <span class="o">{</span>
+  <span class="err">'</span><span class="n">use</span> <span class="n">strict</span><span class="err">'</span><span class="o">;</span>
+  <span class="n">var</span> <span class="n">println</span> <span class="o">=</span> <span class="n">Kotlin</span><span class="o">.</span><span class="na">kotlin</span><span class="o">.</span><span class="na">io</span><span class="o">.</span><span class="na">println_s8jyv4</span><span class="err">$</span><span class="o">;</span>
+  <span class="n">function</span> <span class="nf">main</span><span class="o">(</span><span class="n">args</span><span class="o">)</span> <span class="o">{</span>
+    <span class="n">println</span><span class="o">(</span><span class="err">'</span><span class="n">Hello</span> <span class="n">JavaScript</span><span class="err">'</span><span class="o">);</span>
+  <span class="o">}</span>
+  <span class="n">_</span><span class="o">.</span><span class="na">main_kand9s</span><span class="err">$</span> <span class="o">=</span> <span class="n">main</span><span class="o">;</span>
+  <span class="n">Kotlin</span><span class="o">.</span><span class="na">defineModule</span><span class="o">(</span><span class="err">'</span><span class="n">KotlinJsSample</span><span class="err">'</span><span class="o">,</span> <span class="n">_</span><span class="o">);</span>
+  <span class="n">main</span><span class="o">([]);</span>
+  <span class="k">return</span> <span class="n">_</span><span class="o">;</span>
+<span class="o">}(</span><span class="n">typeof</span> <span class="n">KotlinJsSample</span> <span class="o">===</span> <span class="err">'</span><span class="n">undefined</span><span class="err">'</span> <span class="o">?</span> <span class="o">{}</span> <span class="o">:</span> <span class="n">KotlinJsSample</span><span class="o">,</span> <span class="n">kotlin</span><span class="o">);</span>
 </code></pre>
 </div>
 
@@ -373,12 +373,12 @@
 
 <p>不信？我们可以试试。</p>
 
-<div class="language-kotlin highlighter-rouge"><pre class="highlight"><code><span class="k">fun</span> <span class="nf">main</span><span class="p">(</span><span class="n">args</span><span class="p">:</span> <span class="n">Array</span><span class="p">&lt;</span><span class="n">String</span><span class="p">&gt;)</span> <span class="p">{</span>
-    <span class="kd">val</span> <span class="py">message</span> <span class="p">=</span> <span class="s">"Hello JavaScript"</span>
-    <span class="kd">val</span> <span class="py">console</span> <span class="p">=</span> <span class="s">"console."</span>
-    <span class="n">js</span><span class="p">(</span><span class="n">console</span> <span class="p">+</span> <span class="s">"log(message)"</span><span class="p">)</span>
+<div class="language-java highlighter-rouge"><pre class="highlight"><code><span class="n">fun</span> <span class="nf">main</span><span class="o">(</span><span class="nl">args:</span> <span class="n">Array</span><span class="o">&lt;</span><span class="n">String</span><span class="o">&gt;)</span> <span class="o">{</span>
+    <span class="n">val</span> <span class="n">message</span> <span class="o">=</span> <span class="s">"Hello JavaScript"</span>
+    <span class="n">val</span> <span class="n">console</span> <span class="o">=</span> <span class="s">"console."</span>
+    <span class="n">js</span><span class="o">(</span><span class="n">console</span> <span class="o">+</span> <span class="s">"log(message)"</span><span class="o">)</span>
 
-<span class="p">}</span>
+<span class="o">}</span>
 </code></pre>
 </div>
 
@@ -398,10 +398,10 @@
 
 <p>运行结果：</p>
 
-<div class="language-kotlin highlighter-rouge"><pre class="highlight"><code><span class="n">KotlinJsSample</span><span class="p">.</span><span class="n">js</span><span class="p">:</span><span class="m">9</span> <span class="n">Uncaught</span> <span class="n">TypeError</span><span class="p">:</span> <span class="n">console</span><span class="p">.</span><span class="n">log</span> <span class="k">is</span> <span class="n">not</span> <span class="n">a</span> <span class="n">function</span>
-    <span class="n">at</span> <span class="n">main</span> <span class="p">(</span><span class="n">KotlinJsSample</span><span class="p">.</span><span class="n">js</span><span class="p">:</span><span class="m">9</span><span class="p">)</span>
-    <span class="n">at</span> <span class="n">KotlinJsSample</span><span class="p">.</span><span class="n">js</span><span class="p">:</span><span class="m">13</span>
-    <span class="n">at</span> <span class="n">KotlinJsSample</span><span class="p">.</span><span class="n">js</span><span class="p">:</span><span class="m">15</span>
+<div class="language-java highlighter-rouge"><pre class="highlight"><code><span class="n">KotlinJsSample</span><span class="o">.</span><span class="na">js</span><span class="o">:</span><span class="mi">9</span> <span class="n">Uncaught</span> <span class="nl">TypeError:</span> <span class="n">console</span><span class="o">.</span><span class="na">log</span> <span class="n">is</span> <span class="n">not</span> <span class="n">a</span> <span class="n">function</span>
+    <span class="n">at</span> <span class="nf">main</span> <span class="o">(</span><span class="n">KotlinJsSample</span><span class="o">.</span><span class="na">js</span><span class="o">:</span><span class="mi">9</span><span class="o">)</span>
+    <span class="n">at</span> <span class="n">KotlinJsSample</span><span class="o">.</span><span class="na">js</span><span class="o">:</span><span class="mi">13</span>
+    <span class="n">at</span> <span class="n">KotlinJsSample</span><span class="o">.</span><span class="na">js</span><span class="o">:</span><span class="mi">15</span>
 </code></pre>
 </div>
 
@@ -414,14 +414,14 @@
 
 <p>大概就是下面这样子的，</p>
 
-<div class="language-kotlin highlighter-rouge"><pre class="highlight"><code><span class="c1">//Mian.kt
-</span><span class="k">external</span> <span class="k">fun</span> <span class="nf">hello</span><span class="p">(</span><span class="n">message</span><span class="p">:</span> <span class="n">String</span><span class="p">)</span>
+<div class="language-java highlighter-rouge"><pre class="highlight"><code><span class="c1">//Mian.kt</span>
+<span class="n">external</span> <span class="n">fun</span> <span class="nf">hello</span><span class="o">(</span><span class="nl">message:</span> <span class="n">String</span><span class="o">)</span>
 
-<span class="k">fun</span> <span class="nf">main</span><span class="p">(</span><span class="n">args</span><span class="p">:</span> <span class="n">Array</span><span class="p">&lt;</span><span class="n">String</span><span class="p">&gt;)</span> <span class="p">{</span>
-    <span class="kd">val</span> <span class="py">message</span> <span class="p">=</span> <span class="s">"Hello JavaScript"</span>
-    <span class="n">hello</span><span class="p">(</span><span class="n">message</span><span class="p">)</span>
+<span class="n">fun</span> <span class="nf">main</span><span class="o">(</span><span class="nl">args:</span> <span class="n">Array</span><span class="o">&lt;</span><span class="n">String</span><span class="o">&gt;)</span> <span class="o">{</span>
+    <span class="n">val</span> <span class="n">message</span> <span class="o">=</span> <span class="s">"Hello JavaScript"</span>
+    <span class="n">hello</span><span class="o">(</span><span class="n">message</span><span class="o">)</span>
 
-<span class="p">}</span>
+<span class="o">}</span>
 </code></pre>
 </div>
 
@@ -490,13 +490,13 @@
 
 <p>那么，如此一来，转换出了问题，在JavaScript中使用必然也会导致问题。举个例子：</p>
 
-<div class="language-kotlin highlighter-rouge"><pre class="highlight"><code><span class="c1">//Hello.kt
-</span><span class="kd">class</span> <span class="nc">Hello</span> <span class="p">{</span>
-    <span class="c1">//定义输入返回均为Long类型的函数
-</span>    <span class="k">fun</span> <span class="nf">longTest</span><span class="p">(</span><span class="n">a</span><span class="p">:</span> <span class="n">Long</span><span class="p">,</span> <span class="n">b</span><span class="p">:</span> <span class="n">Long</span><span class="p">):</span> <span class="n">Long</span> <span class="p">{</span>
-        <span class="k">return</span> <span class="n">a</span> <span class="p">+</span> <span class="n">b</span>
-    <span class="p">}</span>
-<span class="p">}</span>
+<div class="language-java highlighter-rouge"><pre class="highlight"><code><span class="c1">//Hello.kt</span>
+<span class="kd">class</span> <span class="nc">Hello</span> <span class="o">{</span>
+    <span class="c1">//定义输入返回均为Long类型的函数</span>
+    <span class="n">fun</span> <span class="nf">longTest</span><span class="o">(</span><span class="nl">a:</span> <span class="n">Long</span><span class="o">,</span> <span class="nl">b:</span> <span class="n">Long</span><span class="o">):</span> <span class="n">Long</span> <span class="o">{</span>
+        <span class="k">return</span> <span class="n">a</span> <span class="o">+</span> <span class="n">b</span>
+    <span class="o">}</span>
+<span class="o">}</span>
 </code></pre>
 </div>
 
@@ -519,9 +519,9 @@
 
 <p>运行，理想状态下，输出结果3。然而，报错了。。。</p>
 
-<div class="language-kotlin highlighter-rouge"><pre class="highlight"><code><span class="n">Hello</span><span class="p">.</span><span class="n">kt</span><span class="p">:</span><span class="m">8</span> <span class="n">Uncaught</span> <span class="n">TypeError</span><span class="p">:</span> <span class="n">a</span><span class="p">.</span><span class="n">add</span> <span class="k">is</span> <span class="n">not</span> <span class="n">a</span> <span class="n">function</span>
-    <span class="n">at</span> <span class="n">Hello</span><span class="p">.</span><span class="n">longTest</span> <span class="p">(</span><span class="n">Hello</span><span class="p">.</span><span class="n">kt</span><span class="p">:</span><span class="m">8</span><span class="p">)</span>
-    <span class="n">at</span> <span class="n">A</span><span class="p">.</span><span class="n">js</span><span class="p">:</span><span class="m">5</span>
+<div class="language-java highlighter-rouge"><pre class="highlight"><code><span class="n">Hello</span><span class="o">.</span><span class="na">kt</span><span class="o">:</span><span class="mi">8</span> <span class="n">Uncaught</span> <span class="nl">TypeError:</span> <span class="n">a</span><span class="o">.</span><span class="na">add</span> <span class="n">is</span> <span class="n">not</span> <span class="n">a</span> <span class="n">function</span>
+    <span class="n">at</span> <span class="n">Hello</span><span class="o">.</span><span class="na">longTest</span> <span class="o">(</span><span class="n">Hello</span><span class="o">.</span><span class="na">kt</span><span class="o">:</span><span class="mi">8</span><span class="o">)</span>
+    <span class="n">at</span> <span class="n">A</span><span class="o">.</span><span class="na">js</span><span class="o">:</span><span class="mi">5</span>
 </code></pre>
 </div>
 
@@ -531,9 +531,9 @@
 
 <p>我们试试在Kotlin中调用它，</p>
 
-<div class="language-kotlin highlighter-rouge"><pre class="highlight"><code><span class="k">fun</span> <span class="nf">main</span><span class="p">(</span><span class="n">args</span><span class="p">:</span> <span class="n">Array</span><span class="p">&lt;</span><span class="n">String</span><span class="p">&gt;)</span> <span class="p">{</span>
-    <span class="n">Hello</span><span class="p">().</span><span class="n">longTest</span><span class="p">(</span><span class="m">1L</span><span class="p">,</span> <span class="m">2L</span><span class="p">)</span>
-<span class="p">}</span>
+<div class="language-java highlighter-rouge"><pre class="highlight"><code><span class="n">fun</span> <span class="nf">main</span><span class="o">(</span><span class="nl">args:</span> <span class="n">Array</span><span class="o">&lt;</span><span class="n">String</span><span class="o">&gt;)</span> <span class="o">{</span>
+    <span class="n">Hello</span><span class="o">().</span><span class="na">longTest</span><span class="o">(</span><span class="mi">1L</span><span class="o">,</span> <span class="mi">2L</span><span class="o">)</span>
+<span class="o">}</span>
 </code></pre>
 </div>
 
