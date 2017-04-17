@@ -199,7 +199,7 @@
                 col-md-10 col-md-offset-1
                 post-container">
 
-                <h1 id="kotlin">Kotlin编译过程分析</h1>
+                <h1 id="kotlin编译过程分析">Kotlin编译过程分析</h1>
 
 <p>我们知道，Kotlin基于Java虚拟机（JVM），通过Kotlin编译器生成的JVM字节码与Java编译的字节码基本相同，也因此与Java可以完全兼容，并且语法更加简洁，让我对Kotlin的编译过程甚是好奇。一通Google之后，毫无收获，Kotlin作为一门新语言，绝大多数的资料都局限于它的用法和特性相关。幸好Kotlin所有源码都已开源，遂决定生啃之。</p>
 
@@ -207,15 +207,15 @@
 
 <p>在具体讲Kotlin编译过程之前，我们先来看一张图。</p>
 
-<p><img src="https://github.com/Shinelw/shinelw.github.io/blob/draft/assets/Java%E7%BC%96%E8%AF%91%E8%BF%87%E7%A8%8B.jpg?raw=true" alt="Java编译过程" /></p>
+<p><img src="http://oodzkgz2y.bkt.clouddn.com/Java%E7%BC%96%E8%AF%91%E8%BF%87%E7%A8%8B.jpg" alt="Java编译过程" /></p>
 
 <p>上图是Java编译器的编译过程，正如它们俩完全兼容的特性一样，等分析完Kotlin的编译过程，你会发现，Kotlin和Java的编译过程也是很相似的。</p>
 
-<h2 id="section">1. 编译入口</h2>
+<h2 id="1-编译入口">1. 编译入口</h2>
 
 <p>整个Kotlin工程代码达到200多MB，面对如此巨大的项目，我们需要找一个入口来进行逐步深入。所以，我们从最简单直观的入手，来看一下Kotlin的编译命令：</p>
 
-<div class="highlighter-rouge"><pre class="highlight"><code>kotlinc Hello.kt
+<div class="language-shell highlighter-rouge"><pre class="highlight"><code>kotlinc Hello.kt
 </code></pre>
 </div>
 
@@ -248,83 +248,84 @@
 
 <p>从代码中找到了疑似编译部分的入口代码 <strong>org.jetbrains.kotlin.cli.jvm.K2JVMCompiler</strong>，</p>
 
-<div class="highlighter-rouge"><pre class="highlight"><code>//org.jetbrains.kotlin.cli.jvm.K2JVMCompiler
+<div class="language-java highlighter-rouge"><pre class="highlight"><code><span class="c1">//org.jetbrains.kotlin.cli.jvm.K2JVMCompiler</span>
 
- @JvmStatic fun main(args: Array&lt;String&gt;) {
-            CLICompiler.doMain(K2JVMCompiler(), args)
-        }
+ <span class="nd">@JvmStatic</span> <span class="n">fun</span> <span class="nf">main</span><span class="o">(</span><span class="nl">args:</span> <span class="n">Array</span><span class="o">&lt;</span><span class="n">String</span><span class="o">&gt;)</span> <span class="o">{</span>
+            <span class="n">CLICompiler</span><span class="o">.</span><span class="na">doMain</span><span class="o">(</span><span class="n">K2JVMCompiler</span><span class="o">(),</span> <span class="n">args</span><span class="o">)</span>
+        <span class="o">}</span>
 
 </code></pre>
 </div>
 
 <p>紧跟跳转，到CLICompiler.doMain()方法中。</p>
 
-<div class="highlighter-rouge"><pre class="highlight"><code>//org.jetbrains.kotlin.cli.common.CLICompiler
+<div class="language-java highlighter-rouge"><pre class="highlight"><code><span class="c1">//org.jetbrains.kotlin.cli.common.CLICompiler</span>
 
-public static void doMain(@NotNull CLICompiler compiler, @NotNull String[] args) {
-        System.setProperty("java.awt.headless", "true");
-        //执行编译
-        ExitCode exitCode = doMainNoExit(compiler, args);
-        if (exitCode != OK) {
-            System.exit(exitCode.getCode());
-        }
-    }
+<span class="kd">public</span> <span class="kd">static</span> <span class="kt">void</span> <span class="nf">doMain</span><span class="o">(</span><span class="nd">@NotNull</span> <span class="n">CLICompiler</span> <span class="n">compiler</span><span class="o">,</span> <span class="nd">@NotNull</span> <span class="n">String</span><span class="o">[]</span> <span class="n">args</span><span class="o">)</span> <span class="o">{</span>
+        <span class="n">System</span><span class="o">.</span><span class="na">setProperty</span><span class="o">(</span><span class="s">"java.awt.headless"</span><span class="o">,</span> <span class="s">"true"</span><span class="o">);</span>
+        <span class="c1">//执行编译</span>
+        <span class="n">ExitCode</span> <span class="n">exitCode</span> <span class="o">=</span> <span class="n">doMainNoExit</span><span class="o">(</span><span class="n">compiler</span><span class="o">,</span> <span class="n">args</span><span class="o">);</span>
+        <span class="k">if</span> <span class="o">(</span><span class="n">exitCode</span> <span class="o">!=</span> <span class="n">OK</span><span class="o">)</span> <span class="o">{</span>
+            <span class="n">System</span><span class="o">.</span><span class="na">exit</span><span class="o">(</span><span class="n">exitCode</span><span class="o">.</span><span class="na">getCode</span><span class="o">());</span>
+        <span class="o">}</span>
+    <span class="o">}</span>
 
- @SuppressWarnings("UseOfSystemOutOrSystemErr")
- @NotNull
- public static ExitCode doMainNoExit(@NotNull CLICompiler compiler, @NotNull String[] args) {
-        try {
-        	  //执行编译过程，返回退出码
-            return compiler.exec(System.err, args);
-        }
-        catch (CompileEnvironmentException e) {
-            System.err.println(e.getMessage());
-            return INTERNAL_ERROR;
-        }
-    }
+ <span class="nd">@SuppressWarnings</span><span class="o">(</span><span class="s">"UseOfSystemOutOrSystemErr"</span><span class="o">)</span>
+ <span class="nd">@NotNull</span>
+ <span class="kd">public</span> <span class="kd">static</span> <span class="n">ExitCode</span> <span class="nf">doMainNoExit</span><span class="o">(</span><span class="nd">@NotNull</span> <span class="n">CLICompiler</span> <span class="n">compiler</span><span class="o">,</span> <span class="nd">@NotNull</span> <span class="n">String</span><span class="o">[]</span> <span class="n">args</span><span class="o">)</span> <span class="o">{</span>
+        <span class="k">try</span> <span class="o">{</span>
+        	  <span class="c1">//执行编译过程，返回退出码</span>
+            <span class="k">return</span> <span class="n">compiler</span><span class="o">.</span><span class="na">exec</span><span class="o">(</span><span class="n">System</span><span class="o">.</span><span class="na">err</span><span class="o">,</span> <span class="n">args</span><span class="o">);</span>
+        <span class="o">}</span>
+        <span class="k">catch</span> <span class="o">(</span><span class="n">CompileEnvironmentException</span> <span class="n">e</span><span class="o">)</span> <span class="o">{</span>
+            <span class="n">System</span><span class="o">.</span><span class="na">err</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="n">e</span><span class="o">.</span><span class="na">getMessage</span><span class="o">());</span>
+            <span class="k">return</span> <span class="n">INTERNAL_ERROR</span><span class="o">;</span>
+        <span class="o">}</span>
+    <span class="o">}</span>
 </code></pre>
 </div>
+
 <p>我们可以看到，编译器执行完编译过程以后，会返回一个退出码，返回OK即为编译成功，否则直接退出编译过程。好，知道了这些，我们继续往下看。跟着代码的跳转，跳转，又跳转，看到了关键的编译入口代码，泪流满面。</p>
 
-<div class="highlighter-rouge"><pre class="highlight"><code>//org.jetbrains.kotlin.cli.jvm.K2JVMCompiler
+<div class="language-java highlighter-rouge"><pre class="highlight"><code><span class="c1">//org.jetbrains.kotlin.cli.jvm.K2JVMCompiler</span>
 
-KotlinToJVMBytecodeCompiler.compileBunchOfSources(environment)
+<span class="n">KotlinToJVMBytecodeCompiler</span><span class="o">.</span><span class="na">compileBunchOfSources</span><span class="o">(</span><span class="n">environment</span><span class="o">)</span>
 </code></pre>
 </div>
 
 <p>跳转进入看看发生了什么。</p>
 
-<div class="highlighter-rouge"><pre class="highlight"><code>
-    fun compileBunchOfSources(environment: KotlinCoreEnvironment): Boolean {
-        val moduleVisibilityManager = ModuleVisibilityManager.SERVICE.getInstance(environment.project)
+<div class="language-java highlighter-rouge"><pre class="highlight"><code>
+    <span class="n">fun</span> <span class="nf">compileBunchOfSources</span><span class="o">(</span><span class="nl">environment:</span> <span class="n">KotlinCoreEnvironment</span><span class="o">):</span> <span class="n">Boolean</span> <span class="o">{</span>
+        <span class="n">val</span> <span class="n">moduleVisibilityManager</span> <span class="o">=</span> <span class="n">ModuleVisibilityManager</span><span class="o">.</span><span class="na">SERVICE</span><span class="o">.</span><span class="na">getInstance</span><span class="o">(</span><span class="n">environment</span><span class="o">.</span><span class="na">project</span><span class="o">)</span>
 
-        val friendPaths = environment.configuration.getList(JVMConfigurationKeys.FRIEND_PATHS)
-        for (path in friendPaths) {
-            moduleVisibilityManager.addFriendPath(path)
-        }
+        <span class="n">val</span> <span class="n">friendPaths</span> <span class="o">=</span> <span class="n">environment</span><span class="o">.</span><span class="na">configuration</span><span class="o">.</span><span class="na">getList</span><span class="o">(</span><span class="n">JVMConfigurationKeys</span><span class="o">.</span><span class="na">FRIEND_PATHS</span><span class="o">)</span>
+        <span class="k">for</span> <span class="o">(</span><span class="n">path</span> <span class="n">in</span> <span class="n">friendPaths</span><span class="o">)</span> <span class="o">{</span>
+            <span class="n">moduleVisibilityManager</span><span class="o">.</span><span class="na">addFriendPath</span><span class="o">(</span><span class="n">path</span><span class="o">)</span>
+        <span class="o">}</span>
 
-        if (!checkKotlinPackageUsage(environment, environment.getSourceFiles())) return false
+        <span class="k">if</span> <span class="o">(!</span><span class="n">checkKotlinPackageUsage</span><span class="o">(</span><span class="n">environment</span><span class="o">,</span> <span class="n">environment</span><span class="o">.</span><span class="na">getSourceFiles</span><span class="o">()))</span> <span class="k">return</span> <span class="kc">false</span>
 
-        //词法、语法分析、语义分析、目标代码生成等过程
-        val generationState = analyzeAndGenerate(environment) ?: return false
+        <span class="c1">//词法、语法分析、语义分析、目标代码生成等过程</span>
+        <span class="n">val</span> <span class="n">generationState</span> <span class="o">=</span> <span class="n">analyzeAndGenerate</span><span class="o">(</span><span class="n">environment</span><span class="o">)</span> <span class="o">?:</span> <span class="k">return</span> <span class="kc">false</span>
 
-        // 找到运行主类
-        val mainClass = findMainClass(generationState, environment.getSourceFiles())
+        <span class="c1">// 找到运行主类</span>
+        <span class="n">val</span> <span class="n">mainClass</span> <span class="o">=</span> <span class="n">findMainClass</span><span class="o">(</span><span class="n">generationState</span><span class="o">,</span> <span class="n">environment</span><span class="o">.</span><span class="na">getSourceFiles</span><span class="o">())</span>
 
-        try {
-            //写入文件
-            writeOutput(environment.configuration, generationState.factory, mainClass)
-            return true
-        }
-        finally {
-            generationState.destroy()
-        }
-    }
+        <span class="k">try</span> <span class="o">{</span>
+            <span class="c1">//写入文件</span>
+            <span class="n">writeOutput</span><span class="o">(</span><span class="n">environment</span><span class="o">.</span><span class="na">configuration</span><span class="o">,</span> <span class="n">generationState</span><span class="o">.</span><span class="na">factory</span><span class="o">,</span> <span class="n">mainClass</span><span class="o">)</span>
+            <span class="k">return</span> <span class="kc">true</span>
+        <span class="o">}</span>
+        <span class="k">finally</span> <span class="o">{</span>
+            <span class="n">generationState</span><span class="o">.</span><span class="na">destroy</span><span class="o">()</span>
+        <span class="o">}</span>
+    <span class="o">}</span>
 
 </code></pre>
 </div>
 
-<h2 id="section-1">2. 编译过程</h2>
+<h2 id="2-编译过程">2. 编译过程</h2>
 
 <p>Kotlin的整个编译过程大致有以下环节：</p>
 
@@ -337,81 +338,81 @@ KotlinToJVMBytecodeCompiler.compileBunchOfSources(environment)
 
 <p>其中，我们把词法分析、语法分析、语义分析及中间代码生成称之为编译器前段，将源程序翻译成中间代码；目标代码生成称之为编译器后端，负责将中间代码转换生成目标代码，与目标语言有关的细节尽可能放在了后端。</p>
 
-<h3 id="section-2">2.1 词法分析</h3>
+<h3 id="21-词法分析">2.1 词法分析</h3>
 <p>词法分析是将源程序读入的字符序列，按照一定的规则转换成词法单元（Token）序列的过程。词法单元是语言中具有独立意义的最小单元，包括关键字、标识符、常数、运算符、界符等等。</p>
 
 <p>来看看Kotlin中划分的Token。</p>
 
-<div class="highlighter-rouge"><pre class="highlight"><code>//org.jetbrains.kotlin.lexer.KtTokens
+<div class="language-java highlighter-rouge"><pre class="highlight"><code><span class="c1">//org.jetbrains.kotlin.lexer.KtTokens</span>
 
-public interface KtTokens {
-	//关键字的token
-    KtKeywordToken PACKAGE_KEYWORD          = KtKeywordToken.keyword("package");
-    KtKeywordToken AS_KEYWORD               = KtKeywordToken.keyword("as");
-    KtKeywordToken TYPE_ALIAS_KEYWORD       = KtKeywordToken.keyword("typealias");
-    KtKeywordToken CLASS_KEYWORD            = KtKeywordToken.keyword("class");
-    KtKeywordToken THIS_KEYWORD             = KtKeywordToken.keyword("this");
-    KtKeywordToken SUPER_KEYWORD            = KtKeywordToken.keyword("super");
-    KtKeywordToken VAL_KEYWORD              = KtKeywordToken.keyword("val");
-    KtKeywordToken VAR_KEYWORD              = KtKeywordToken.keyword("var");
-    KtKeywordToken FUN_KEYWORD              = KtKeywordToken.keyword("fun");
-    KtKeywordToken FOR_KEYWORD              = KtKeywordToken.keyword("for");
-    KtKeywordToken NULL_KEYWORD             = KtKeywordToken.keyword("null");
-    ...
+<span class="kd">public</span> <span class="kd">interface</span> <span class="nc">KtTokens</span> <span class="o">{</span>
+	<span class="c1">//关键字的token</span>
+    <span class="n">KtKeywordToken</span> <span class="n">PACKAGE_KEYWORD</span>          <span class="o">=</span> <span class="n">KtKeywordToken</span><span class="o">.</span><span class="na">keyword</span><span class="o">(</span><span class="s">"package"</span><span class="o">);</span>
+    <span class="n">KtKeywordToken</span> <span class="n">AS_KEYWORD</span>               <span class="o">=</span> <span class="n">KtKeywordToken</span><span class="o">.</span><span class="na">keyword</span><span class="o">(</span><span class="s">"as"</span><span class="o">);</span>
+    <span class="n">KtKeywordToken</span> <span class="n">TYPE_ALIAS_KEYWORD</span>       <span class="o">=</span> <span class="n">KtKeywordToken</span><span class="o">.</span><span class="na">keyword</span><span class="o">(</span><span class="s">"typealias"</span><span class="o">);</span>
+    <span class="n">KtKeywordToken</span> <span class="n">CLASS_KEYWORD</span>            <span class="o">=</span> <span class="n">KtKeywordToken</span><span class="o">.</span><span class="na">keyword</span><span class="o">(</span><span class="s">"class"</span><span class="o">);</span>
+    <span class="n">KtKeywordToken</span> <span class="n">THIS_KEYWORD</span>             <span class="o">=</span> <span class="n">KtKeywordToken</span><span class="o">.</span><span class="na">keyword</span><span class="o">(</span><span class="s">"this"</span><span class="o">);</span>
+    <span class="n">KtKeywordToken</span> <span class="n">SUPER_KEYWORD</span>            <span class="o">=</span> <span class="n">KtKeywordToken</span><span class="o">.</span><span class="na">keyword</span><span class="o">(</span><span class="s">"super"</span><span class="o">);</span>
+    <span class="n">KtKeywordToken</span> <span class="n">VAL_KEYWORD</span>              <span class="o">=</span> <span class="n">KtKeywordToken</span><span class="o">.</span><span class="na">keyword</span><span class="o">(</span><span class="s">"val"</span><span class="o">);</span>
+    <span class="n">KtKeywordToken</span> <span class="n">VAR_KEYWORD</span>              <span class="o">=</span> <span class="n">KtKeywordToken</span><span class="o">.</span><span class="na">keyword</span><span class="o">(</span><span class="s">"var"</span><span class="o">);</span>
+    <span class="n">KtKeywordToken</span> <span class="n">FUN_KEYWORD</span>              <span class="o">=</span> <span class="n">KtKeywordToken</span><span class="o">.</span><span class="na">keyword</span><span class="o">(</span><span class="s">"fun"</span><span class="o">);</span>
+    <span class="n">KtKeywordToken</span> <span class="n">FOR_KEYWORD</span>              <span class="o">=</span> <span class="n">KtKeywordToken</span><span class="o">.</span><span class="na">keyword</span><span class="o">(</span><span class="s">"for"</span><span class="o">);</span>
+    <span class="n">KtKeywordToken</span> <span class="n">NULL_KEYWORD</span>             <span class="o">=</span> <span class="n">KtKeywordToken</span><span class="o">.</span><span class="na">keyword</span><span class="o">(</span><span class="s">"null"</span><span class="o">);</span>
+    <span class="o">...</span>
 
-    //标识符、运算符token
-    KtSingleValueToken LBRACKET    = new KtSingleValueToken("LBRACKET", "[");
-    KtSingleValueToken RBRACKET    = new KtSingleValueToken("RBRACKET", "]");
-    KtSingleValueToken LBRACE      = new KtSingleValueToken("LBRACE", "{");
-    KtSingleValueToken RBRACE      = new KtSingleValueToken("RBRACE", "}");
-    KtSingleValueToken LPAR        = new KtSingleValueToken("LPAR", "(");
-    KtSingleValueToken RPAR        = new KtSingleValueToken("RPAR", ")");
-    KtSingleValueToken DOT         = new KtSingleValueToken("DOT", ".");
-    ...
+    <span class="c1">//标识符、运算符token</span>
+    <span class="n">KtSingleValueToken</span> <span class="n">LBRACKET</span>    <span class="o">=</span> <span class="k">new</span> <span class="n">KtSingleValueToken</span><span class="o">(</span><span class="s">"LBRACKET"</span><span class="o">,</span> <span class="s">"["</span><span class="o">);</span>
+    <span class="n">KtSingleValueToken</span> <span class="n">RBRACKET</span>    <span class="o">=</span> <span class="k">new</span> <span class="n">KtSingleValueToken</span><span class="o">(</span><span class="s">"RBRACKET"</span><span class="o">,</span> <span class="s">"]"</span><span class="o">);</span>
+    <span class="n">KtSingleValueToken</span> <span class="n">LBRACE</span>      <span class="o">=</span> <span class="k">new</span> <span class="n">KtSingleValueToken</span><span class="o">(</span><span class="s">"LBRACE"</span><span class="o">,</span> <span class="s">"{"</span><span class="o">);</span>
+    <span class="n">KtSingleValueToken</span> <span class="n">RBRACE</span>      <span class="o">=</span> <span class="k">new</span> <span class="n">KtSingleValueToken</span><span class="o">(</span><span class="s">"RBRACE"</span><span class="o">,</span> <span class="s">"}"</span><span class="o">);</span>
+    <span class="n">KtSingleValueToken</span> <span class="n">LPAR</span>        <span class="o">=</span> <span class="k">new</span> <span class="n">KtSingleValueToken</span><span class="o">(</span><span class="s">"LPAR"</span><span class="o">,</span> <span class="s">"("</span><span class="o">);</span>
+    <span class="n">KtSingleValueToken</span> <span class="n">RPAR</span>        <span class="o">=</span> <span class="k">new</span> <span class="n">KtSingleValueToken</span><span class="o">(</span><span class="s">"RPAR"</span><span class="o">,</span> <span class="s">")"</span><span class="o">);</span>
+    <span class="n">KtSingleValueToken</span> <span class="n">DOT</span>         <span class="o">=</span> <span class="k">new</span> <span class="n">KtSingleValueToken</span><span class="o">(</span><span class="s">"DOT"</span><span class="o">,</span> <span class="s">"."</span><span class="o">);</span>
+    <span class="o">...</span>
 
-    //修饰符token
-    KtModifierKeywordToken ABSTRACT_KEYWORD  = KtModifierKeywordToken.softKeywordModifier("abstract");
-    KtModifierKeywordToken ENUM_KEYWORD      = KtModifierKeywordToken.softKeywordModifier("enum");
-    KtModifierKeywordToken OPEN_KEYWORD      = KtModifierKeywordToken.softKeywordModifier("open");
-    KtModifierKeywordToken INNER_KEYWORD     = KtModifierKeywordToken.softKeywordModifier("inner");
-    KtModifierKeywordToken OVERRIDE_KEYWORD  = KtModifierKeywordToken.softKeywordModifier("override");
-    KtModifierKeywordToken PRIVATE_KEYWORD   = KtModifierKeywordToken.softKeywordModifier("private");
-    KtModifierKeywordToken PUBLIC_KEYWORD    = KtModifierKeywordToken.softKeywordModifier("public");
-    ...
-}
+    <span class="c1">//修饰符token</span>
+    <span class="n">KtModifierKeywordToken</span> <span class="n">ABSTRACT_KEYWORD</span>  <span class="o">=</span> <span class="n">KtModifierKeywordToken</span><span class="o">.</span><span class="na">softKeywordModifier</span><span class="o">(</span><span class="s">"abstract"</span><span class="o">);</span>
+    <span class="n">KtModifierKeywordToken</span> <span class="n">ENUM_KEYWORD</span>      <span class="o">=</span> <span class="n">KtModifierKeywordToken</span><span class="o">.</span><span class="na">softKeywordModifier</span><span class="o">(</span><span class="s">"enum"</span><span class="o">);</span>
+    <span class="n">KtModifierKeywordToken</span> <span class="n">OPEN_KEYWORD</span>      <span class="o">=</span> <span class="n">KtModifierKeywordToken</span><span class="o">.</span><span class="na">softKeywordModifier</span><span class="o">(</span><span class="s">"open"</span><span class="o">);</span>
+    <span class="n">KtModifierKeywordToken</span> <span class="n">INNER_KEYWORD</span>     <span class="o">=</span> <span class="n">KtModifierKeywordToken</span><span class="o">.</span><span class="na">softKeywordModifier</span><span class="o">(</span><span class="s">"inner"</span><span class="o">);</span>
+    <span class="n">KtModifierKeywordToken</span> <span class="n">OVERRIDE_KEYWORD</span>  <span class="o">=</span> <span class="n">KtModifierKeywordToken</span><span class="o">.</span><span class="na">softKeywordModifier</span><span class="o">(</span><span class="s">"override"</span><span class="o">);</span>
+    <span class="n">KtModifierKeywordToken</span> <span class="n">PRIVATE_KEYWORD</span>   <span class="o">=</span> <span class="n">KtModifierKeywordToken</span><span class="o">.</span><span class="na">softKeywordModifier</span><span class="o">(</span><span class="s">"private"</span><span class="o">);</span>
+    <span class="n">KtModifierKeywordToken</span> <span class="n">PUBLIC_KEYWORD</span>    <span class="o">=</span> <span class="n">KtModifierKeywordToken</span><span class="o">.</span><span class="na">softKeywordModifier</span><span class="o">(</span><span class="s">"public"</span><span class="o">);</span>
+    <span class="o">...</span>
+<span class="o">}</span>
 </code></pre>
 </div>
 
 <p>Kotlin中将所有Token按照进行了分类，同时进行了Token分组。</p>
 
-<div class="highlighter-rouge"><pre class="highlight"><code>	//关键字
-    KtModifierKeywordToken[] MODIFIER_KEYWORDS_ARRAY =
-            new KtModifierKeywordToken[] {
-                    ABSTRACT_KEYWORD, ENUM_KEYWORD, OPEN_KEYWORD, INNER_KEYWORD, OVERRIDE_KEYWORD, PRIVATE_KEYWORD,
-                    PUBLIC_KEYWORD, INTERNAL_KEYWORD, PROTECTED_KEYWORD, OUT_KEYWORD, IN_KEYWORD, FINAL_KEYWORD, VARARG_KEYWORD,
-                    REIFIED_KEYWORD, COMPANION_KEYWORD, SEALED_KEYWORD, LATEINIT_KEYWORD,
-                    DATA_KEYWORD, INLINE_KEYWORD, NOINLINE_KEYWORD, TAILREC_KEYWORD, EXTERNAL_KEYWORD, ANNOTATION_KEYWORD, CROSSINLINE_KEYWORD,
-                    CONST_KEYWORD, OPERATOR_KEYWORD, INFIX_KEYWORD, SUSPEND_KEYWORD, HEADER_KEYWORD, IMPL_KEYWORD
-            };
+<div class="language-java highlighter-rouge"><pre class="highlight"><code>	<span class="c1">//关键字</span>
+    <span class="n">KtModifierKeywordToken</span><span class="o">[]</span> <span class="n">MODIFIER_KEYWORDS_ARRAY</span> <span class="o">=</span>
+            <span class="k">new</span> <span class="n">KtModifierKeywordToken</span><span class="o">[]</span> <span class="o">{</span>
+                    <span class="n">ABSTRACT_KEYWORD</span><span class="o">,</span> <span class="n">ENUM_KEYWORD</span><span class="o">,</span> <span class="n">OPEN_KEYWORD</span><span class="o">,</span> <span class="n">INNER_KEYWORD</span><span class="o">,</span> <span class="n">OVERRIDE_KEYWORD</span><span class="o">,</span> <span class="n">PRIVATE_KEYWORD</span><span class="o">,</span>
+                    <span class="n">PUBLIC_KEYWORD</span><span class="o">,</span> <span class="n">INTERNAL_KEYWORD</span><span class="o">,</span> <span class="n">PROTECTED_KEYWORD</span><span class="o">,</span> <span class="n">OUT_KEYWORD</span><span class="o">,</span> <span class="n">IN_KEYWORD</span><span class="o">,</span> <span class="n">FINAL_KEYWORD</span><span class="o">,</span> <span class="n">VARARG_KEYWORD</span><span class="o">,</span>
+                    <span class="n">REIFIED_KEYWORD</span><span class="o">,</span> <span class="n">COMPANION_KEYWORD</span><span class="o">,</span> <span class="n">SEALED_KEYWORD</span><span class="o">,</span> <span class="n">LATEINIT_KEYWORD</span><span class="o">,</span>
+                    <span class="n">DATA_KEYWORD</span><span class="o">,</span> <span class="n">INLINE_KEYWORD</span><span class="o">,</span> <span class="n">NOINLINE_KEYWORD</span><span class="o">,</span> <span class="n">TAILREC_KEYWORD</span><span class="o">,</span> <span class="n">EXTERNAL_KEYWORD</span><span class="o">,</span> <span class="n">ANNOTATION_KEYWORD</span><span class="o">,</span> <span class="n">CROSSINLINE_KEYWORD</span><span class="o">,</span>
+                    <span class="n">CONST_KEYWORD</span><span class="o">,</span> <span class="n">OPERATOR_KEYWORD</span><span class="o">,</span> <span class="n">INFIX_KEYWORD</span><span class="o">,</span> <span class="n">SUSPEND_KEYWORD</span><span class="o">,</span> <span class="n">HEADER_KEYWORD</span><span class="o">,</span> <span class="n">IMPL_KEYWORD</span>
+            <span class="o">};</span>
 
-    //访问权限修饰符
-    TokenSet VISIBILITY_MODIFIERS = TokenSet.create(PRIVATE_KEYWORD, PUBLIC_KEYWORD, INTERNAL_KEYWORD, PROTECTED_KEYWORD);
+    <span class="c1">//访问权限修饰符</span>
+    <span class="n">TokenSet</span> <span class="n">VISIBILITY_MODIFIERS</span> <span class="o">=</span> <span class="n">TokenSet</span><span class="o">.</span><span class="na">create</span><span class="o">(</span><span class="n">PRIVATE_KEYWORD</span><span class="o">,</span> <span class="n">PUBLIC_KEYWORD</span><span class="o">,</span> <span class="n">INTERNAL_KEYWORD</span><span class="o">,</span> <span class="n">PROTECTED_KEYWORD</span><span class="o">);</span>
 
-   //操作符
-    TokenSet OPERATIONS = TokenSet.create(AS_KEYWORD, AS_SAFE, IS_KEYWORD, IN_KEYWORD, DOT, PLUSPLUS, MINUSMINUS, EXCLEXCL, MUL, PLUS,
-                                          MINUS, EXCL, DIV, PERC, LT, GT, LTEQ, GTEQ, EQEQEQ, EXCLEQEQEQ, EQEQ, EXCLEQ, ANDAND, OROR,
-                                          SAFE_ACCESS, ELVIS,
-                                          RANGE, EQ, MULTEQ, DIVEQ, PERCEQ, PLUSEQ, MINUSEQ,
-                                          NOT_IN, NOT_IS,
-                                          IDENTIFIER);
-...
+   <span class="c1">//操作符</span>
+    <span class="n">TokenSet</span> <span class="n">OPERATIONS</span> <span class="o">=</span> <span class="n">TokenSet</span><span class="o">.</span><span class="na">create</span><span class="o">(</span><span class="n">AS_KEYWORD</span><span class="o">,</span> <span class="n">AS_SAFE</span><span class="o">,</span> <span class="n">IS_KEYWORD</span><span class="o">,</span> <span class="n">IN_KEYWORD</span><span class="o">,</span> <span class="n">DOT</span><span class="o">,</span> <span class="n">PLUSPLUS</span><span class="o">,</span> <span class="n">MINUSMINUS</span><span class="o">,</span> <span class="n">EXCLEXCL</span><span class="o">,</span> <span class="n">MUL</span><span class="o">,</span> <span class="n">PLUS</span><span class="o">,</span>
+                                          <span class="n">MINUS</span><span class="o">,</span> <span class="n">EXCL</span><span class="o">,</span> <span class="n">DIV</span><span class="o">,</span> <span class="n">PERC</span><span class="o">,</span> <span class="n">LT</span><span class="o">,</span> <span class="n">GT</span><span class="o">,</span> <span class="n">LTEQ</span><span class="o">,</span> <span class="n">GTEQ</span><span class="o">,</span> <span class="n">EQEQEQ</span><span class="o">,</span> <span class="n">EXCLEQEQEQ</span><span class="o">,</span> <span class="n">EQEQ</span><span class="o">,</span> <span class="n">EXCLEQ</span><span class="o">,</span> <span class="n">ANDAND</span><span class="o">,</span> <span class="n">OROR</span><span class="o">,</span>
+                                          <span class="n">SAFE_ACCESS</span><span class="o">,</span> <span class="n">ELVIS</span><span class="o">,</span>
+                                          <span class="n">RANGE</span><span class="o">,</span> <span class="n">EQ</span><span class="o">,</span> <span class="n">MULTEQ</span><span class="o">,</span> <span class="n">DIVEQ</span><span class="o">,</span> <span class="n">PERCEQ</span><span class="o">,</span> <span class="n">PLUSEQ</span><span class="o">,</span> <span class="n">MINUSEQ</span><span class="o">,</span>
+                                          <span class="n">NOT_IN</span><span class="o">,</span> <span class="n">NOT_IS</span><span class="o">,</span>
+                                          <span class="n">IDENTIFIER</span><span class="o">);</span>
+<span class="o">...</span>
 
 </code></pre>
 </div>
 
 <p>将所有的Kotlin词法单元一一枚举出来并分组以后，就要进行词法分析了。Kotlin使用了第三方开源的<a href="http://www.jflex.de/">JFlex</a>作为词法分析器，并没有自己实现（当然，重复造轮子就是一件很愚蠢的事情了:)）。</p>
 
-<h4 id="jflexkotlinflex">2.1.1 定义JFlex词法分析配置文件Kotlin.flex</h4>
+<h4 id="211-定义jflex词法分析配置文件kotlinflex">2.1.1 定义JFlex词法分析配置文件Kotlin.flex</h4>
 <p>配置文件分为三个部分：</p>
 
  	- 用户代码：。
@@ -420,71 +421,71 @@ public interface KtTokens {
 
 <p>整个flex规范配置文件如下格式：</p>
 
-<p><code class="highlighter-rouge">
-用户代码
+<div class="highlighter-rouge"><pre class="highlight"><code>用户代码
 %%
 选项与声明
 %%
 词法规则
-</code>
-具体可看<a href="">Kotlin.flex</a>详细配置文件。</p>
+</code></pre>
+</div>
+<p>具体可看<a href="">Kotlin.flex</a>详细配置文件。</p>
 
-<h4 id="jetlexer">2.1.2 词法分析器_JetLexer</h4>
+<h4 id="212-词法分析器_jetlexer">2.1.2 词法分析器_JetLexer</h4>
 <p>JFlex会读取配置文件并生成一个词法分析器（扫描器），在Kotlin编译器中对应<strong>_JetLexer</strong></p>
 
-<div class="highlighter-rouge"><pre class="highlight"><code>/**
+<div class="language-java highlighter-rouge"><pre class="highlight"><code><span class="cm">/**
  * This class is a scanner generated by
  * &lt;a href="http://www.jflex.de/"&gt;JFlex&lt;/a&gt; 1.7.0-SNAPSHOT
  * from the specification file &lt;tt&gt;/Users/endermz/projects/kotlin/compiler/frontend/src/org/jetbrains/kotlin/lexer/Kotlin.flex&lt;/tt&gt;
- */
-class _JetLexer implements FlexLexer {
+ */</span>
+<span class="kd">class</span> <span class="nc">_JetLexer</span> <span class="kd">implements</span> <span class="n">FlexLexer</span> <span class="o">{</span>
 
-  //返回当前词法的状态
-  public final int yystate() {
-    return zzLexicalState;
-  }
+  <span class="c1">//返回当前词法的状态</span>
+  <span class="kd">public</span> <span class="kd">final</span> <span class="kt">int</span> <span class="nf">yystate</span><span class="o">()</span> <span class="o">{</span>
+    <span class="k">return</span> <span class="n">zzLexicalState</span><span class="o">;</span>
+  <span class="o">}</span>
 
-  //进入下一个词法
-  public final void yybegin(int newState) {
-    zzLexicalState = newState;
-  }
+  <span class="c1">//进入下一个词法</span>
+  <span class="kd">public</span> <span class="kd">final</span> <span class="kt">void</span> <span class="nf">yybegin</span><span class="o">(</span><span class="kt">int</span> <span class="n">newState</span><span class="o">)</span> <span class="o">{</span>
+    <span class="n">zzLexicalState</span> <span class="o">=</span> <span class="n">newState</span><span class="o">;</span>
+  <span class="o">}</span>
 
 
-   //返回与当前正则表达式匹配的文本
-  public final CharSequence yytext() {
-    return zzBuffer.subSequence(zzStartRead, zzMarkedPos);
-  }
+   <span class="c1">//返回与当前正则表达式匹配的文本</span>
+  <span class="kd">public</span> <span class="kd">final</span> <span class="n">CharSequence</span> <span class="nf">yytext</span><span class="o">()</span> <span class="o">{</span>
+    <span class="k">return</span> <span class="n">zzBuffer</span><span class="o">.</span><span class="na">subSequence</span><span class="o">(</span><span class="n">zzStartRead</span><span class="o">,</span> <span class="n">zzMarkedPos</span><span class="o">);</span>
+  <span class="o">}</span>
 
-   //返回匹配文本位置的字符
-  public final char yycharat(int pos) {
-    return zzBuffer.charAt(zzStartRead+pos);
-  }
-   //返回匹配文本区域的长度
-  public final int yylength() {
-    return zzMarkedPos-zzStartRead;
-  }
+   <span class="c1">//返回匹配文本位置的字符</span>
+  <span class="kd">public</span> <span class="kd">final</span> <span class="kt">char</span> <span class="nf">yycharat</span><span class="o">(</span><span class="kt">int</span> <span class="n">pos</span><span class="o">)</span> <span class="o">{</span>
+    <span class="k">return</span> <span class="n">zzBuffer</span><span class="o">.</span><span class="na">charAt</span><span class="o">(</span><span class="n">zzStartRead</span><span class="o">+</span><span class="n">pos</span><span class="o">);</span>
+  <span class="o">}</span>
+   <span class="c1">//返回匹配文本区域的长度</span>
+  <span class="kd">public</span> <span class="kd">final</span> <span class="kt">int</span> <span class="nf">yylength</span><span class="o">()</span> <span class="o">{</span>
+    <span class="k">return</span> <span class="n">zzMarkedPos</span><span class="o">-</span><span class="n">zzStartRead</span><span class="o">;</span>
+  <span class="o">}</span>
 
-   //当词法扫描时错误上报
-  private void zzScanError(int errorCode) throws KotlinLexerException {
-    String message;
-    try {
-      message = ZZ_ERROR_MSG[errorCode];
-    }
-    catch (ArrayIndexOutOfBoundsException e) {
-      message = ZZ_ERROR_MSG[ZZ_UNKNOWN_ERROR];
-    }
-    throw new KotlinLexerException(message + "\n at '" + yytext() + "'\n" + zzBuffer);
-  }
+   <span class="c1">//当词法扫描时错误上报</span>
+  <span class="kd">private</span> <span class="kt">void</span> <span class="nf">zzScanError</span><span class="o">(</span><span class="kt">int</span> <span class="n">errorCode</span><span class="o">)</span> <span class="kd">throws</span> <span class="n">KotlinLexerException</span> <span class="o">{</span>
+    <span class="n">String</span> <span class="n">message</span><span class="o">;</span>
+    <span class="k">try</span> <span class="o">{</span>
+      <span class="n">message</span> <span class="o">=</span> <span class="n">ZZ_ERROR_MSG</span><span class="o">[</span><span class="n">errorCode</span><span class="o">];</span>
+    <span class="o">}</span>
+    <span class="k">catch</span> <span class="o">(</span><span class="n">ArrayIndexOutOfBoundsException</span> <span class="n">e</span><span class="o">)</span> <span class="o">{</span>
+      <span class="n">message</span> <span class="o">=</span> <span class="n">ZZ_ERROR_MSG</span><span class="o">[</span><span class="n">ZZ_UNKNOWN_ERROR</span><span class="o">];</span>
+    <span class="o">}</span>
+    <span class="k">throw</span> <span class="k">new</span> <span class="nf">KotlinLexerException</span><span class="o">(</span><span class="n">message</span> <span class="o">+</span> <span class="s">"\n at '"</span> <span class="o">+</span> <span class="n">yytext</span><span class="o">()</span> <span class="o">+</span> <span class="s">"'\n"</span> <span class="o">+</span> <span class="n">zzBuffer</span><span class="o">);</span>
+  <span class="o">}</span>
 
-   //将制定数量的字符推送到输入流
-  public void yypushback(int number)  throws KotlinLexerException {
-    if ( number &gt; yylength() )
-      zzScanError(ZZ_PUSHBACK_2BIG);
+   <span class="c1">//将制定数量的字符推送到输入流</span>
+  <span class="kd">public</span> <span class="kt">void</span> <span class="nf">yypushback</span><span class="o">(</span><span class="kt">int</span> <span class="n">number</span><span class="o">)</span>  <span class="kd">throws</span> <span class="n">KotlinLexerException</span> <span class="o">{</span>
+    <span class="k">if</span> <span class="o">(</span> <span class="n">number</span> <span class="o">&gt;</span> <span class="n">yylength</span><span class="o">()</span> <span class="o">)</span>
+      <span class="n">zzScanError</span><span class="o">(</span><span class="n">ZZ_PUSHBACK_2BIG</span><span class="o">);</span>
 
-    zzMarkedPos -= number;
-  }
-  ...
-}
+    <span class="n">zzMarkedPos</span> <span class="o">-=</span> <span class="n">number</span><span class="o">;</span>
+  <span class="o">}</span>
+  <span class="o">...</span>
+<span class="o">}</span>
 </code></pre>
 </div>
 
@@ -504,37 +505,37 @@ class _JetLexer implements FlexLexer {
 </code></pre>
 </div>
 
-<h3 id="section-3">2.2 语法分析</h3>
+<h3 id="22-语法分析">2.2 语法分析</h3>
 <p>语法分析的任务是在词法分析的基础上将单词序列组合成各类语法短语，如“程序”，“语句”，“表达式”等等,语法分析器将判断源程序在结构上是否正确。在语法分析过程中，会生成语法树（ST）/抽象语法树（AST）。</p>
 
 <p>Kotlin中定义了AST的数据结构，</p>
 
-<div class="highlighter-rouge"><pre class="highlight"><code>//AST抽象语法树节点
-public interface ASTNode extends UserDataHolder {
-	//节点类型
-  IElementType getElementType();
+<div class="language-java highlighter-rouge"><pre class="highlight"><code><span class="c1">//AST抽象语法树节点</span>
+<span class="kd">public</span> <span class="kd">interface</span> <span class="nc">ASTNode</span> <span class="kd">extends</span> <span class="n">UserDataHolder</span> <span class="o">{</span>
+	<span class="c1">//节点类型</span>
+  <span class="n">IElementType</span> <span class="nf">getElementType</span><span class="o">();</span>
 
-  //节点文本
-  String getText();
+  <span class="c1">//节点文本</span>
+  <span class="n">String</span> <span class="nf">getText</span><span class="o">();</span>
 
-  //父节点
-  ASTNode getTreeParent();
+  <span class="c1">//父节点</span>
+  <span class="n">ASTNode</span> <span class="nf">getTreeParent</span><span class="o">();</span>
 
-  //第一孩子节点
-  ASTNode getFirstChildNode();
+  <span class="c1">//第一孩子节点</span>
+  <span class="n">ASTNode</span> <span class="nf">getFirstChildNode</span><span class="o">();</span>
 
-  //最后孩子节点
-  ASTNode getLastChildNode();
+  <span class="c1">//最后孩子节点</span>
+  <span class="n">ASTNode</span> <span class="nf">getLastChildNode</span><span class="o">();</span>
 
-  //所有孩子
-  ASTNode[] getChildren(@Nullable TokenSet filter);
+  <span class="c1">//所有孩子</span>
+  <span class="n">ASTNode</span><span class="o">[]</span> <span class="nf">getChildren</span><span class="o">(</span><span class="nd">@Nullable</span> <span class="n">TokenSet</span> <span class="n">filter</span><span class="o">);</span>
 
-  //移除孩子
-  void removeChild(@NotNull ASTNode child);
+  <span class="c1">//移除孩子</span>
+  <span class="kt">void</span> <span class="nf">removeChild</span><span class="o">(</span><span class="nd">@NotNull</span> <span class="n">ASTNode</span> <span class="n">child</span><span class="o">);</span>
 
-  ...
+  <span class="o">...</span>
 
-}
+<span class="o">}</span>
 </code></pre>
 </div>
 
@@ -558,50 +559,51 @@ public interface ASTNode extends UserDataHolder {
 
 <p>然后通过提供的PsiParser实现KotlinParser。</p>
 
-<div class="highlighter-rouge"><pre class="highlight"><code>public class KotlinParser implements PsiParser {
+<div class="language-java highlighter-rouge"><pre class="highlight"><code><span class="kd">public</span> <span class="kd">class</span> <span class="nc">KotlinParser</span> <span class="kd">implements</span> <span class="n">PsiParser</span> <span class="o">{</span>
 
-  //语法分析生成AST树
-  public ASTNode parse(IElementType iElementType, PsiBuilder psiBuilder, PsiFile psiFile) {
-        KotlinParsing ktParsing = KotlinParsing.createForTopLevel(new SemanticWhitespaceAwarePsiBuilderImpl(psiBuilder));
-        if (scriptDefinitionProvider != null &amp;&amp; scriptDefinitionProvider.isScript(psiFile)
-            || psiFile.getName().endsWith(KotlinParserDefinition.STD_SCRIPT_EXT)) {
-            ktParsing.parseScript();
-        }
-        else {
-            ktParsing.parseFile();
-        }
-        return psiBuilder.getTreeBuilt();
-    }
+  <span class="c1">//语法分析生成AST树</span>
+  <span class="kd">public</span> <span class="n">ASTNode</span> <span class="nf">parse</span><span class="o">(</span><span class="n">IElementType</span> <span class="n">iElementType</span><span class="o">,</span> <span class="n">PsiBuilder</span> <span class="n">psiBuilder</span><span class="o">,</span> <span class="n">PsiFile</span> <span class="n">psiFile</span><span class="o">)</span> <span class="o">{</span>
+        <span class="n">KotlinParsing</span> <span class="n">ktParsing</span> <span class="o">=</span> <span class="n">KotlinParsing</span><span class="o">.</span><span class="na">createForTopLevel</span><span class="o">(</span><span class="k">new</span> <span class="n">SemanticWhitespaceAwarePsiBuilderImpl</span><span class="o">(</span><span class="n">psiBuilder</span><span class="o">));</span>
+        <span class="k">if</span> <span class="o">(</span><span class="n">scriptDefinitionProvider</span> <span class="o">!=</span> <span class="kc">null</span> <span class="o">&amp;&amp;</span> <span class="n">scriptDefinitionProvider</span><span class="o">.</span><span class="na">isScript</span><span class="o">(</span><span class="n">psiFile</span><span class="o">)</span>
+            <span class="o">||</span> <span class="n">psiFile</span><span class="o">.</span><span class="na">getName</span><span class="o">().</span><span class="na">endsWith</span><span class="o">(</span><span class="n">KotlinParserDefinition</span><span class="o">.</span><span class="na">STD_SCRIPT_EXT</span><span class="o">))</span> <span class="o">{</span>
+            <span class="n">ktParsing</span><span class="o">.</span><span class="na">parseScript</span><span class="o">();</span>
+        <span class="o">}</span>
+        <span class="k">else</span> <span class="o">{</span>
+            <span class="n">ktParsing</span><span class="o">.</span><span class="na">parseFile</span><span class="o">();</span>
+        <span class="o">}</span>
+        <span class="k">return</span> <span class="n">psiBuilder</span><span class="o">.</span><span class="na">getTreeBuilt</span><span class="o">();</span>
+    <span class="o">}</span>
 
-	//分析类型
-    public static ASTNode parseTypeCodeFragment(PsiBuilder psiBuilder) {
-    	 KotlinParsing ktParsing = KotlinParsing.createForTopLevel(new SemanticWhitespaceAwarePsiBuilderImpl(psiBuilder));
-        ktParsing.parseTypeCodeFragment();
-        return psiBuilder.getTreeBuilt();
-    }
+	<span class="c1">//分析类型</span>
+    <span class="kd">public</span> <span class="kd">static</span> <span class="n">ASTNode</span> <span class="nf">parseTypeCodeFragment</span><span class="o">(</span><span class="n">PsiBuilder</span> <span class="n">psiBuilder</span><span class="o">)</span> <span class="o">{</span>
+    	 <span class="n">KotlinParsing</span> <span class="n">ktParsing</span> <span class="o">=</span> <span class="n">KotlinParsing</span><span class="o">.</span><span class="na">createForTopLevel</span><span class="o">(</span><span class="k">new</span> <span class="n">SemanticWhitespaceAwarePsiBuilderImpl</span><span class="o">(</span><span class="n">psiBuilder</span><span class="o">));</span>
+        <span class="n">ktParsing</span><span class="o">.</span><span class="na">parseTypeCodeFragment</span><span class="o">();</span>
+        <span class="k">return</span> <span class="n">psiBuilder</span><span class="o">.</span><span class="na">getTreeBuilt</span><span class="o">();</span>
+    <span class="o">}</span>
 
- 	//分析表达式
-    public static ASTNode parseExpressionCodeFragment(PsiBuilder psiBuilder) {
-    	KotlinParsing ktParsing = KotlinParsing.createForTopLevel(new SemanticWhitespaceAwarePsiBuilderImpl(psiBuilder));
-       ktParsing.parseExpressionCodeFragment();
-       return psiBuilder.getTreeBuilt();
-    }
+ 	<span class="c1">//分析表达式</span>
+    <span class="kd">public</span> <span class="kd">static</span> <span class="n">ASTNode</span> <span class="nf">parseExpressionCodeFragment</span><span class="o">(</span><span class="n">PsiBuilder</span> <span class="n">psiBuilder</span><span class="o">)</span> <span class="o">{</span>
+    	<span class="n">KotlinParsing</span> <span class="n">ktParsing</span> <span class="o">=</span> <span class="n">KotlinParsing</span><span class="o">.</span><span class="na">createForTopLevel</span><span class="o">(</span><span class="k">new</span> <span class="n">SemanticWhitespaceAwarePsiBuilderImpl</span><span class="o">(</span><span class="n">psiBuilder</span><span class="o">));</span>
+       <span class="n">ktParsing</span><span class="o">.</span><span class="na">parseExpressionCodeFragment</span><span class="o">();</span>
+       <span class="k">return</span> <span class="n">psiBuilder</span><span class="o">.</span><span class="na">getTreeBuilt</span><span class="o">();</span>
+    <span class="o">}</span>
 
-    //分析块代码
-    public static ASTNode parseBlockCodeFragment(PsiBuilder psiBuilder) {
-    	KotlinParsing ktParsing = KotlinParsing.createForTopLevel(new SemanticWhitespaceAwarePsiBuilderImpl(psiBuilder));
-        ktParsing.parseBlockCodeFragment();
-        return psiBuilder.getTreeBuilt();
-    }
+    <span class="c1">//分析块代码</span>
+    <span class="kd">public</span> <span class="kd">static</span> <span class="n">ASTNode</span> <span class="nf">parseBlockCodeFragment</span><span class="o">(</span><span class="n">PsiBuilder</span> <span class="n">psiBuilder</span><span class="o">)</span> <span class="o">{</span>
+    	<span class="n">KotlinParsing</span> <span class="n">ktParsing</span> <span class="o">=</span> <span class="n">KotlinParsing</span><span class="o">.</span><span class="na">createForTopLevel</span><span class="o">(</span><span class="k">new</span> <span class="n">SemanticWhitespaceAwarePsiBuilderImpl</span><span class="o">(</span><span class="n">psiBuilder</span><span class="o">));</span>
+        <span class="n">ktParsing</span><span class="o">.</span><span class="na">parseBlockCodeFragment</span><span class="o">();</span>
+        <span class="k">return</span> <span class="n">psiBuilder</span><span class="o">.</span><span class="na">getTreeBuilt</span><span class="o">();</span>
+    <span class="o">}</span>
 
-    //分析Lambda表达式
-    public static ASTNode parseLambdaExpression(PsiBuilder psiBuilder) {
-    	 KotlinParsing ktParsing = KotlinParsing.createForTopLevel(new SemanticWhitespaceAwarePsiBuilderImpl(psiBuilder));
-        ktParsing.parseLambdaExpression();
-        return psiBuilder.getTreeBuilt();
-    }
+    <span class="c1">//分析Lambda表达式</span>
+    <span class="kd">public</span> <span class="kd">static</span> <span class="n">ASTNode</span> <span class="nf">parseLambdaExpression</span><span class="o">(</span><span class="n">PsiBuilder</span> <span class="n">psiBuilder</span><span class="o">)</span> <span class="o">{</span>
+    	 <span class="n">KotlinParsing</span> <span class="n">ktParsing</span> <span class="o">=</span> <span class="n">KotlinParsing</span><span class="o">.</span><span class="na">createForTopLevel</span><span class="o">(</span><span class="k">new</span> <span class="n">SemanticWhitespaceAwarePsiBuilderImpl</span><span class="o">(</span><span class="n">psiBuilder</span><span class="o">));</span>
+        <span class="n">ktParsing</span><span class="o">.</span><span class="na">parseLambdaExpression</span><span class="o">();</span>
+        <span class="k">return</span> <span class="n">psiBuilder</span><span class="o">.</span><span class="na">getTreeBuilt</span><span class="o">();</span>
+    <span class="o">}</span>
 </code></pre>
 </div>
+
 <p>PSI，即程序结构接口，定义了程序的结构。</p>
 
 <p>PSI文件（PSI File）则能够将源代码文件内容表示为特定编程语言元素的层次结构。说的通俗一点，PSI文件可以把Java、XML等语言代码表示为层次结构（树）的形式。例如，在IntelliJ开源的项目来看，PsiJavaFile可表示为Java文件，XmlFile表示为XML文件。通过PSI文件，我们能够遍历迭代文件中的元素，从而生成AST,正也正是语法分析中所需要的。</p>
@@ -612,19 +614,20 @@ public interface ASTNode extends UserDataHolder {
 
 <p><img src="https://github.com/Shinelw/shinelw.github.io/blob/master/assets/PsiBuilder.gif?raw=true" alt="" /></p>
 
-<h3 id="section-4">2.3 语义分析及中间代码生成</h3>
+<h3 id="23-语义分析及中间代码生成">2.3 语义分析及中间代码生成</h3>
 <p>语义分析的任务是检查抽象语法树AST的上下文相关属性，即检查源代码是否符合该编程语言的规范，比如变量类型定义是否正确，运算符是否匹配等等。</p>
 
 <p>举个例子：</p>
 
-<div class="highlighter-rouge"><pre class="highlight"><code>var a: Int = 1
-var b: String = "hello"
-var c: Boolean = false
+<div class="language-java highlighter-rouge"><pre class="highlight"><code><span class="n">var</span> <span class="nl">a:</span> <span class="n">Int</span> <span class="o">=</span> <span class="mi">1</span>
+<span class="n">var</span> <span class="nl">b:</span> <span class="n">String</span> <span class="o">=</span> <span class="s">"hello"</span>
+<span class="n">var</span> <span class="nl">c:</span> <span class="n">Boolean</span> <span class="o">=</span> <span class="kc">false</span>
 
-c = a * b
-println(c)
+<span class="n">c</span> <span class="o">=</span> <span class="n">a</span> <span class="o">*</span> <span class="n">b</span>
+<span class="nf">println</span><span class="o">(</span><span class="n">c</span><span class="o">)</span>
 </code></pre>
 </div>
+
 <p>上述代码在语法分析阶段显然是符合语言编程结构的，但是却会出现编译失败的情况，因为a、b、c类型各不相同且不能相互转换，不能进行运算操作。这就是语义分析所要做的事情。</p>
 
 <p>在Kotlin编译器中，语义分析的工作位于<strong>org.jetbrains.kotlin.resolve</strong>模块下。</p>
@@ -639,74 +642,74 @@ println(c)
 
 <p>如图所示，Psi2IrTranslator文件将AST抽象语法树转换成了IR中间表示形式（即中间代码）。</p>
 
-<div class="highlighter-rouge"><pre class="highlight"><code>class Psi2IrTranslator(val configuration: Psi2IrConfiguration = Psi2IrConfiguration()) {
-    interface PostprocessingStep {
-        fun postprocess(context: GeneratorContext, irElement: IrElement)
-    }
+<div class="language-java highlighter-rouge"><pre class="highlight"><code><span class="kd">class</span> <span class="nf">Psi2IrTranslator</span><span class="o">(</span><span class="n">val</span> <span class="nl">configuration:</span> <span class="n">Psi2IrConfiguration</span> <span class="o">=</span> <span class="n">Psi2IrConfiguration</span><span class="o">())</span> <span class="o">{</span>
+    <span class="kd">interface</span> <span class="nc">PostprocessingStep</span> <span class="o">{</span>
+        <span class="n">fun</span> <span class="nf">postprocess</span><span class="o">(</span><span class="nl">context:</span> <span class="n">GeneratorContext</span><span class="o">,</span> <span class="nl">irElement:</span> <span class="n">IrElement</span><span class="o">)</span>
+    <span class="o">}</span>
 
-    private val postprocessingSteps = SmartList&lt;PostprocessingStep&gt;()
+    <span class="kd">private</span> <span class="n">val</span> <span class="n">postprocessingSteps</span> <span class="o">=</span> <span class="n">SmartList</span><span class="o">&lt;</span><span class="n">PostprocessingStep</span><span class="o">&gt;()</span>
 
-    fun add(step: PostprocessingStep) {
-        postprocessingSteps.add(step)
-    }
+    <span class="n">fun</span> <span class="nf">add</span><span class="o">(</span><span class="nl">step:</span> <span class="n">PostprocessingStep</span><span class="o">)</span> <span class="o">{</span>
+        <span class="n">postprocessingSteps</span><span class="o">.</span><span class="na">add</span><span class="o">(</span><span class="n">step</span><span class="o">)</span>
+    <span class="o">}</span>
 
-    fun generateModule(moduleDescriptor: ModuleDescriptor, ktFiles: Collection&lt;KtFile&gt;, bindingContext: BindingContext): IrModuleFragment {
-        val context = createGeneratorContext(moduleDescriptor, bindingContext)
-        return generateModuleFragment(context, ktFiles)
-    }
+    <span class="n">fun</span> <span class="nf">generateModule</span><span class="o">(</span><span class="nl">moduleDescriptor:</span> <span class="n">ModuleDescriptor</span><span class="o">,</span> <span class="nl">ktFiles:</span> <span class="n">Collection</span><span class="o">&lt;</span><span class="n">KtFile</span><span class="o">&gt;,</span> <span class="nl">bindingContext:</span> <span class="n">BindingContext</span><span class="o">):</span> <span class="n">IrModuleFragment</span> <span class="o">{</span>
+        <span class="n">val</span> <span class="n">context</span> <span class="o">=</span> <span class="n">createGeneratorContext</span><span class="o">(</span><span class="n">moduleDescriptor</span><span class="o">,</span> <span class="n">bindingContext</span><span class="o">)</span>
+        <span class="k">return</span> <span class="nf">generateModuleFragment</span><span class="o">(</span><span class="n">context</span><span class="o">,</span> <span class="n">ktFiles</span><span class="o">)</span>
+    <span class="o">}</span>
 
-    fun createGeneratorContext(moduleDescriptor: ModuleDescriptor, bindingContext: BindingContext) =
-            GeneratorContext(configuration, moduleDescriptor, bindingContext)
+    <span class="n">fun</span> <span class="nf">createGeneratorContext</span><span class="o">(</span><span class="nl">moduleDescriptor:</span> <span class="n">ModuleDescriptor</span><span class="o">,</span> <span class="nl">bindingContext:</span> <span class="n">BindingContext</span><span class="o">)</span> <span class="o">=</span>
+            <span class="n">GeneratorContext</span><span class="o">(</span><span class="n">configuration</span><span class="o">,</span> <span class="n">moduleDescriptor</span><span class="o">,</span> <span class="n">bindingContext</span><span class="o">)</span>
 
-    fun generateModuleFragment(context: GeneratorContext, ktFiles: Collection&lt;KtFile&gt;): IrModuleFragment {
-        val irModule = ModuleGenerator(context).generateModuleFragment(ktFiles)
-        postprocess(context, irModule)
-        return irModule
-    }
+    <span class="n">fun</span> <span class="nf">generateModuleFragment</span><span class="o">(</span><span class="nl">context:</span> <span class="n">GeneratorContext</span><span class="o">,</span> <span class="nl">ktFiles:</span> <span class="n">Collection</span><span class="o">&lt;</span><span class="n">KtFile</span><span class="o">&gt;):</span> <span class="n">IrModuleFragment</span> <span class="o">{</span>
+        <span class="n">val</span> <span class="n">irModule</span> <span class="o">=</span> <span class="n">ModuleGenerator</span><span class="o">(</span><span class="n">context</span><span class="o">).</span><span class="na">generateModuleFragment</span><span class="o">(</span><span class="n">ktFiles</span><span class="o">)</span>
+        <span class="n">postprocess</span><span class="o">(</span><span class="n">context</span><span class="o">,</span> <span class="n">irModule</span><span class="o">)</span>
+        <span class="k">return</span> <span class="n">irModule</span>
+    <span class="o">}</span>
 
-    private fun postprocess(context: GeneratorContext, irElement: IrElement) {
-        insertImplicitCasts(context.builtIns, irElement)
+    <span class="kd">private</span> <span class="n">fun</span> <span class="nf">postprocess</span><span class="o">(</span><span class="nl">context:</span> <span class="n">GeneratorContext</span><span class="o">,</span> <span class="nl">irElement:</span> <span class="n">IrElement</span><span class="o">)</span> <span class="o">{</span>
+        <span class="n">insertImplicitCasts</span><span class="o">(</span><span class="n">context</span><span class="o">.</span><span class="na">builtIns</span><span class="o">,</span> <span class="n">irElement</span><span class="o">)</span>
 
-        postprocessingSteps.forEach { it.postprocess(context, irElement) }
-    }
-}
+        <span class="n">postprocessingSteps</span><span class="o">.</span><span class="na">forEach</span> <span class="o">{</span> <span class="n">it</span><span class="o">.</span><span class="na">postprocess</span><span class="o">(</span><span class="n">context</span><span class="o">,</span> <span class="n">irElement</span><span class="o">)</span> <span class="o">}</span>
+    <span class="o">}</span>
+<span class="o">}</span>
 </code></pre>
 </div>
 
-<h3 id="section-5">2.4 目标代码生成</h3>
+<h3 id="24-目标代码生成">2.4 目标代码生成</h3>
 
 <p>目标代码生成的任务，顾名思义，是将中间代码转换为目标代码，即JVM字节码，位于<strong>org.jetbrains.kotlin.codegen</strong>模块中。</p>
 
 <p>目标代码生成入口：</p>
 
-<div class="highlighter-rouge"><pre class="highlight"><code>public class KotlinCodegenFacade {
-	 public static void doGenerateFiles(
-            @NotNull Collection&lt;KtFile&gt; files,
-            @NotNull GenerationState state,
-            @NotNull CompilationErrorHandler errorHandler
-    ) {
-		...
-        for (KtFile file : files) {
-         ...
-        Set&lt;FqName&gt; obsoleteMultifileClasses = new HashSet&lt;FqName&gt;(state.getObsoleteMultifileClasses());
-        for (FqName multifileClassFqName : Sets.union(filesInMultifileClasses.keySet(), obsoleteMultifileClasses)) {
-            doCheckCancelled(state);
-            //目标代码类生成
-            generateMultifileClass(state, multifileClassFqName, filesInMultifileClasses.get(multifileClassFqName), errorHandler);
-        }
+<div class="language-java highlighter-rouge"><pre class="highlight"><code><span class="kd">public</span> <span class="kd">class</span> <span class="nc">KotlinCodegenFacade</span> <span class="o">{</span>
+	 <span class="kd">public</span> <span class="kd">static</span> <span class="kt">void</span> <span class="nf">doGenerateFiles</span><span class="o">(</span>
+            <span class="nd">@NotNull</span> <span class="n">Collection</span><span class="o">&lt;</span><span class="n">KtFile</span><span class="o">&gt;</span> <span class="n">files</span><span class="o">,</span>
+            <span class="nd">@NotNull</span> <span class="n">GenerationState</span> <span class="n">state</span><span class="o">,</span>
+            <span class="nd">@NotNull</span> <span class="n">CompilationErrorHandler</span> <span class="n">errorHandler</span>
+    <span class="o">)</span> <span class="o">{</span>
+		<span class="o">...</span>
+        <span class="k">for</span> <span class="o">(</span><span class="n">KtFile</span> <span class="n">file</span> <span class="o">:</span> <span class="n">files</span><span class="o">)</span> <span class="o">{</span>
+         <span class="o">...</span>
+        <span class="n">Set</span><span class="o">&lt;</span><span class="n">FqName</span><span class="o">&gt;</span> <span class="n">obsoleteMultifileClasses</span> <span class="o">=</span> <span class="k">new</span> <span class="n">HashSet</span><span class="o">&lt;</span><span class="n">FqName</span><span class="o">&gt;(</span><span class="n">state</span><span class="o">.</span><span class="na">getObsoleteMultifileClasses</span><span class="o">());</span>
+        <span class="k">for</span> <span class="o">(</span><span class="n">FqName</span> <span class="n">multifileClassFqName</span> <span class="o">:</span> <span class="n">Sets</span><span class="o">.</span><span class="na">union</span><span class="o">(</span><span class="n">filesInMultifileClasses</span><span class="o">.</span><span class="na">keySet</span><span class="o">(),</span> <span class="n">obsoleteMultifileClasses</span><span class="o">))</span> <span class="o">{</span>
+            <span class="n">doCheckCancelled</span><span class="o">(</span><span class="n">state</span><span class="o">);</span>
+            <span class="c1">//目标代码类生成</span>
+            <span class="n">generateMultifileClass</span><span class="o">(</span><span class="n">state</span><span class="o">,</span> <span class="n">multifileClassFqName</span><span class="o">,</span> <span class="n">filesInMultifileClasses</span><span class="o">.</span><span class="na">get</span><span class="o">(</span><span class="n">multifileClassFqName</span><span class="o">),</span> <span class="n">errorHandler</span><span class="o">);</span>
+        <span class="o">}</span>
 
-        Set&lt;FqName&gt; packagesWithObsoleteParts = new HashSet&lt;FqName&gt;(state.getPackagesWithObsoleteParts());
-        for (FqName packageFqName : Sets.union(packagesWithObsoleteParts, filesInPackages.keySet())) {
-            doCheckCancelled(state);
-            //目标代码类包生成
-            generatePackage(state, packageFqName, filesInPackages.get(packageFqName), errorHandler);
-        }
+        <span class="n">Set</span><span class="o">&lt;</span><span class="n">FqName</span><span class="o">&gt;</span> <span class="n">packagesWithObsoleteParts</span> <span class="o">=</span> <span class="k">new</span> <span class="n">HashSet</span><span class="o">&lt;</span><span class="n">FqName</span><span class="o">&gt;(</span><span class="n">state</span><span class="o">.</span><span class="na">getPackagesWithObsoleteParts</span><span class="o">());</span>
+        <span class="k">for</span> <span class="o">(</span><span class="n">FqName</span> <span class="n">packageFqName</span> <span class="o">:</span> <span class="n">Sets</span><span class="o">.</span><span class="na">union</span><span class="o">(</span><span class="n">packagesWithObsoleteParts</span><span class="o">,</span> <span class="n">filesInPackages</span><span class="o">.</span><span class="na">keySet</span><span class="o">()))</span> <span class="o">{</span>
+            <span class="n">doCheckCancelled</span><span class="o">(</span><span class="n">state</span><span class="o">);</span>
+            <span class="c1">//目标代码类包生成</span>
+            <span class="n">generatePackage</span><span class="o">(</span><span class="n">state</span><span class="o">,</span> <span class="n">packageFqName</span><span class="o">,</span> <span class="n">filesInPackages</span><span class="o">.</span><span class="na">get</span><span class="o">(</span><span class="n">packageFqName</span><span class="o">),</span> <span class="n">errorHandler</span><span class="o">);</span>
+        <span class="o">}</span>
 
-        doCheckCancelled(state);
-        //生成结束
-        state.getFactory().done();
-    }
-}
+        <span class="n">doCheckCancelled</span><span class="o">(</span><span class="n">state</span><span class="o">);</span>
+        <span class="c1">//生成结束</span>
+        <span class="n">state</span><span class="o">.</span><span class="na">getFactory</span><span class="o">().</span><span class="na">done</span><span class="o">();</span>
+    <span class="o">}</span>
+<span class="o">}</span>
 </code></pre>
 </div>
 
@@ -716,55 +719,55 @@ println(c)
 
 <p>在Kotlin中，如果我们定义如下代码：</p>
 
-<div class="highlighter-rouge"><pre class="highlight"><code>var a: Int = 1;
+<div class="language-java highlighter-rouge"><pre class="highlight"><code><span class="n">var</span> <span class="nl">a:</span> <span class="n">Int</span> <span class="o">=</span> <span class="mi">1</span><span class="o">;</span>
 </code></pre>
 </div>
 
 <p>会等价于Java中</p>
 
-<div class="highlighter-rouge"><pre class="highlight"><code>public Int a = 1;
+<div class="language-java highlighter-rouge"><pre class="highlight"><code><span class="kd">public</span> <span class="n">Int</span> <span class="n">a</span> <span class="o">=</span> <span class="mi">1</span><span class="o">;</span>
 
-public Int getA(){
-	return a;
-}
+<span class="kd">public</span> <span class="n">Int</span> <span class="nf">getA</span><span class="o">(){</span>
+	<span class="k">return</span> <span class="n">a</span><span class="o">;</span>
+<span class="o">}</span>
 
-public void setA(int a) {
-	this.a = a;
-}
+<span class="kd">public</span> <span class="kt">void</span> <span class="nf">setA</span><span class="o">(</span><span class="kt">int</span> <span class="n">a</span><span class="o">)</span> <span class="o">{</span>
+	<span class="k">this</span><span class="o">.</span><span class="na">a</span> <span class="o">=</span> <span class="n">a</span><span class="o">;</span>
+<span class="o">}</span>
 </code></pre>
 </div>
 
 <p>那么，在Kotlin中是怎么实现的呢，我们来看PropertyCodegen关于属性的生成部分。</p>
 
-<div class="highlighter-rouge"><pre class="highlight"><code>public class PropertyCodegen {
+<div class="language-java highlighter-rouge"><pre class="highlight"><code><span class="kd">public</span> <span class="kd">class</span> <span class="nc">PropertyCodegen</span> <span class="o">{</span>
 
-    private void gen(
-            @Nullable KtProperty declaration, // 属性声明
-            @NotNull PropertyDescriptor descriptor,  //描述，包括权限修饰符、注解、类型等。
-            @Nullable KtPropertyAccessor getter, // 决定是否生成getter
-            @Nullable KtPropertyAccessor setter  //决定是否生成setter
-    ) {
-        assert kind == OwnerKind.PACKAGE || kind == OwnerKind.IMPLEMENTATION || kind == OwnerKind.DEFAULT_IMPLS
-                : "Generating property with a wrong kind (" + kind + "): " + descriptor;
-		  //生成注解信息
-        genBackingFieldAndAnnotations(declaration, descriptor, false);
+    <span class="kd">private</span> <span class="kt">void</span> <span class="nf">gen</span><span class="o">(</span>
+            <span class="nd">@Nullable</span> <span class="n">KtProperty</span> <span class="n">declaration</span><span class="o">,</span> <span class="c1">// 属性声明</span>
+            <span class="nd">@NotNull</span> <span class="n">PropertyDescriptor</span> <span class="n">descriptor</span><span class="o">,</span>  <span class="c1">//描述，包括权限修饰符、注解、类型等。</span>
+            <span class="nd">@Nullable</span> <span class="n">KtPropertyAccessor</span> <span class="n">getter</span><span class="o">,</span> <span class="c1">// 决定是否生成getter</span>
+            <span class="nd">@Nullable</span> <span class="n">KtPropertyAccessor</span> <span class="n">setter</span>  <span class="c1">//决定是否生成setter</span>
+    <span class="o">)</span> <span class="o">{</span>
+        <span class="k">assert</span> <span class="n">kind</span> <span class="o">==</span> <span class="n">OwnerKind</span><span class="o">.</span><span class="na">PACKAGE</span> <span class="o">||</span> <span class="n">kind</span> <span class="o">==</span> <span class="n">OwnerKind</span><span class="o">.</span><span class="na">IMPLEMENTATION</span> <span class="o">||</span> <span class="n">kind</span> <span class="o">==</span> <span class="n">OwnerKind</span><span class="o">.</span><span class="na">DEFAULT_IMPLS</span>
+                <span class="o">:</span> <span class="s">"Generating property with a wrong kind ("</span> <span class="o">+</span> <span class="n">kind</span> <span class="o">+</span> <span class="s">"): "</span> <span class="o">+</span> <span class="n">descriptor</span><span class="o">;</span>
+		  <span class="c1">//生成注解信息</span>
+        <span class="n">genBackingFieldAndAnnotations</span><span class="o">(</span><span class="n">declaration</span><span class="o">,</span> <span class="n">descriptor</span><span class="o">,</span> <span class="kc">false</span><span class="o">);</span>
 
-		  //根据注解和权限修饰符等信息判断是否自动生成Getter代码
-        if (isAccessorNeeded(declaration, descriptor, getter)) {
-            generateGetter(declaration, descriptor, getter);
-        }
-        //根据注解和权限修饰符等信息判断是否自动生成Setter代码
-        if (isAccessorNeeded(declaration, descriptor, setter)) {
-            generateSetter(declaration, descriptor, setter);
-        }
-    }
-}
+		  <span class="c1">//根据注解和权限修饰符等信息判断是否自动生成Getter代码</span>
+        <span class="k">if</span> <span class="o">(</span><span class="n">isAccessorNeeded</span><span class="o">(</span><span class="n">declaration</span><span class="o">,</span> <span class="n">descriptor</span><span class="o">,</span> <span class="n">getter</span><span class="o">))</span> <span class="o">{</span>
+            <span class="n">generateGetter</span><span class="o">(</span><span class="n">declaration</span><span class="o">,</span> <span class="n">descriptor</span><span class="o">,</span> <span class="n">getter</span><span class="o">);</span>
+        <span class="o">}</span>
+        <span class="c1">//根据注解和权限修饰符等信息判断是否自动生成Setter代码</span>
+        <span class="k">if</span> <span class="o">(</span><span class="n">isAccessorNeeded</span><span class="o">(</span><span class="n">declaration</span><span class="o">,</span> <span class="n">descriptor</span><span class="o">,</span> <span class="n">setter</span><span class="o">))</span> <span class="o">{</span>
+            <span class="n">generateSetter</span><span class="o">(</span><span class="n">declaration</span><span class="o">,</span> <span class="n">descriptor</span><span class="o">,</span> <span class="n">setter</span><span class="o">);</span>
+        <span class="o">}</span>
+    <span class="o">}</span>
+<span class="o">}</span>
 </code></pre>
 </div>
 
 <p>可以看到，Kotlin在目标代码生成环节做了更多的处理，在该环节实现了自动生成Getter、Setter的代码。</p>
 
-<h2 id="section-6">总结</h2>
+<h2 id="总结">总结</h2>
 
 <p>Kotlin的编译过程分析完了，当然很多细节的东西并没有深入研究，并且内容太大，不是一篇文章可以说的详尽的。</p>
 
