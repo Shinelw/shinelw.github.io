@@ -5,8 +5,8 @@
     <description>好好学习天天向上。</description>
     <link>http://shinelw.com/</link>
     <atom:link href="http://shinelw.com/feed.xml" rel="self" type="application/rss+xml" />
-    <pubDate>Tue, 18 Apr 2017 19:41:34 +0800</pubDate>
-    <lastBuildDate>Tue, 18 Apr 2017 19:41:34 +0800</lastBuildDate>
+    <pubDate>Tue, 18 Apr 2017 19:44:14 +0800</pubDate>
+    <lastBuildDate>Tue, 18 Apr 2017 19:44:14 +0800</lastBuildDate>
     <generator>Jekyll v3.4.2</generator>
     
       <item>
@@ -876,6 +876,7 @@
 
 &lt;/code&gt;&lt;/pre&gt;
 &lt;/div&gt;
+
 &lt;p&gt;输出换行符&lt;code class=&quot;highlighter-rouge&quot;&gt;\n&lt;/code&gt;，输出过程和上述一致。&lt;/p&gt;
 
 &lt;p&gt;通过以上的分析，我们知道了从Kotlin的&lt;code class=&quot;highlighter-rouge&quot;&gt;println&lt;/code&gt;等价到JavaScript的功能，Kotlin的标准库&lt;code class=&quot;highlighter-rouge&quot;&gt;kotlin.js&lt;/code&gt;充当了一个中间人的角色，封装了大量函数方法，这些函数与Kotlin语法更为接近。一方面让Kotlin编译器将Kotlin代码转成JavaScript时，工作量更少，只需与&lt;code class=&quot;highlighter-rouge&quot;&gt;kotlin.js&lt;/code&gt;中进行对应；另一方面，减少产生重复多余的代码，&lt;code class=&quot;highlighter-rouge&quot;&gt;kotlin.js&lt;/code&gt;标准库封装了大量公共方法，让转换后的代码更加简洁可读。&lt;/p&gt;

@@ -325,6 +325,7 @@
 
 </code></pre>
 </div>
+
 <p>输出换行符<code class="highlighter-rouge">\n</code>，输出过程和上述一致。</p>
 
 <p>通过以上的分析，我们知道了从Kotlin的<code class="highlighter-rouge">println</code>等价到JavaScript的功能，Kotlin的标准库<code class="highlighter-rouge">kotlin.js</code>充当了一个中间人的角色，封装了大量函数方法，这些函数与Kotlin语法更为接近。一方面让Kotlin编译器将Kotlin代码转成JavaScript时，工作量更少，只需与<code class="highlighter-rouge">kotlin.js</code>中进行对应；另一方面，减少产生重复多余的代码，<code class="highlighter-rouge">kotlin.js</code>标准库封装了大量公共方法，让转换后的代码更加简洁可读。</p>
