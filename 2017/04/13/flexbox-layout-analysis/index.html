@@ -212,7 +212,7 @@
 
 <p>关于如何在项目中使用FlexboxLayout，请自行参考<a href="https://github.com/google/flexbox-layout/blob/master/README.md">官方文档</a>。</p>
 
-<h2 id="项目框架">项目框架</h2>
+<h2 id="section">项目框架</h2>
 <p>我们先看一下FlexboxLayout项目的整个类图，基于版本0.3.0-alpha3。</p>
 
 <p><img src="http://oodzkgz2y.bkt.clouddn.com/flexboxlayout.jpg" alt="FlexboxLayout类图" /></p>
@@ -225,12 +225,12 @@
   <li>RecyclerView支持实现：主要通过扩展RecyclerView.LayoutManager，即FlexboxLayoutManager实现。</li>
 </ul>
 
-<h2 id="公共接口逻辑部分">公共接口/逻辑部分</h2>
+<h2 id="section-1">公共接口/逻辑部分</h2>
 <p>公共接口/逻辑部分包括了FlexboxLayout和RecyclerView的抽象接口容器FlexContainer，容器Layout的属性、容器Layout的组成，以及帮助类。在了解FlexContainer之前，我们需要先来了解布局的属性。</p>
 
-<h3 id="layout属性">Layout属性</h3>
-<h4 id="1-flexdirection">1. FlexDirection</h4>
-<p>FlexboxLayout提出了两个概念：主轴（main axis）和交叉轴（cross axis），主轴和交叉轴相互垂直。FlexDirection决定主轴的方向，共有四个取值。</p>
+<h3 id="layout">Layout属性</h3>
+<p>#### 1. FlexDirection
+FlexboxLayout提出了两个概念：主轴（main axis）和交叉轴（cross axis），主轴和交叉轴相互垂直。FlexDirection决定主轴的方向，共有四个取值。</p>
 
 <div class="language-java highlighter-rouge"><pre class="highlight"><code><span class="kd">public</span> <span class="nd">@interface</span> <span class="n">FlexDirection</span> <span class="o">{</span>
     <span class="cm">/**
@@ -257,7 +257,7 @@
 </code></pre>
 </div>
 
-<h4 id="2-justifycontent">2. JustifyContent</h4>
+<h4 id="justifycontent">2. JustifyContent</h4>
 <p>JustifyContent决定主轴方向上子元素的对齐方式，共有五个取值。</p>
 
 <div class="language-java highlighter-rouge"><pre class="highlight"><code><span class="kd">public</span> <span class="nd">@interface</span> <span class="n">JustifyContent</span> <span class="o">{</span>
@@ -274,7 +274,7 @@
 
 <p><img src="http://oodzkgz2y.bkt.clouddn.com/justifycontent.png" alt="justify-content" /></p>
 
-<h4 id="3-flexwrap">3. FlexWrap</h4>
+<h4 id="flexwrap">3. FlexWrap</h4>
 <p>FlexWrap决定是否自动换行和换行的方式，有三种取值。</p>
 
 <div class="language-java highlighter-rouge"><pre class="highlight"><code><span class="kd">public</span> <span class="nd">@interface</span> <span class="n">FlexWrap</span> <span class="o">{</span>
@@ -285,7 +285,7 @@
 </code></pre>
 </div>
 
-<h4 id="4-alignitems">4. AlignItems</h4>
+<h4 id="alignitems">4. AlignItems</h4>
 <p>AlignItems决定一行子元素之间沿着交叉轴（cross axis）的对齐方式，共有5种。</p>
 
 <div class="language-java highlighter-rouge"><pre class="highlight"><code><span class="kd">public</span> <span class="nd">@interface</span> <span class="n">AlignItems</span> <span class="o">{</span>
@@ -302,7 +302,7 @@
 
 <p><img src="http://oodzkgz2y.bkt.clouddn.com/alignitems.png" alt="align-item" /></p>
 
-<h4 id="5-aligncontent">5. AlignContent</h4>
+<h4 id="aligncontent">5. AlignContent</h4>
 <p>AlignContent决定容器内多根轴线的对齐方式，如果只有一行，则该属性不生效，有6种取值。</p>
 
 <div class="language-java highlighter-rouge"><pre class="highlight"><code><span class="kd">public</span> <span class="nd">@interface</span> <span class="n">AlignContent</span> <span class="o">{</span>
@@ -320,7 +320,7 @@
 
 <p><img src="http://oodzkgz2y.bkt.clouddn.com/aligncontent.png" alt="align-content" /></p>
 
-<h3 id="layout的组成">Layout的组成</h3>
+<h3 id="layout-1">Layout的组成</h3>
 
 <p>FlexContainer容器里有多个FlexLine轴线，每个FlexLine由多个FlexItem组成。针对于每个子元素FlexItem来说，也有自己的一系列属性，包括以下几种：</p>
 
@@ -338,12 +338,12 @@
   <li>marginStart/marginEnd/marginLeft/marginRight/marginTop/marginBottom: 边距大小</li>
 </ul>
 
-<h3 id="flexcontainer通用容器接口">FlexContainer通用容器接口</h3>
+<h3 id="flexcontainer">FlexContainer通用容器接口</h3>
 <p>以上，由容器的组成FlexLine、FlexItem和容器的属性就构成了整个通用的可伸缩容器（FlexContainer），除此之外，FlexContainer作为FlexboxLayout和FlexboxLayoutManager的通用接口，也定义了一些相同的行为函数，包括<code class="highlighter-rouge">addView()</code>、<code class="highlighter-rouge">removeViewAt()</code>、<code class="highlighter-rouge">getFlexItemAt()</code>等，整个结构如下：</p>
 
 <p><img src="http://oodzkgz2y.bkt.clouddn.com/flexcontainer.png" alt="flexcontainer" /></p>
 
-<h2 id="flexboxlayout的实现过程">FlexboxLayout的实现过程</h2>
+<h2 id="flexboxlayout">FlexboxLayout的实现过程</h2>
 
 <div class="language-java highlighter-rouge"><pre class="highlight"><code><span class="kd">public</span> <span class="kd">class</span> <span class="nc">FlexboxLayout</span> <span class="kd">extends</span> <span class="n">ViewGroup</span> <span class="kd">implements</span> <span class="n">FlexContainer</span><span class="o">{</span>
   <span class="o">...</span>
@@ -615,7 +615,7 @@
 
 <p>至此，就完成了整个FlexLayout的工作流程。</p>
 
-<h2 id="recyclerview接入的实现过程">RecyclerView接入的实现过程</h2>
+<h2 id="recyclerview">RecyclerView接入的实现过程</h2>
 
 <p>关于对RecyclerView的支持，主要是通过扩展<code class="highlighter-rouge">RecyclerView.LayoutManager</code>来实现，最关键的类是<code class="highlighter-rouge">FlexboxLayoutManager</code>。同时，对于item之间的间隔线，也对<code class="highlighter-rouge">RecyclerView.ItemDecoration</code>进行了扩展，即<code class="highlighter-rouge">FlexboxItemDecoration</code>。</p>
 
@@ -627,7 +627,7 @@
   <li>canScrollVertically()/canScrollHorizontally(）</li>
 </ol>
 
-<h3 id="实现generatedefaultlayoutparams">实现generateDefaultLayoutParams（）</h3>
+<h3 id="generatedefaultlayoutparams">实现generateDefaultLayoutParams（）</h3>
 
 <div class="language-java highlighter-rouge"><pre class="highlight"><code><span class="kd">public</span> <span class="n">RecyclerView</span><span class="o">.</span><span class="na">LayoutParams</span> <span class="nf">generateDefaultLayoutParams</span><span class="o">()</span> <span class="o">{</span>
 	<span class="k">return</span> <span class="k">new</span> <span class="nf">LayoutParams</span><span class="o">(</span><span class="n">LayoutParams</span><span class="o">.</span><span class="na">WRAP_CONTENT</span><span class="o">,</span> <span class="n">LayoutParams</span><span class="o">.</span><span class="na">WRAP_CONTENT</span><span class="o">);</span>
@@ -641,7 +641,7 @@
 
 <p>我们看到，LayoutParams继承自<code class="highlighter-rouge">RecyclerView.LayoutParams</code>，并且实现了FlexItem接口，让每个子元素（即列表项）都具有其AlignSelf、flexGrow、flexShrink等通用属性。</p>
 
-<h2 id="实现onlayoutchildren">实现onLayoutChildren()</h2>
+<h2 id="onlayoutchildren">实现onLayoutChildren()</h2>
 
 <p>onLayoutChildren()方法是LayoutManager的入口，在RecyclerView初始化和数据源改变的时候都会被调用。它的整个功能类似于上述FlexboxLayout（ViewGroup）的<code class="highlighter-rouge">onLayout()</code>，实现定位的工作。</p>
 
@@ -771,7 +771,7 @@
 </code></pre>
 </div>
 
-<h3 id="实现canscrollverticallycanscrollhorizontally">实现canScrollVertically()/canScrollHorizontally(）</h3>
+<h3 id="canscrollverticallycanscrollhorizontally">实现canScrollVertically()/canScrollHorizontally(）</h3>
 
 <p>最后，需要扩展<code class="highlighter-rouge">canScrollVertically()/canScrollHorizontally(）</code>来实现滚动功能.</p>
 

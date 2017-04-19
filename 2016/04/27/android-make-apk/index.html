@@ -199,7 +199,7 @@
                 col-md-10 col-md-offset-1
                 post-container">
 
-                <h2 id="概述">概述</h2>
+                <h2 id="section">概述</h2>
 
 <p>今天主要讲一下Android程序的生成步骤，即Android打包成APK的流程。</p>
 
@@ -213,23 +213,23 @@
 
 <p><img src="https://raw.githubusercontent.com/Shinelw/shinelw.github.io/master/assets/build.png" alt="" /></p>
 
-<h2 id="打包流程">打包流程</h2>
+<h2 id="section-1">打包流程</h2>
 
-<h3 id="1-打包资源文件生成rjava文件">1. 打包资源文件，生成R.java文件</h3>
+<h3 id="rjava">1. 打包资源文件，生成R.java文件</h3>
 
 <p>打包资源的工具是<strong>aapt（The Android Asset Packaing Tool）</strong>，位于android-sdk/platform-tools目录下。在这个过程中，项目中的AndroidManifest.xml文件和布局文件XML都会编译，然后生成相应的R.jva。</p>
 
-<h3 id="2-处理aidl文件生成相应的java文件">2. 处理aidl文件，生成相应的Java文件</h3>
+<h3 id="aidljava">2. 处理aidl文件，生成相应的Java文件</h3>
 
 <p>这一过程中使用到的工具是<strong>aidl（Android Interface Definition Language）</strong>，即Android接口描述语言。位于android-sdk/platform-tools目录下。aidl工具解析接口定义文件然后生成相应的Java代码接口供程序调用。</p>
 
 <p>如果在项目没有使用到aidl文件，则可以跳过这一步。</p>
 
-<h3 id="3-编译项目源代码生成class文件">3. 编译项目源代码，生成class文件</h3>
+<h3 id="class">3. 编译项目源代码，生成class文件</h3>
 
 <p>项目中所有的Java代码，包括<em>R.java</em>和<em>.aidl</em>文件，都会变Java编译器（<strong>javac</strong>）编译成<em>.class</em>文件，生成的class文件位于工程中的bin/classes目录下。</p>
 
-<h3 id="4-转换所有的class文件生成classesdex文件">4. 转换所有的class文件，生成classes.dex文件</h3>
+<h3 id="classclassesdex">4. 转换所有的class文件，生成classes.dex文件</h3>
 
 <p><strong>dx</strong>工具生成可供Android系统Dalvik虚拟机执行的classes.dex文件，该工具位于android-sdk/platform-tools 目录下。</p>
 
@@ -237,19 +237,19 @@
 
 <p>dx工具的主要工作是将Java字节码转成成Dalvik字节码、压缩常量池、消除冗余信息等。</p>
 
-<h3 id="5-打包生成apk文件">5. 打包生成APK文件</h3>
+<h3 id="apk">5. 打包生成APK文件</h3>
 
 <p>所有没有编译的资源（如images等）、编译过的资源和<em>.dex</em>文件都会被<strong>apkbuilder</strong>工具打包到最终的<em>.apk</em>文件中。</p>
 
 <p>打包的工具<strong>apkbuilder</strong>位于 android-sdk/tools目录下。apkbuilder为一个脚本文件，实际调用的是android-sdk/tools/lib/sdklib.jar文件中的<strong>com.android.sdklib.build.ApkbuilderMain</strong>类。</p>
 
-<h3 id="6-对apk文件进行签名">6. 对APK文件进行签名</h3>
+<h3 id="apk-1">6. 对APK文件进行签名</h3>
 
 <p>一旦APK文件生成，它必须被签名才能被安装在设备上。</p>
 
 <p>在开发过程中，主要用到的就是两种签名的<strong>keystore</strong>。一种是用于调试的debug.keystore，它主要用于调试，在Eclipse或者Android Studio中直接run以后跑在手机上的就是使用的debug.keystore。另一种就是用于发布正式版本的keystore。</p>
 
-<h3 id="7-对签名后的apk文件进行对齐处理">7. 对签名后的APK文件进行对齐处理</h3>
+<h3 id="apk-2">7. 对签名后的APK文件进行对齐处理</h3>
 
 <p>如果你发布的apk是正式版的话，就必须对APK进行对齐处理，用到的工具是<strong>zipalign</strong>，它位于android-sdk/tools目录下。</p>
 
