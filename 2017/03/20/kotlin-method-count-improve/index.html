@@ -199,10 +199,10 @@
                 col-md-10 col-md-offset-1
                 post-container">
 
-                <h1 id="kotlin">Kotlin属性引发的方法数问题</h1>
+                <h1 id="kotlin属性引发的方法数问题">Kotlin属性引发的方法数问题</h1>
 <p>Kotlin最重要的一个优势就是简洁。说白了就是写的代码比Java来的少，所以很大程度上使用Kotlin开发会减少项目中的代码行数。然而，如果你觉得方法数肯定也减少的话，那就too young too simple了！首先，撇开引入Kotlin标准库的7000个方法数不谈，接下来我们来谈谈Kotlin属性带来的方法数问题。</p>
 
-<h2 id="section">方法数问题</h2>
+<h2 id="方法数问题">方法数问题</h2>
 
 <p>我们知道，与Java不同的是，Kotlin语言中不提供任何方法来定义裸字段。所有的var和var声明都创建的是一个属性。乍一看来，这是一个伟大的优点，它会自动为你生成getter/setter方法。当然，当你在定义属性变量的同时，
 它也允许你自行添加一个get或者set方法。</p>
@@ -372,7 +372,7 @@
 
 <p>那么，这时候我只想要完成和Java代码中一样的事并且不增加多余的方法数，该怎么办？</p>
 
-<h2 id="section-1">解决过程</h2>
+<h2 id="解决过程">解决过程</h2>
 
 <p>我们到Kotlin编译过程的最后阶段—目标代码生成，定位到PropertyCodegen类，如果生成属性相关代码。</p>
 
@@ -442,7 +442,7 @@
 
 <p>从代码我们可以看出，有三种情况会返回false，从而不生成getter/setter代码。我们来看这三种情况的实现以及功能验证。</p>
 
-<h3 id="constjvmfiled">情况一：const修饰或者@JvmFiled注解</h3>
+<h3 id="情况一const修饰或者jvmfiled注解">情况一：const修饰或者@JvmFiled注解</h3>
 
 <div class="language-java highlighter-rouge"><pre class="highlight"><code><span class="kd">public</span> <span class="kd">static</span> <span class="kt">boolean</span> <span class="nf">isConstOrHasJvmFieldAnnotation</span><span class="o">(</span><span class="nd">@NotNull</span> <span class="n">PropertyDescriptor</span> <span class="n">propertyDescriptor</span><span class="o">)</span> <span class="o">{</span>
         <span class="k">return</span> <span class="n">propertyDescriptor</span><span class="o">.</span><span class="na">isConst</span><span class="o">()</span> <span class="o">||</span> <span class="n">hasJvmFieldAnnotation</span><span class="o">(</span><span class="n">propertyDescriptor</span><span class="o">);</span>
@@ -508,7 +508,7 @@
 
 <p>果然，A和B均没有生成响应的getter/setter方法。</p>
 
-<h3 id="val">情况二：当属性类型为Val</h3>
+<h3 id="情况二当属性类型为val">情况二：当属性类型为Val</h3>
 
 <p>可想而知，当属性类型为val时，属性值则不可改变，所以只会生成getter访问方法，而不会生成setter方法。</p>
 
@@ -561,7 +561,7 @@
 </code></pre>
 </div>
 
-<h3 id="private">情况三： 权限访问设置为private</h3>
+<h3 id="情况三-权限访问设置为private">情况三： 权限访问设置为private</h3>
 
 <div class="language-java highlighter-rouge"><pre class="highlight"><code> <span class="kt">boolean</span> <span class="n">isDefaultAccessor</span> <span class="o">=</span> <span class="n">accessor</span> <span class="o">==</span> <span class="kc">null</span> <span class="o">||</span> <span class="o">!</span><span class="n">accessor</span><span class="o">.</span><span class="na">hasBody</span><span class="o">();</span>
  <span class="k">if</span> <span class="o">(</span><span class="n">Visibilities</span><span class="o">.</span><span class="na">isPrivate</span><span class="o">(</span><span class="n">descriptor</span><span class="o">.</span><span class="na">getVisibility</span><span class="o">()))</span> <span class="o">{</span>
@@ -569,8 +569,10 @@
         <span class="o">}</span>
 </code></pre>
 </div>
-<p>从代码可以看出，具体分为两种情形：
-1. 当属性的访问权限为<strong>Visibilities.isPrivate</strong>时，并且是默认访问器时，不自动生成访问器。</p>
+<p>从代码可以看出，具体分为两种情形：</p>
+<ol>
+  <li>当属性的访问权限为<strong>Visibilities.isPrivate</strong>时，并且是默认访问器时，不自动生成访问器。</li>
+</ol>
 
 <p>以下验证此种情况。</p>
 
@@ -620,7 +622,7 @@
 </div>
 <p>我们会发现很神奇的现象，等价成Java代码后，a字段不见了，但是生成了private访问权限的getter/setter。</p>
 
-<h2 id="section-2">总结</h2>
+<h2 id="总结">总结</h2>
 
 <p>通过分析Kotlin编译过程中目标代码生成的阶段，我们发现了几种不自动生成getter/setter访问器代码的情形。但是，对于一开始应用的场景，只有情况一最为合适。即：</p>
 

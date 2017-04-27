@@ -199,7 +199,7 @@
                 col-md-10 col-md-offset-1
                 post-container">
 
-                <h1 id="kotlin">Kotlin编译过程分析</h1>
+                <h1 id="kotlin编译过程分析">Kotlin编译过程分析</h1>
 
 <p>我们知道，Kotlin基于Java虚拟机（JVM），通过Kotlin编译器生成的JVM字节码与Java编译的字节码基本相同，也因此与Java可以完全兼容，并且语法更加简洁，让我对Kotlin的编译过程甚是好奇。一通Google之后，毫无收获，Kotlin作为一门新语言，绝大多数的资料都局限于它的用法和特性相关。幸好Kotlin所有源码都已开源，遂决定生啃之。</p>
 
@@ -211,7 +211,7 @@
 
 <p>上图是Java编译器的编译过程，正如它们俩完全兼容的特性一样，等分析完Kotlin的编译过程，你会发现，Kotlin和Java的编译过程也是很相似的。</p>
 
-<h2 id="section">1. 编译入口</h2>
+<h2 id="1-编译入口">1. 编译入口</h2>
 
 <p>整个Kotlin工程代码达到200多MB，面对如此巨大的项目，我们需要找一个入口来进行逐步深入。所以，我们从最简单直观的入手，来看一下Kotlin的编译命令：</p>
 
@@ -325,7 +325,7 @@
 </code></pre>
 </div>
 
-<h2 id="section-1">2. 编译过程</h2>
+<h2 id="2-编译过程">2. 编译过程</h2>
 
 <p>Kotlin的整个编译过程大致有以下环节：</p>
 
@@ -338,7 +338,7 @@
 
 <p>其中，我们把词法分析、语法分析、语义分析及中间代码生成称之为编译器前段，将源程序翻译成中间代码；目标代码生成称之为编译器后端，负责将中间代码转换生成目标代码，与目标语言有关的细节尽可能放在了后端。</p>
 
-<h3 id="section-2">2.1 词法分析</h3>
+<h3 id="21-词法分析">2.1 词法分析</h3>
 <p>词法分析是将源程序读入的字符序列，按照一定的规则转换成词法单元（Token）序列的过程。词法单元是语言中具有独立意义的最小单元，包括关键字、标识符、常数、运算符、界符等等。</p>
 
 <p>来看看Kotlin中划分的Token。</p>
@@ -412,7 +412,7 @@
 
 <p>将所有的Kotlin词法单元一一枚举出来并分组以后，就要进行词法分析了。Kotlin使用了第三方开源的<a href="http://www.jflex.de/">JFlex</a>作为词法分析器，并没有自己实现（当然，重复造轮子就是一件很愚蠢的事情了:)）。</p>
 
-<h4 id="jflexkotlinflex">2.1.1 定义JFlex词法分析配置文件Kotlin.flex</h4>
+<h4 id="211-定义jflex词法分析配置文件kotlinflex">2.1.1 定义JFlex词法分析配置文件Kotlin.flex</h4>
 <p>配置文件分为三个部分：</p>
 
  	- 用户代码：。
@@ -421,16 +421,16 @@
 
 <p>整个flex规范配置文件如下格式：</p>
 
-<p><code class="highlighter-rouge">
-用户代码
+<div class="highlighter-rouge"><pre class="highlight"><code>用户代码
 %%
 选项与声明
 %%
 词法规则
-</code>
-具体可看<a href="">Kotlin.flex</a>详细配置文件。</p>
+</code></pre>
+</div>
+<p>具体可看<a href="">Kotlin.flex</a>详细配置文件。</p>
 
-<h4 id="jetlexer">2.1.2 词法分析器_JetLexer</h4>
+<h4 id="212-词法分析器_jetlexer">2.1.2 词法分析器_JetLexer</h4>
 <p>JFlex会读取配置文件并生成一个词法分析器（扫描器），在Kotlin编译器中对应<strong>_JetLexer</strong></p>
 
 <div class="language-java highlighter-rouge"><pre class="highlight"><code><span class="cm">/**
@@ -505,7 +505,7 @@
 </code></pre>
 </div>
 
-<h3 id="section-3">2.2 语法分析</h3>
+<h3 id="22-语法分析">2.2 语法分析</h3>
 <p>语法分析的任务是在词法分析的基础上将单词序列组合成各类语法短语，如“程序”，“语句”，“表达式”等等,语法分析器将判断源程序在结构上是否正确。在语法分析过程中，会生成语法树（ST）/抽象语法树（AST）。</p>
 
 <p>Kotlin中定义了AST的数据结构，</p>
@@ -614,7 +614,7 @@
 
 <p><img src="https://github.com/Shinelw/shinelw.github.io/blob/master/assets/PsiBuilder.gif?raw=true" alt="" /></p>
 
-<h3 id="section-4">2.3 语义分析及中间代码生成</h3>
+<h3 id="23-语义分析及中间代码生成">2.3 语义分析及中间代码生成</h3>
 <p>语义分析的任务是检查抽象语法树AST的上下文相关属性，即检查源代码是否符合该编程语言的规范，比如变量类型定义是否正确，运算符是否匹配等等。</p>
 
 <p>举个例子：</p>
@@ -676,7 +676,7 @@
 </code></pre>
 </div>
 
-<h3 id="section-5">2.4 目标代码生成</h3>
+<h3 id="24-目标代码生成">2.4 目标代码生成</h3>
 
 <p>目标代码生成的任务，顾名思义，是将中间代码转换为目标代码，即JVM字节码，位于<strong>org.jetbrains.kotlin.codegen</strong>模块中。</p>
 
@@ -767,7 +767,7 @@
 
 <p>可以看到，Kotlin在目标代码生成环节做了更多的处理，在该环节实现了自动生成Getter、Setter的代码。</p>
 
-<h2 id="section-6">总结</h2>
+<h2 id="总结">总结</h2>
 
 <p>Kotlin的编译过程分析完了，当然很多细节的东西并没有深入研究，并且内容太大，不是一篇文章可以说的详尽的。</p>
 
